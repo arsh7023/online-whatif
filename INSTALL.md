@@ -5,13 +5,14 @@ It is assumed that you are proficient with Linux, including installing custom se
 ## Service dependencies
 
 We run WhatIf on the following infrustructure, which means it's well tested and known to run well on it.  If you know what you're doing, you can of course swap out any of these pieces for their equivalents.
-* A Linux OS, currently we test on Ubuntu 14.04 but most other current distributions should work.
+* A Linux OS, currently we test on Ubuntu 14.04 server but most other current distributions should work.
 * PostgreSQL 9.1 or higher with PostGIS extentions
 * Java and Tomcat application server
 * CouchDB 1.2 or higher
 * GeoServer 2.2 or higher
 * Apache HTTPD
 * [Workbenchauth](https://github.com/AURIN/workbenchauth)
+* Postfix MTA
 
 A valid SSL certificate and matching domain, while not required, make things less confusing for users as they won't have to click past any browser warnings
 
@@ -21,9 +22,15 @@ Install and setup the OS.  Make sure that you can access port 22, as we'll be us
 
 ### Installing Ubuntu from ISO
 
-If you're installing on a cloud instance, skip ahead to the next section.  If you're installing on VirtualBox or similar, make sure you have a way to ssh to the machine.  On VirtualBox a host-only network will work. First, add a new host-only network (File->Preferences->Network->Host-only Networks->Add host only network), then attach your VM to it (Right click on your VM->Settings->Network->Adapter 2->Enable Network Adapter, Attached to: Host-only Adapter).  I'm going to assume that you're using the ubuntu-server flavour.
+If you're installing on a cloud instance, skip ahead to the next section.  If you're installing on VirtualBox or similar, make sure you have a way to ssh to the machine.  On VirtualBox a host-only network will work. First, add a new host-only network:
 
-When installing Ubuntu from an ISO, set things up like this:
+* File -> Preferences -> Network -> Host-only Networks -> Add host only network
+
+Then attach your VM to it
+
+* Right click on your VM -> Settings -> Network -> Adapter 2 -> Enable Network Adapter, Attached to: Host-only Adapter
+
+Download and install from the ubuntu-server iso.  When installing Ubuntu from an iso file, set things up like this:
 
 * Configure the location and keyboard settings to your liking.
 * Set a host name (I'll use "whatif-demo" for demonstration purposes).
@@ -139,9 +146,7 @@ Now set up an admin user by logging in to the web interface at [http://whatif-de
 
 	exit
 
-# XXX Need section on how to install demo data
-
-**Deploy geoserver on Tomcat**
+### Deploy geoserver on Tomcat
 
 Update the links below to get the latest stable version from http://geoserver.org/
 
@@ -160,7 +165,7 @@ Visit [http://whatif-demo:8080/geoserver/](http://whatif-demo:8080/geoserver/) i
 
 	/var/lib/tomcat7/webapps/geoserver/data/security/usergroup/default/users.xml
 
-* Create a new Workspace called "whatif" with the namespace URI "https://dev.aurin.org.au/whatif"
+* Create a new Workspace called "whatif" with the namespace URI "https://whatif-demo/whatif"
 * Create a new Store called "whatifStore":
 	* Datastore Type: PostGIS
 	* Workspace: whatif
@@ -172,6 +177,7 @@ Visit [http://whatif-demo:8080/geoserver/](http://whatif-demo:8080/geoserver/) i
 	* Password: (password from above)
 	* Expose Primary Keys: unticked
 	* Estimated Extends: unticked
+	* Support on the fly geometry simplification: unticked
 
 Other options are left at default settings
 
@@ -234,6 +240,16 @@ Add the following lines:
        	ProxyPass /workbenchauth ajp://localhost:8009/workbenchauth
        	ProxyPassReverse /workbenchauth ajp://localhost:8009/workbenchauth
 
+When restarting Apache, the following warning can safely be ignored:
+
+	whatif@whatif-demo:~$ sudo service apache2 restart
+	 * Restarting web server apache2
+        AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.1.1. Set the 'ServerName' directive globally to suppress this message
+
+However, it can be suppressed by adding the following line to /etc/apache2/apache2.conf:
+
+	ServerName whatif-demo
+
 ### Optional: Set up a valid SSL certificate
 
 	A valid SSL certificate will allow you to avoid SSL certificate warnings in your browser.  WhatIf will work without this for testing purposes.  By default, ubuntu installations of Apache2 will provide a self-signed certificate.
@@ -244,6 +260,10 @@ Add the following lines:
 	sudo chmod go-rwx /etc/ssl/private/aurin.key
 	sudo vim /etc/apache2/sites-enabled/default-ssl # update the SSLCertificateFile, SSLCertificateKeyFile and SSLCertificateChainFile entries to point to the new files
 	sudo service apache2 restart
+
+### A note on Tomcat and Self Signed Certificates
+
+XXX Write this section
 
 ### Configure Tomcat
 
@@ -462,9 +482,6 @@ Allow the dev machine to be able to talk to github account.  If you're cloning f
 
 ### Clone the source and build
 
-XXX Need to change the git URLs after open-sourcing is complete.
-XXX Need to check that maven can resolve dependencies from outside the university network
-
 	mkdir wd && cd wd
 	git clone git@github.com:AURIN/workbenchauth.git
 	git clone git@github.com:AURIN/online-whatif.git
@@ -520,8 +537,7 @@ You should now be able to [log in to whatif](https://whatif-demo/whatif/login). 
 
 Note that this documentation is only required if you wish to contribute to WhatIf.  It may also be out of date.
 
-There is extensive, if somewhat out of date documentation of the API at http://wiki.aurin.org.au/display/ATD/What+If+Analysis+API
-XXX ^ We need to migrate this to somewhere public.
+XXX Need to add reference on how to access/generate the API documentation.
 
 ### Javadocs
 
