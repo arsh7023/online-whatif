@@ -1,0 +1,226 @@
+{
+   "label": "manualdemandScenarioTestId",
+   "docType": "ManualDemandScenario",
+   "projectId": "DemonstrationTestID",
+   "manualAreaRequirements": [
+       {
+           "allocationLUId": "f25dc90940cfb795957fcb9b9d030762",
+				   "allocationLULabel": "Industrial",
+           "requiredArea": 200,
+           "projection": {
+               "year": 2005,
+               "label": "2005"
+           }
+       },
+       {
+           "allocationLUId": "f25dc90940cfb795957fcb9b9d030762",
+				   "allocationLULabel": "Industrial",       
+           "requiredArea": 300,
+           "projection": {
+               "year": 2010,
+               "label": "2010"
+           }
+       },
+       {
+           "allocationLUId": "f25dc90940cfb795957fcb9b9d030762",
+				   "allocationLULabel": "Industrial",       
+           "requiredArea": 400,
+           "projection": {
+               "year": 2015,
+               "label": "2015"
+           }
+       },
+       {
+					 "allocationLUId": "f25dc90940cfb795957fcb9b9d035efd",
+    			 "allocationLULabel": "Local Retail",
+           "requiredArea": 500,
+           "projection": {
+               "year": 2005,
+               "label": "2005"
+           }
+       }, 
+       {
+					 "allocationLUId": "f25dc90940cfb795957fcb9b9d035efd",
+    			 "allocationLULabel": "Local Retail",
+           "requiredArea": 600,
+           "projection": {
+               "year": 2010,
+               "label": "2010"
+           }
+       },  
+       {
+					 "allocationLUId": "f25dc90940cfb795957fcb9b9d035efd",
+    			 "allocationLULabel": "Local Retail",
+           "requiredArea": 700,
+           "projection": {
+               "year": 2015,
+               "label": "2015"
+           }
+       } 
+   ]
+}
+/////demand config works
+
+
+{
+    "docType": "DemandConfig",
+    "baseYear": 2014,
+    "totalPopulationFeatureFieldName": "UFI",
+    "numberOfHouseholdsFeatureFieldName": "UFI",
+    "numberOfHousingUnitsFeatureFieldName": "UFI",
+    "groupQuartersPopulationFeatureFieldName": "UFI",
+    "projections": [
+        {
+            "year": "2005",
+            "label": "2005"
+        },
+        {
+            "year": "2010",
+            "label": "2010"
+        }
+    ],
+    "sectors": [
+        {
+            "label": "lbl1",
+            "code": "c1",
+            "featureFieldName": "UFI",
+            "associatedALUs": {
+                "176bf47f1c37cd08814663e76b008a79": "Commercial",
+                "176bf47f1c37cd08814663e76b008c0f": "Education"
+            }
+        }
+    ],
+    "demographicTrends": [
+        {
+            "label": "Growth Trend",
+            "demographicData": [
+                {
+                    "@class": ".ResidentialDemographicData",
+                    "projectionLabel": "2005",
+                    "totalPopulation": 357363122962432,
+                    "housingUnits": 348987424768,
+                    "gQPopulation": 3250198669434,
+                    "averageHouseholdSize": 1014.6867742538441,
+                    "households": 348987424768,
+                    "vacantLand": null
+                },
+                {
+                    "@class": ".ResidentialDemographicData",
+                    "projectionLabel": "2010",
+                    "totalPopulation": 357363122962432,
+                    "housingUnits": 348987424768,
+                    "gQPopulation": 3250198669434,
+                    "averageHouseholdSize": 1014.6867742538441,
+                    "households": 348987424768,
+                    "vacantLand": null
+                },
+                {
+                    "@class": ".EmploymentDemographicData",
+                    "projectionLabel": "2005",
+                    "sectorLabel": "lbl1",
+                    "employees": 10
+                },
+                {
+                    "@class": ".EmploymentDemographicData",
+                    "projectionLabel": "2010",
+                    "sectorLabel": "lbl1",
+                    "employees": 20
+                }
+            ]
+        }
+    ],
+    "localJurisdictions": [],
+    "currentDemographic": {
+     },
+    "residentialPastTrendInfos": [],
+    "employmentPastTrendInfos": [],
+    "employmentGrowthRates": [],
+    "includeTrends": true
+}
+
+
+/////////
+
+{
+    "docType": "DemandConfig",
+    "baseYear": 2014,
+    "totalPopulationFeatureFieldName": "UFI",
+    "numberOfHouseholdsFeatureFieldName": "UFI",
+    "numberOfHousingUnitsFeatureFieldName": "UFI",
+    "groupQuartersPopulationFeatureFieldName": "UFI",
+    "projections": [
+        {
+            "year": "2005",
+            "label": "2005"
+        },
+        {
+            "year": "2010",
+            "label": "2010"
+        }
+    ],
+    "sectors": [
+        {
+            "label": "lbl1",
+            "code": "c1",
+            "featureFieldName": "UFI",
+            "associatedALUs": {
+                "176bf47f1c37cd08814663e76b008a79": "Commercial",
+                "176bf47f1c37cd08814663e76b008c0f": "Education"
+            }
+        }
+    ],
+    "demographicTrends": [
+        {
+            "label": "Growth Trend",
+            "demographicData": [
+                {
+                    "@class": ".ResidentialDemographicData",
+                    "projectionLabel": "2005",
+                    "totalPopulation": 357363122962432,
+                    "housingUnits": 348987424768,
+                    "gQPopulation": 3250198669434,
+                    "averageHouseholdSize": 1014.6867742538441,
+                    "households": 348987424768,
+                    "vacantLand": null
+                },
+                {
+                    "@class": ".ResidentialDemographicData",
+                    "projectionLabel": "2010",
+                    "totalPopulation": 357363122962432,
+                    "housingUnits": 348987424768,
+                    "gQPopulation": 3250198669434,
+                    "averageHouseholdSize": 1014.6867742538441,
+                    "households": 348987424768,
+                    "vacantLand": null
+                },
+                {
+                    "@class": ".EmploymentDemographicData",
+                    "projectionLabel": "2005",
+                    "sectorLabel": "lbl1",
+                    "employees": 10
+                },
+                {
+                    "@class": ".EmploymentDemographicData",
+                    "projectionLabel": "2010",
+                    "sectorLabel": "lbl1",
+                    "employees": 20
+                }
+            ]
+        }
+    ],
+    "localJurisdictions": [],
+    "currentDemographic": {
+       "residentialCurrentData" :[],
+       "employmentCurrentDatas": [
+           {
+               "sectorLabel": "Utilities",
+               "employees": 63
+           }
+       ]
+      
+     },
+    "residentialPastTrendInfos": [],
+    "employmentPastTrendInfos": [],
+    "employmentGrowthRates": [],
+    "includeTrends": true
+}

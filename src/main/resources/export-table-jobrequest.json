@@ -1,0 +1,23 @@
+{
+    "datasetParams": {
+        "name": "changeme",
+        "filter": {
+            "type": "tabular",
+            "inGeoJsonFormat": true,
+            "srsName": "EPSG:4283"
+        }
+    },
+    "dataSourceParams": {
+        "type": "NONGEO_RDBMS",
+        "username": "user",
+        "password": "passwd",
+        "dbName": "changeme",
+        "schema": "changeme",
+        "port": "changeme",
+        "host": "changeme",
+        "availability": true,
+        "validateConnection": true,
+        "dbType": "postgresql"
+    },
+    "dataStoreURI": "changeme"
+}

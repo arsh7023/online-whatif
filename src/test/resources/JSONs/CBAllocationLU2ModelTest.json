@@ -1,0 +1,15 @@
+{
+   "_id": "5081493ce554944ae1f9fa66482ac02b",
+   "_rev": "1-88c666388427037998bc3cceea6ba280",
+   "label": "Low Density Res.",
+   "docType": "AllocationLU",
+   "projectId": "5081493ce554944ae1f9fa664829a80c",
+   "featureFieldName": "1.0",
+   "groupQuarters": false,
+   "newLU": false,
+   "local": false,
+   "builtUp": false,
+   "notDevelopable": false,
+   "notDefined": false,
+   "newPreservation": false
+}

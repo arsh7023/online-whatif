@@ -1,0 +1,33 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite verbose="1" name="WhatIfSuite">
+	<test name="suite1">
+		<groups>
+			<run>
+				<include name="jpa" />
+				<include name="setup" />
+				<include name="database" />
+				<include name="service" />
+				<include name="demand" />
+				<include name="suitability" />
+				<include name="allocation" />
+				<include name="integration" />
+				<!-- <exclude name="integration" /> -->
+				<exclude name="not-yet" />
+			</run>
+			<dependencies>
+				<group name="database" depends-on="jpa" />
+				<group name="service" depends-on="jpa database" />
+				<group name="integration" depends-on="service" />
+			</dependencies>
+		</groups>
+		<packages>
+			<package name="au.org.aurin.wif.*" />
+<!-- 			<package name="au.org.aurin.wif.repo.*" /> -->
+<!-- 			<package name="au.org.aurin.wif.suitability.*" /> -->
+		</packages>
+
+		<!-- <classes> -->
+		<!-- <class name="au.org.aurin.wif.svc.FactorServiceTest" /> -->
+		<!-- </classes> -->
+	</test>
+</suite>

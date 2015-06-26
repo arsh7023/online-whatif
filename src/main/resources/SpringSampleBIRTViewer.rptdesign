@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.23" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 4.3.0.v201306041519 Build &lt;4.3.0.v20130611-1045></property>
+    <property name="units">in</property>
+    <property name="iconFile">/templates/blank_report.gif</property>
+    <property name="bidiLayoutOrientation">ltr</property>
+    <data-sources>
+        <script-data-source name="Data Source" id="53"/>
+    </data-sources>
+    <data-sets>
+        <script-data-set name="Data Set" id="34">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">0</property>
+                    <property name="name">Customer</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">Favorite</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">Color</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">sulabel</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">sutotal</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">Customer</property>
+                    <text-property name="displayName">Customer</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Favorite</property>
+                    <text-property name="displayName">Favorite</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Color</property>
+                    <text-property name="displayName">Color</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">sulabel</property>
+                    <text-property name="displayName">sulabel</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">sutotal</property>
+                    <text-property name="displayName">sutotal</text-property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">Customer</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">Favorite</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">Color</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">sulabel</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">sutotal</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Data Source</property>
+            <method name="open"><![CDATA[
+            importPackage(Packages.org.springframework.web.context);
+					  importPackage(Packages.org.springframework.web.context.support);
+					  importPackage(Packages.java.util,Packages.java.net,Packages.javax.servlet.http);
+					  favoritesClass = reportContext.getHttpServletRequest().getBean("BirtReport");
+
+						favorites = favoritesClass.data;
+						totalrows = favorites.size();
+						currentrow = 0;]]></method>
+            <method name="fetch"><![CDATA[if( currentrow >= totalrows ){
+							return( false );
+						}
+						var favrow = favorites.get(currentrow);
+						
+						
+						var Customer = favrow[0];
+						var Favorite = favrow[1];
+						var Color = favrow[2];
+						var sulabel = favrow[3];
+						var sutotal = favrow[4];
+						
+						row["Customer"]=Customer;
+						row["Favorite"]=Favorite;
+						row["Color"]=Color
+						row["sulabel"]=sulabel
+						row["sutotal"]=sutotal
+						
+						currentrow = currentrow + 1;
+						return ( true );]]></method>
+            <method name="close"><![CDATA[favoritesClass = null;
+						favorites = null;]]></method>
+        </script-data-set>
+    </data-sets>
+    <styles>
+        <style name="report" id="4">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">10pt</property>
+        </style>
+        <style name="crosstab" id="5">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="crosstab-cell" id="6">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="table-header" id="8">
+            <property name="backgroundColor">#6078BF</property>
+            <property name="fontFamily">"Arial"</property>
+            <property name="fontSize">small</property>
+            <property name="fontWeight">bold</property>
+            <property name="color">#FFFFFF</property>
+            <property name="paddingTop">0px</property>
+            <property name="paddingLeft">0px</property>
+            <property name="paddingBottom">0px</property>
+            <property name="paddingRight">0px</property>
+        </style>
+        <style name="table-footer" id="9">
+            <property name="backgroundColor">#6078BF</property>
+            <property name="fontFamily">"Arial"</property>
+            <property name="fontSize">small</property>
+            <property name="fontWeight">bold</property>
+            <property name="color">#FFFFFF</property>
+            <property name="paddingTop">0px</property>
+            <property name="paddingLeft">0px</property>
+            <property name="paddingBottom">0px</property>
+            <property name="paddingRight">0px</property>
+        </style>
+        <style name="table-detail" id="10">
+            <property name="backgroundColor">#E6ECFF</property>
+            <property name="fontFamily">"Arial"</property>
+            <property name="fontSize">x-small</property>
+            <property name="fontWeight">bold</property>
+            <property name="color">#000080</property>
+            <property name="paddingTop">0px</property>
+            <property name="paddingLeft">0px</property>
+            <property name="paddingBottom">0px</property>
+            <property name="paddingRight">0px</property>
+        </style>
+        <style name="table-group-header-1" id="11">
+            <property name="backgroundColor">#809FFF</property>
+            <property name="fontFamily">"Arial"</property>
+            <property name="fontSize">small</property>
+            <property name="fontWeight">bold</property>
+            <property name="color">#FFFFFF</property>
+            <property name="paddingTop">0px</property>
+            <property name="paddingLeft">0px</property>
+            <property name="paddingBottom">0px</property>
+            <property name="paddingRight">0px</property>
+        </style>
+        <style name="table-group-footer-1" id="12">
+            <property name="backgroundColor">#808080</property>
+            <property name="fontFamily">"Arial"</property>
+            <property name="fontSize">small</property>
+            <property name="fontWeight">bold</property>
+            <property name="color">#FFFFFF</property>
+            <property name="paddingTop">0px</property>
+            <property name="paddingLeft">0px</property>
+            <property name="paddingBottom">0px</property>
+            <property name="paddingRight">0px</property>
+        </style>
+        <style name="special-header" id="13">
+            <property name="backgroundColor">#6078BF</property>
+            <property name="fontFamily">"Arial"</property>
+            <property name="fontSize">medium</property>
+            <property name="fontWeight">bold</property>
+            <property name="color">#FFFFFF</property>
+            <property name="paddingTop">0px</property>
+            <property name="paddingLeft">0px</property>
+            <property name="paddingBottom">0px</property>
+            <property name="paddingRight">0px</property>
+        </style>
+        <style name="crosstab-detail" id="14">
+            <property name="backgroundColor">#E6ECFF</property>
+            <property name="fontFamily">"Arial"</property>
+            <property name="fontSize">x-small</property>
+            <property name="fontWeight">bold</property>
+            <property name="color">#000080</property>
+            <property name="paddingTop">0px</property>
+            <property name="paddingLeft">0px</property>
+            <property name="paddingBottom">0px</property>
+            <property name="paddingRight">0px</property>
+        </style>
+        <style name="crosstab-header" id="15">
+            <property name="backgroundColor">#6078BF</property>
+            <property name="fontFamily">"Arial"</property>
+            <property name="fontSize">small</property>
+            <property name="fontWeight">bold</property>
+            <property name="color">#FFFFFF</property>
+            <property name="paddingTop">0px</property>
+            <property name="paddingLeft">0px</property>
+            <property name="paddingBottom">0px</property>
+            <property name="paddingRight">0px</property>
+        </style>
+        <style name="mydata" id="16">
+            <property name="color">orange</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <page-footer>
+                <text id="3">
+                    <property name="contentType">html</property>
+                    <text-property name="content"><![CDATA[<value-of>new Date()</value-of>]]></text-property>
+                </text>
+            </page-footer>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <label id="78">
+            <property name="fontSize">large</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">center</property>
+            <text-property name="text">Suitability Report</text-property>
+        </label>
+        <label id="89">
+            <property name="fontWeight">bold</property>
+            <text-property name="text">Suitability Name:</text-property>
+        </label>
+        <data name="Suitability Name" id="82">
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">Column Binding</property>
+                    <text-property name="displayName">Suitabulity ID:</text-property>
+                    <expression name="expression" type="javascript">importPackage(Packages.org.springframework.web.context);
+importPackage(Packages.org.springframework.web.context.support);
+importPackage(Packages.java.util,Packages.java.net,Packages.javax.servlet.http);
+reportContext.getHttpServletRequest().getBean("BirtReport").getScenarioName();</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+            </list-property>
+            <property name="resultSetColumn">Column Binding</property>
+        </data>
+        <label id="80">
+            <property name="fontWeight">bold</property>
+            <text-property name="text">Project Name: </text-property>
+        </label>
+        <data id="88">
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">Column Binding</property>
+                    <expression name="expression" type="javascript">importPackage(Packages.org.springframework.web.context);
+importPackage(Packages.org.springframework.web.context.support);
+importPackage(Packages.java.util,Packages.java.net,Packages.javax.servlet.http);
+reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+            </list-property>
+            <property name="resultSetColumn">Column Binding</property>
+        </data>
+        <table id="59">
+            <property name="fontSize">12pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="dataSet">Data Set</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">Column Binding</property>
+                    <expression name="expression" type="javascript">dataSetRow["Customer"]</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_1</property>
+                    <expression name="expression" type="javascript">dataSetRow["Favorite"]</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_2</property>
+                    <expression name="expression" type="javascript">BirtMath.round(dataSetRow["Color"],4)</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_3</property>
+                    <expression name="expression" type="javascript">dataSetRow["sulabel"]</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_4</property>
+                    <expression name="expression" type="javascript">" Total Area : " + BirtMath.round(dataSetRow["sutotal"],4)</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_5</property>
+                    <expression name="expression" type="javascript">dataSetRow["sulabel"]</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_6</property>
+                    <expression name="expression" type="javascript">dataSetRow["sulabel"]</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+            </list-property>
+            <column id="72"/>
+            <column id="73"/>
+            <column id="74"/>
+            <header>
+                <row id="60">
+                    <cell id="61">
+                        <label id="85">
+                            <text-property name="text">Suitability Category</text-property>
+                        </label>
+                    </cell>
+                    <cell id="62">
+                        <label id="86">
+                            <text-property name="text">Suitability Score</text-property>
+                        </label>
+                    </cell>
+                    <cell id="63">
+                        <label id="87">
+                            <text-property name="text">Area</text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <group id="124">
+                <property name="groupName">NewTableGroup1</property>
+                <expression name="keyExpr" type="javascript">row["Column Binding_3"]</expression>
+                <structure name="toc">
+                    <expression name="expressionValue" type="javascript">row["Column Binding_3"]</expression>
+                </structure>
+                <property name="hideDetail">false</property>
+                <header>
+                    <row id="125">
+                        <cell id="126">
+                            <data id="145">
+                                <property name="resultSetColumn">Column Binding_6</property>
+                            </data>
+                        </cell>
+                        <cell id="127"/>
+                        <cell id="128"/>
+                    </row>
+                </header>
+                <footer>
+                    <row id="129">
+                        <cell id="130">
+                            <label id="138">
+                                <text-property name="text"></text-property>
+                            </label>
+                        </cell>
+                        <cell id="131"/>
+                        <cell id="132">
+                            <data id="134">
+                                <property name="resultSetColumn">Column Binding_4</property>
+                            </data>
+                        </cell>
+                    </row>
+                </footer>
+            </group>
+            <detail>
+                <row id="64">
+                    <property name="height">0.4861111111111111in</property>
+                    <cell id="65">
+                        <data id="75">
+                            <property name="textAlign">center</property>
+                            <property name="resultSetColumn">Column Binding</property>
+                        </data>
+                    </cell>
+                    <cell id="66">
+                        <data id="76">
+                            <property name="textAlign">center</property>
+                            <property name="resultSetColumn">Column Binding_1</property>
+                        </data>
+                    </cell>
+                    <cell id="67">
+                        <data id="77">
+                            <property name="textAlign">center</property>
+                            <property name="resultSetColumn">Column Binding_2</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="139">
+                    <property name="height">0.4583333333333333in</property>
+                    <cell id="140"/>
+                    <cell id="141"/>
+                    <cell id="142"/>
+                </row>
+            </footer>
+        </table>
+        <text-data id="81">
+            <property name="contentType">html</property>
+        </text-data>
+    </body>
+</report>

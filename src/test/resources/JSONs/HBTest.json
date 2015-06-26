@@ -1,0 +1,492 @@
+{
+   "_id": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+   "_rev": "109-dea04a88e02b9fdd6437709730dd155e",
+   "name": "test Marcos",
+   "srs": "EPSG:28356",
+   "analysisOption": "Suitability",
+   "originalUnits": "metric",
+   "uazDataStoreURI": "https://dev-api.aurin.org.au/datastore-new/datasets/c3366b3d73e58b0a32cb3bdd4a66b2ca",
+   "existingLUAttributeName": "ELU_FINAL",
+   "docType": "WifProject",
+   "studyArea": "heavy",
+   "bbox": "[432232.3450853302,7178724.201424266,536330.291805659,7268331.891592883]",
+   "ready": true,
+   "setupCompleted": true,
+   "geometryColumnName": "geometry",
+   "creationDate": "2013-07-08T01:09:34.296+0000",
+   "modifiedDate": "2013-07-09T06:52:39.844+0000",
+   "roleOwner": "aurin",
+   "suitabilityConfig": {
+       "unifiedAreaZone": "wif_c3366b3d73e58b0a32cb3bdd4a66bd6e",
+       "notDevelopableScore": -100,
+       "notConvertableScore": -1,
+       "notSuitableScore": 0,
+       "suitabilityColumns": [
+           "flooding",
+           "score_industry",
+           "slope",
+           "score_residential",
+           "ELU_FINAL",
+           "score_conservation",
+           "agri_land"
+       ],
+       "suitabilityCategories": [
+           "Medium",
+           "Low",
+           "Medium Low",
+           "Medium High",
+           "High"
+       ],
+       "scoreColumns": [
+           "score_industry",
+           "score_residential",
+           "score_conservation"
+       ]
+   },
+   "allocationLandUses": [
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a672ad6",
+           "label": "Park Residential",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Park Residential",
+           "totalArea": 0,
+           "landUseFunction": "NOT_DEVELOPABLE_OR_UNDEFINED",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "1-f8d07bf18a4fe147bb0617bba7aa5be1",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a6706f5",
+           "label": "General Industry",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "General Industry",
+           "totalArea": 0,
+           "landUseFunction": "LBCS_2XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "2-d5be39e850d69938647f1314711c8178",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a67395c",
+           "label": "Rural",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Rural",
+           "totalArea": 0,
+           "landUseFunction": "NOT_DEVELOPABLE_OR_UNDEFINED",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "1-620bbeae5c2d47fa3bebf5a4f9a3a9d3",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a675e43",
+           "label": "Undefined",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Undefined",
+           "totalArea": 0,
+           "landUseFunction": "NOT_DEVELOPABLE_OR_UNDEFINED",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": true,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "2-c10d0349c2c1b97e5429cc9e434c79d5",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a673487",
+           "label": "Res Low Density",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Res Low Density",
+           "totalArea": 0,
+           "landUseFunction": "LBCS_1XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "2-7e24e2c39568ec62f2355dbd0a2d79ca",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a66f949",
+           "label": "Commercial",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Commercial",
+           "totalArea": 0,
+           "landUseFunction": "NOT_DEVELOPABLE_OR_UNDEFINED",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "1-72bec230f0ba4b1e971229e4415a0f0d",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a675291",
+           "label": "Social Infrastructure",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Social Infrastructure",
+           "totalArea": 0,
+           "landUseFunction": "NOT_DEVELOPABLE_OR_UNDEFINED",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "1-8d08a5dbe662f270447e33da5dcedd74",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a6769ef",
+           "label": "Undeveloped",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Undeveloped",
+           "totalArea": 0,
+           "landUseFunction": "NOT_DEVELOPABLE_OR_UNDEFINED",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "2-2bf2be716767a102e9d04dbd482b48af",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a671bbf",
+           "label": "Local Shopping",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Local Shopping",
+           "totalArea": 0,
+           "landUseFunction": "NOT_DEVELOPABLE_OR_UNDEFINED",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "1-e14e904ed5edb8d6ee7c3384ab129f9e",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a66fb0d",
+           "label": "Conservation",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Conservation",
+           "totalArea": 0,
+           "landUseFunction": "NOT_DEVELOPABLE_OR_UNDEFINED",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": true,
+           "_rev": "4-b776d902c3bf314eb9f94e137d8dddec",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a670c27",
+           "label": "Light Industry",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Light Industry",
+           "totalArea": 0,
+           "landUseFunction": "LBCS_2XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "2-de2a2f87218541f3ee74c851a2f4ecae",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a6728cc",
+           "label": "Open Space",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Open Space",
+           "totalArea": 0,
+           "landUseFunction": "NOT_DEVELOPABLE_OR_UNDEFINED",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "1-e9509d131a569317612fbad504acc800",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a673863",
+           "label": "Road-rail-water",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Road-rail-water",
+           "totalArea": 0,
+           "landUseFunction": "NOT_DEVELOPABLE_OR_UNDEFINED",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": true,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-c98e20711d1831aaefda0326efa1e7e1",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a673633",
+           "label": "Res Med Density",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Res Med Density",
+           "totalArea": 0,
+           "landUseFunction": "LBCS_1XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "2-fa382c30dace77e6d279e3dd8b44e215",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a67469c",
+           "label": "Rural Residential",
+           "docType": "AllocationLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "Rural Residential",
+           "totalArea": 0,
+           "landUseFunction": "LBCS_1XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "2-9841c44d258d01d244510126bdc6f4c7",
+           "sectors": [
+           ]
+       }
+   ],
+   "suitabilityLUs": [
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a679ab4",
+           "docType": "SuitabilityLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "label": "Industry",
+           "featureFieldName": "score_industry",
+           "_rev": "3-cd6398bffca53d01a70797263c96261e",
+           "associatedALUs": {
+               "c3366b3d73e58b0a32cb3bdd4a6706f5": "General Industry",
+               "c3366b3d73e58b0a32cb3bdd4a670c27": "Light Industry"
+           }
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a67a468",
+           "docType": "SuitabilityLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "label": "Conservation",
+           "featureFieldName": "score_conservation",
+           "_rev": "6-4a2578446f6e68c9334b05f4a244beaa",
+           "associatedALUs": {
+               "c3366b3d73e58b0a32cb3bdd4a66fb0d": "Conservation"
+           }
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a678bf2",
+           "docType": "SuitabilityLU",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "label": "Residential",
+           "featureFieldName": "score_residential",
+           "_rev": "9-da8b20a9064317a9f75a40902f8a09cb",
+           "associatedALUs": {
+               "c3366b3d73e58b0a32cb3bdd4a673487": "Res Low Density",
+               "c3366b3d73e58b0a32cb3bdd4a6728cc": "Open Space",
+               "c3366b3d73e58b0a32cb3bdd4a673633": "Res Med Density",
+               "c3366b3d73e58b0a32cb3bdd4a670c27": "Light Industry"
+           }
+       }
+   ],
+   "factors": [
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a67be19",
+           "label": "flooding",
+           "docType": "Factor",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "FLOODING",
+           "factorTypes": [
+               {
+                   "_id": "c3366b3d73e58b0a32cb3bdd4a67cdc2",
+                   "label": "Outside Plain",
+                   "value": "Outside Plain",
+                   "docType": "FactorType",
+                   "factorId": "c3366b3d73e58b0a32cb3bdd4a67be19",
+                   "naturalOrder": 1,
+                   "_rev": "1-71881f1719866342506a642a776c0de9"
+               },
+               {
+                   "_id": "c3366b3d73e58b0a32cb3bdd4a67c181",
+                   "label": "Inside Plain",
+                   "value": "Inside Plain",
+                   "docType": "FactorType",
+                   "factorId": "c3366b3d73e58b0a32cb3bdd4a67be19",
+                   "naturalOrder": 0,
+                   "_rev": "1-698b555b2f49681bc2ecdb48834c3eba"
+               }
+           ],
+           "_rev": "3-e1427ce1b757a45ef4e14eba20ca4612"
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a67a968",
+           "label": "slopes",
+           "docType": "Factor",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "SLOPE",
+           "factorTypes": [
+               {
+                   "_id": "c3366b3d73e58b0a32cb3bdd4a67b743",
+                   "label": "0-5",
+                   "value": "0-5",
+                   "docType": "FactorType",
+                   "factorId": "c3366b3d73e58b0a32cb3bdd4a67a968",
+                   "naturalOrder": 0,
+                   "_rev": "1-7399c2eb34b2de00c6b4255d982a8ae7"
+               },
+               {
+                   "_id": "c3366b3d73e58b0a32cb3bdd4a67b1f7",
+                   "label": "0",
+                   "value": "0",
+                   "docType": "FactorType",
+                   "factorId": "c3366b3d73e58b0a32cb3bdd4a67a968",
+                   "naturalOrder": 3,
+                   "_rev": "1-867b5ed075f9fe546c126a7d1fbfa765"
+               },
+               {
+                   "_id": "c3366b3d73e58b0a32cb3bdd4a67baff",
+                   "label": "10-15",
+                   "value": "10-15",
+                   "docType": "FactorType",
+                   "factorId": "c3366b3d73e58b0a32cb3bdd4a67a968",
+                   "naturalOrder": 1,
+                   "_rev": "1-ca5ea27ed0656394d58fcd0509c9def1"
+               },
+               {
+                   "_id": "c3366b3d73e58b0a32cb3bdd4a67b5b4",
+                   "label": "5-10",
+                   "value": "5-10",
+                   "docType": "FactorType",
+                   "factorId": "c3366b3d73e58b0a32cb3bdd4a67a968",
+                   "naturalOrder": 2,
+                   "_rev": "1-ae1a42ffa5b70b78cff1c41402208b66"
+               }
+           ],
+           "_rev": "3-faba11c8d3584adaa3304fccaeba9d7f"
+       },
+       {
+           "_id": "c3366b3d73e58b0a32cb3bdd4a67d776",
+           "label": "agriculture",
+           "docType": "Factor",
+           "projectId": "c3366b3d73e58b0a32cb3bdd4a66bd6e",
+           "featureFieldName": "AGRI_LAND",
+           "factorTypes": [
+               {
+                   "_id": "c3366b3d73e58b0a32cb3bdd4a67ec70",
+                   "label": "Identified",
+                   "value": "Identified",
+                   "docType": "FactorType",
+                   "factorId": "c3366b3d73e58b0a32cb3bdd4a67d776",
+                   "naturalOrder": 1,
+                   "_rev": "1-91118002b24e00a9b0c708daf7feb101"
+               },
+               {
+                   "_id": "c3366b3d73e58b0a32cb3bdd4a67e009",
+                   "label": "Investigated",
+                   "value": "Investigated",
+                   "docType": "FactorType",
+                   "factorId": "c3366b3d73e58b0a32cb3bdd4a67d776",
+                   "naturalOrder": 0,
+                   "_rev": "1-f0f2591c57ddece2932944771dc89cb3"
+               },
+               {
+                   "_id": "c3366b3d73e58b0a32cb3bdd4a67f0ba",
+                   "label": "Non-Agri Land",
+                   "value": "Non-Agri Land",
+                   "docType": "FactorType",
+                   "factorId": "c3366b3d73e58b0a32cb3bdd4a67d776",
+                   "naturalOrder": 2,
+                   "_rev": "1-fc06acd6594507d7b93e725f06db2ba6"
+               }
+           ],
+           "_rev": "3-d78b887fce07c34777ad9b3a2b40a1ca"
+       }
+   ],
+   "allocationScenariosMap": {
+   },
+   "suitabilityScenarios": {
+       "c3366b3d73e58b0a32cb3bdd4a680ef0": "test"
+   },
+   "demandScenarios": {
+   }
+}

@@ -1,0 +1,654 @@
+{
+   "_id": "DemonstrationTestID",
+   "_rev": "135-1eedb8bb96705e4792ea3cdffe9dd385",
+   "name": "Demonstration",
+   "srs": "EPSG:102723",
+   "analysisOption": "Land Use/Population/Employment Analysis",
+   "originalUnits": "m.k.s.",
+   "existingLUAttributeName": "ELU",
+   "docType": "WifProject",
+   "studyArea": "Ohio/ Edge City",
+   "bbox": "[1769115, 749019, 1803970, 790850]",
+   "ready": true,
+   "setupCompleted": true,
+   "geometryColumnName": "the_geom",
+   "creationDate": "2013-07-09T05:26:01.931+0000",
+   "modifiedDate": "2013-07-09T06:07:06.282+0000",
+   "roleOwner": "aurin",
+   "suitabilityConfig": {
+       "unifiedAreaZone": "uaz_demonstration",
+       "notDevelopableScore": -100,
+       "notConvertableScore": -1,
+       "notSuitableScore": 0,
+       "suitabilityColumns": [
+           "UAZ_POP",
+           "UAZ_AREA",
+           "FACTOR_2",
+           "FACTOR_3",
+           "FACTOR_1",
+           "FACTOR_6",
+           "ELU",
+           "FACTOR_4",
+           "FACTOR_5"
+       ],
+       "scoreColumns": [
+           "SCORE_6",
+           "SCORE_5",
+           "SCORE_2",
+           "SCORE_1",
+           "SCORE_4",
+           "SCORE_3"
+       ]
+   },
+   "allocationLandUses": [
+       {
+           "_id": "156cf34d221c72d1df011de3b7202390",
+           "label": "Undeveloped",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "81.0",
+           "landUseFunction": "LBCS_9XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-6b2f097e303f83a326aceb5592ca9b3b",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b72007bc",
+           "label": "Regional Retail",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "13.0",
+           "allocationFeatureFieldName": "213.0",
+           "totalArea": 330.99,
+           "landUseFunction": "LBCS_2XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-37c403186445245202003f2555c99ade",
+           "sectors": [
+               "Retail Trade"
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7209d0c",
+           "label": "Water",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "92.0",
+           "landUseFunction": "NOT_DEVELOPABLE_OR_UNDEFINED",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-4702aadeb41e1a0009a20e3888038a38",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7205733",
+           "label": "Local Retail",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "11.0",
+           "allocationFeatureFieldName": "211.0",
+           "totalArea": 255.03,
+           "landUseFunction": "LBCS_2XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-05fb545d2bca4025b5ddb1cf0e70906a",
+           "sectors": [
+               "Retail Trade"
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7205246",
+           "label": "Med Density Res.",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "2.0",
+           "allocationFeatureFieldName": "202.0",
+           "totalArea": 705.9,
+           "landUseFunction": "LBCS_1XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-14dc1e7002cfd79dc3e6c9d960637c7f",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7201708",
+           "label": "Industrial",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "21.0",
+           "allocationFeatureFieldName": "221.0",
+           "totalArea": 532.76,
+           "landUseFunction": "LBCS_3XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-8b787c66d05e6d0a1b25c0536cc15022",
+           "sectors": [
+               "Management",
+               "Transport/Warehouse",
+               "Construction",
+               "Wholesale",
+               "Manufacturing",
+               "Utilities",
+               "Admin/Support"
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7202ba2",
+           "label": "Parks & Rec.",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "41.0",
+           "allocationFeatureFieldName": "241.0",
+           "totalArea": 943.1,
+           "landUseFunction": "LBCS_5XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": true,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-c2bd3a672b7b42477428276fccea6ab4",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b72070ce",
+           "label": "Right of Way",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "91.0",
+           "landUseFunction": "NOT_DEVELOPABLE_OR_UNDEFINED",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-0df206033863fee48c22d40ef56bd678",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7209e19",
+           "label": "Conservation",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "83.0",
+           "allocationFeatureFieldName": "283.0",
+           "totalArea": 0,
+           "landUseFunction": "LBCS_1XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": true,
+           "_rev": "3-86c765d0cf40330482f1947f1e7a73bf",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7204485",
+           "label": "Mixed Use",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "3.0",
+           "allocationFeatureFieldName": "203.0",
+           "totalArea": 3.57,
+           "landUseFunction": "LBCS_1XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-b7eac59e169181a31752b9d2f3441f49",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7208dca",
+           "label": "Agriculture",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "82.0",
+           "landUseFunction": "LBCS_9XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-dc45f70403c14771f784d203b177f363",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b71fff69",
+           "label": "Low Density Res.",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "1.0",
+           "allocationFeatureFieldName": "201.0",
+           "totalArea": 5520.86,
+           "landUseFunction": "LBCS_1XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-18c77870d747e0d98b05477aba93f08d",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7207fa5",
+           "label": "Nursing Home",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "4.0",
+           "allocationFeatureFieldName": "204.0",
+           "totalArea": 7.73,
+           "landUseFunction": "LBCS_1XXX",
+           "groupQuarters": true,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-f315e6124eddac287cb3107a8edebe26",
+           "sectors": [
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7206688",
+           "label": "Public/Semi-pub.",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "51.0",
+           "allocationFeatureFieldName": "251.0",
+           "totalArea": 710.2,
+           "landUseFunction": "LBCS_5XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-24fa07bfba47f2d41eeabb72f97d5f10",
+           "sectors": [
+               "Educational Services",
+               "Utilities"
+           ]
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7203714",
+           "label": "Office",
+           "docType": "AllocationLU",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "12.0",
+           "allocationFeatureFieldName": "212.0",
+           "totalArea": 442.33,
+           "landUseFunction": "LBCS_2XXX",
+           "groupQuarters": false,
+           "newLU": false,
+           "local": false,
+           "builtUp": false,
+           "notDevelopable": false,
+           "notDefined": false,
+           "newPreservation": false,
+           "_rev": "3-3768186431a09e367412d33979feb9fa",
+           "sectors": [
+               "Other Services",
+               "Information",
+               "Professional",
+               "Management",
+               "Finance/Insurance",
+               "Admin/Support"
+           ]
+       }
+   ],
+   "suitabilityLUs": [
+       {
+           "_id": "156cf34d221c72d1df011de3b721543b",
+           "docType": "SuitabilityLU",
+           "projectId": "DemonstrationTestID",
+           "label": "Office",
+           "featureFieldName": "SCORE_4",
+           "_rev": "1-e9454bb391dd8a8790d8539a3f58ccc5",
+           "associatedALUs": {
+               "156cf34d221c72d1df011de3b7206688": "Public/Semi-pub.",
+               "156cf34d221c72d1df011de3b7203714": "Office"
+           }
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b72145fd",
+           "docType": "SuitabilityLU",
+           "projectId": "DemonstrationTestID",
+           "label": "Industrial",
+           "featureFieldName": "SCORE_5",
+           "_rev": "1-b110281b170a5bf2ccb9a0b806d6b7f6",
+           "associatedALUs": {
+               "156cf34d221c72d1df011de3b7201708": "Industrial"
+           }
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7213488",
+           "docType": "SuitabilityLU",
+           "projectId": "DemonstrationTestID",
+           "label": "Conservation",
+           "featureFieldName": "SCORE_6",
+           "_rev": "1-39a3a8db6e191603bba12995e1bb37db",
+           "associatedALUs": {
+               "156cf34d221c72d1df011de3b7202ba2": "Parks & Rec.",
+               "156cf34d221c72d1df011de3b7209e19": "Conservation"
+           }
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b72140dd",
+           "docType": "SuitabilityLU",
+           "projectId": "DemonstrationTestID",
+           "label": "Mixed Use",
+           "featureFieldName": "SCORE_2",
+           "_rev": "1-e2e62b5b2b1cf275f2b0ef2f7d98dce3",
+           "associatedALUs": {
+               "156cf34d221c72d1df011de3b7204485": "Mixed Use"
+           }
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7217122",
+           "docType": "SuitabilityLU",
+           "projectId": "DemonstrationTestID",
+           "label": "Residential",
+           "featureFieldName": "SCORE_1",
+           "_rev": "1-a7777078f263a6e554424b19eb677b5b",
+           "associatedALUs": {
+               "156cf34d221c72d1df011de3b7207fa5": "Nursing Home",
+               "156cf34d221c72d1df011de3b7205246": "Med Density Res.",
+               "156cf34d221c72d1df011de3b7204485": "Mixed Use",
+               "156cf34d221c72d1df011de3b71fff69": "Low Density Res."
+           }
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7216202",
+           "docType": "SuitabilityLU",
+           "projectId": "DemonstrationTestID",
+           "label": "Retail",
+           "featureFieldName": "SCORE_3",
+           "_rev": "1-70f7b99ed03c421e6d50b8651b421e2c",
+           "associatedALUs": {
+               "156cf34d221c72d1df011de3b72007bc": "Regional Retail",
+               "156cf34d221c72d1df011de3b7205733": "Local Retail"
+           }
+       }
+   ],
+   "factors": [
+       {
+           "_id": "156cf34d221c72d1df011de3b7209fbb",
+           "label": "slopes",
+           "docType": "Factor",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "FACTOR_1",
+           "factorTypes": [
+               {
+                   "_id": "156cf34d221c72d1df011de3b720ba2d",
+                   "label": "12% - <18%",
+                   "value": "3.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b7209fbb",
+                   "naturalOrder": 3,
+                   "_rev": "1-d80e09d77e1cf0e2326d70eb1a6a86b5"
+               },
+               {
+                   "_id": "156cf34d221c72d1df011de3b720c206",
+                   "label": "6% - <12%",
+                   "value": "2.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b7209fbb",
+                   "naturalOrder": 2,
+                   "_rev": "1-f1a4b200babba928bb276a45699198bb"
+               },
+               {
+                   "_id": "156cf34d221c72d1df011de3b720ac87",
+                   "label": "<6%",
+                   "value": "1.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b7209fbb",
+                   "naturalOrder": 1,
+                   "_rev": "1-a7115528771cf73c447e2532084d727d"
+               },
+               {
+                   "_id": "156cf34d221c72d1df011de3b720b056",
+                   "label": ">=25%",
+                   "value": "5.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b7209fbb",
+                   "naturalOrder": 5,
+                   "_rev": "1-8333047ddb0432d4ecaca7eb9ce5506a"
+               },
+               {
+                   "_id": "156cf34d221c72d1df011de3b720be45",
+                   "label": "18% - <25%",
+                   "value": "4.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b7209fbb",
+                   "naturalOrder": 4,
+                   "_rev": "1-7d254d6876c0a5df016374f826731cce"
+               }
+           ],
+           "_rev": "2-fb7d0fa9f4d62f099b3112e4eec2cffe"
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b720d810",
+           "label": "streams",
+           "docType": "Factor",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "FACTOR_6",
+           "factorTypes": [
+               {
+                   "_id": "156cf34d221c72d1df011de3b720e3ec",
+                   "label": "<250' - <500'",
+                   "value": "3.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b720d810",
+                   "naturalOrder": 3,
+                   "_rev": "1-2d8168289956bc93311e100e5b5f6087"
+               },
+               {
+                   "_id": "156cf34d221c72d1df011de3b720f1b8",
+                   "label": "<100' - <250'",
+                   "value": "2.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b720d810",
+                   "naturalOrder": 2,
+                   "_rev": "1-79d43c1336a0cc41ba6a42d39a1c2ce3"
+               },
+               {
+                   "_id": "156cf34d221c72d1df011de3b7210007",
+                   "label": "<100'",
+                   "value": "1.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b720d810",
+                   "naturalOrder": 1,
+                   "_rev": "1-5a3ad990ee3faf732eb0ace5465af99e"
+               },
+               {
+                   "_id": "156cf34d221c72d1df011de3b720f707",
+                   "label": "Outside buffers",
+                   "value": "-99.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b720d810",
+                   "naturalOrder": 4,
+                   "_rev": "1-ee37ebc6b8da32a4f806c1c929c98438"
+               }
+           ],
+           "_rev": "2-3c20baf0409b445c184deb3b8950fceb"
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b721060c",
+           "label": "Prime Ag. Soils",
+           "docType": "Factor",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "FACTOR_2",
+           "factorTypes": [
+               {
+                   "_id": "156cf34d221c72d1df011de3b721067c",
+                   "label": "Prime Ag.",
+                   "value": "1.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b721060c",
+                   "naturalOrder": 1,
+                   "_rev": "1-49aaf77a95359bd52110f63a14d0e1a1"
+               },
+               {
+                   "_id": "156cf34d221c72d1df011de3b7210672",
+                   "label": "Not Prime Ag.",
+                   "value": "2.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b721060c",
+                   "naturalOrder": 2,
+                   "_rev": "1-248772c2b064d81f889496700a6b452c"
+               }
+           ],
+           "_rev": "2-3346c6c2046c8cb605fffb961677f28b"
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b7210af8",
+           "label": "access",
+           "docType": "Factor",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "FACTOR_7",
+           "factorTypes": [
+               {
+                   "_id": "156cf34d221c72d1df011de3b721261b",
+                   "label": "Medium High",
+                   "value": "3.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b7210af8",
+                   "naturalOrder": 3,
+                   "_rev": "1-c0288d716f43132253304159d95e667f"
+               },
+               {
+                   "_id": "156cf34d221c72d1df011de3b7211648",
+                   "label": "High",
+                   "value": "4.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b7210af8",
+                   "naturalOrder": 4,
+                   "_rev": "1-d08cb40df571486955e653b2a1c0eb4f"
+               },
+               {
+                   "_id": "156cf34d221c72d1df011de3b72132d5",
+                   "label": "Medium",
+                   "value": "2.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b7210af8",
+                   "naturalOrder": 2,
+                   "_rev": "1-7ed4f618adc54c65ef878f75ad9e66f2"
+               },
+               {
+                   "_id": "156cf34d221c72d1df011de3b721319a",
+                   "label": "Low",
+                   "value": "1.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b7210af8",
+                   "naturalOrder": 1,
+                   "_rev": "1-fa59fe3c4547bfc147104cc925855d1d"
+               }
+           ],
+           "_rev": "2-095e0fee1ca13fdc0d57b43601456a1b"
+       },
+       {
+           "_id": "156cf34d221c72d1df011de3b720c61b",
+           "label": "100-year flood",
+           "docType": "Factor",
+           "projectId": "DemonstrationTestID",
+           "featureFieldName": "FACTOR_4",
+           "factorTypes": [
+               {
+                   "_id": "156cf34d221c72d1df011de3b720d5da",
+                   "label": "Inside Flood",
+                   "value": "2.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b720c61b",
+                   "naturalOrder": 2,
+                   "_rev": "1-52eabd7616b0631a88073b5141d2ed66"
+               },
+               {
+                   "_id": "156cf34d221c72d1df011de3b720c8bb",
+                   "label": "Outside Flood",
+                   "value": "1.0",
+                   "docType": "FactorType",
+                   "factorId": "156cf34d221c72d1df011de3b720c61b",
+                   "naturalOrder": 1,
+                   "_rev": "1-e9596765f50843f6e321d0c517999084"
+               }
+           ],
+           "_rev": "2-d40d3e273c29363461cf7d2c8359ed32"
+       }
+   ],
+   "allocationScenarios": {
+       "allocationScenarioTestId": "Suburbanization-High Growth-No Controls"
+   },
+   "demandConfigId": "demonstrationDemandConfigTestId",
+   "allocationConfig": {
+       "allocationColumnsMap": {
+           "2005": "ALU_1",
+           "2015": "ALU_3",
+           "2010": "ALU_2"
+       },
+       "undevelopedLUsColumns": [
+           "81.0",
+           "82.0"
+       ]
+   },
+   "suitabilityScenarios": {
+       "SuburbanizationTestID": "Suburbanization"
+   },
+   "demandScenarios": {
+       "demandScenarioTestId": "High Growth"
+   }
+}

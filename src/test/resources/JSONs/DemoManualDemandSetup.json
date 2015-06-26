@@ -1,0 +1,438 @@
+{
+   "docType": "ManualDemandConfig",
+   "projectId": "DemonstrationTestID",
+   "projections": [
+       {
+           "year": 2005,
+           "label" : "2005"
+           
+       },
+       {
+           "year": 2010,
+           "label" : "2010" 
+       },
+       {
+           "year": 2015,
+           "label" : "2015"            
+       }
+   ]
+}
+
+//allocationconfigs
+{
+   "docType": "AllocationConfigs",
+   "projectId": "DemonstrationTestID",
+   "allocationColumnsMap": {
+           "2005": "ALU_2005",
+           "2015": "ALU_2015",
+           "2010": "ALU_2010"
+    },
+     "undevelopedLUsColumns": [
+   ],
+   "plannedALUsFieldName" : "PLU_1",
+   "plannedALUs":[
+          {
+           "label": "s1",
+           "associatedALUs": {
+               "59c979a3ed6fdab3ecf88de7260ef26f": "Education",
+               "59c979a3ed6fdab3ecf88de7260eff6c": "Industrial"
+               }
+           },
+          {
+           "label": "s2",
+           "associatedALUs": {
+               "59c979a3ed6fdab3ecf88de7260ef0ac": "Commercial",
+               "59c979a3ed6fdab3ecf88de7260f0485": "Parkland",
+               "59c979a3ed6fdab3ecf88de7260f10b7": "Residential"
+               }
+           }
+        ],
+    "infrastructureALUs" : [
+        {
+            "label": "s1",
+            "fieldName" : "f1"
+        },
+        {
+            "label": "s2",
+            "fieldName" : "f2"
+        }        
+    ],
+    "growthPatternALUs" : [
+        {
+            "label": "g1",
+            "fieldName" : "f1"
+        },
+        {
+            "label": "g2",
+            "fieldName" : "f2"
+        }        
+    ]         
+
+}
+
+{
+    "docType": "AllocationConfigs",
+    "projectId": "59c979a3ed6fdab3ecf88de7260eed46",
+    "plannedALUsFieldName": "UFI",
+    "plannedALUs": [
+        {
+            "label": "Commercial",
+            "associatedALUs": {
+                "59c979a3ed6fdab3ecf88de7260ef0ac": "Commercial",
+                "59c979a3ed6fdab3ecf88de7260ef26f": "Education",
+                "59c979a3ed6fdab3ecf88de7260eff6c": "Industrial"
+            }
+        },
+        {
+            "label": "Education",
+            "associatedALUs": {
+                "59c979a3ed6fdab3ecf88de7260eff6c": "Industrial",
+                "59c979a3ed6fdab3ecf88de7260f0485": "Parkland"
+            }
+        },
+        {
+            "label": "Industrial",
+            "associatedALUs": {
+                "59c979a3ed6fdab3ecf88de7260f0485": "Parkland"
+            }
+        }
+    ],
+    "infrastructureALUs": [
+        {
+            "label": "l1",
+            "fieldname": "Education"
+        },
+        {
+            "label": "l2",
+            "fieldname": "Parkland"
+        }
+    ],
+    "growthPatternALUs": [
+        {
+            "label": "g1",
+            "fieldname": "Education"
+        },
+        {
+            "label": "g2",
+            "fieldname": "Residential"
+        }
+    ],
+    "allocationColumnsMap": {},
+    "undevelopedLUsColumns": []
+}
+
+//allocation scenario example
+{
+"demandScenarioId" : "",
+"docType" : "AllocationScenario",
+"featureFieldName" : "fdwvcxx",
+"label" : "fdwvcxx",
+"landUseOrderMap" : {"9170d7a410a0934424fef86231030671":1,"9170d7a410a0934424fef862310312c4":2,"9170d7a410a0934424fef862310321f3":3,"9170d7a410a0934424fef86231032222":4,"9170d7a410a0934424fef8623103260a":5},
+"manual": true,
+"manualdemandScenarioId" : "9170d7a410a0934424fef862310382f8",
+"projectId" : "9170d7a410a0934424fef86231030544",
+"ready": false,
+"spatialPatternLabel" : "URBVALUE",
+"suitabilityScenarioId" : "9170d7a410a0934424fef86231035dda"
+}
+
+
+{
+    "label": "AllocationScenarioTest",
+    "docType": "AllocationScenario",
+    "suitabilityScenarioId": "9170d7a410a0934424fef86231035dda",
+    "demandScenarioId": "",
+    "manualdemandScenarioId": "9170d7a410a0934424fef862310382f8",
+    "projectId": "9170d7a410a0934424fef86231030544",
+    "featureFieldName": "AllocationScenarioTest",
+    "landUseOrderMap": {
+        "9170d7a410a0934424fef86231030671": 1,
+        "9170d7a410a0934424fef862310312c4": 2,
+        "9170d7a410a0934424fef862310321f3": 3,
+        "9170d7a410a0934424fef86231032222": 4,
+        "9170d7a410a0934424fef8623103260a": 5
+    },
+    "spatialPatternLabel": "",
+    "ready": false,
+    "manual": true
+}	
+
+{
+    "label": "AllocationControlScenarioTest",
+    "docType": "AllocationControlScenario",
+    "projectId": "DemonstrationTestID",
+    "featureFieldName": "No Controls",
+    "infrastructureUses": [
+        {         
+        "landuseName": "Commercial"
+        }
+     ],
+    "plannedlandUseControl": false,
+    "infrastructureControl": true,
+    "growthPatternControl": false
+}	
+
+//works
+{
+    "label": "AllocationControlScenarioTest",
+    "docType": "AllocationControlScenario",
+    "projectId": "DemonstrationTestID",
+    "infrastructureUses": [
+        {
+            "landuseName": "Commercial",
+            "infrastructureMap": {
+                "Sewer": "N/A",
+                "Water": "R",
+                "Roads": "X"
+            }
+        },
+        {
+            "landuseName": "Education",
+            "infrastructureMap": {
+                "Sewer": "R",
+                "Water": "N/A",
+                "Roads": "X"
+            }
+        }        
+    ],
+    "plannedlandUseControl": false,
+    "infrastructureControl": true,
+    "growthPatternControl": false
+}
+
+
+{
+    "docType": "DemandConfigNew",
+    "projectId": "346410c78a29b7d90cbd63b209000f45",
+    "baseYear": 2013,
+    "totalPopulationFeatureFieldName": "score_s1",
+    "numberOfHouseholdsFeatureFieldName": "score_s1",
+    "numberOfHousingUnitsFeatureFieldName": "score_s1",
+    "groupQuartersPopulationFeatureFieldName": "score_s1",
+    "enumerationDistrictAreaFeatureFieldName": "score_s1",
+    "enumerationDistrictFeatureFieldName": "score_s1",
+    "clippedEnumerationDistrictAreaFeatureFieldName": "score_s1",
+    "landUseFieldName": "MeshBlock",
+    "lowDensityresidentialValue": "Low density residential",
+    "mediumDensityresidentialValue": "Medium density residential",
+    "highDensityresidentialValue": "High density residential",
+    "projections": [
+        {
+            "year": 2005,
+            "label": "2005"
+        },
+        {
+            "year": 2015,
+            "label": "2015"
+        },
+        {
+            "year": 2010,
+            "label": "2010"
+        }
+    ],
+    "sectors": [
+        {
+            "code": "emp2",
+            "label": "l2",
+            "featureFieldName": "",
+            "associatedALUs": {
+                "346410c78a29b7d90cbd63b209002424": "Industrial",
+                "346410c78a29b7d90cbd63b209004224": "Other"
+            }
+        },
+        {
+            "code": "emp1",
+            "label": "l1",
+            "featureFieldName": "",
+            "associatedALUs": {
+                "346410c78a29b7d90cbd63b209002424": "Commercial",
+                "346410c78a29b7d90cbd63b209002e1e": "Education"
+            }
+        }
+    ],
+    "projectionNames": [
+        "YearBased",
+        "HighGrowth",
+        "LowGrowth"
+    ],
+    "employmentCurrentDataNew": [
+        {
+            "sectorLabel": "l2",
+            "employees": 434
+        },
+        {
+            "sectorLabel": "l1",
+            "employees": 323
+        }
+    ]
+}
+
+//DemandScenarioNew
+{
+    "label": "demandScenarioNewTest",
+    "docType": "DemandScenarioNew",
+    "projectId": "346410c78a29b7d90cbd63b209000f45",
+    "demandDataItems": [
+        {
+            "ItemID" : "TotalPopulation",
+            "ItemLabel" : "Total Population",
+            "ItemProjectionName" : "YearBased",
+            "ItemYear" : "2005",
+            "ItemValue" : 1000
+        },
+        {
+            "ItemID" : "AverageHouseholdSize",
+            "ItemLabel" : "Average Household Size",
+            "ItemProjectionName" : "YearBased",
+            "ItemYear" : "2005",
+            "ItemValue" : 2.5
+        }
+    ],
+    "demandEmpItems" : [
+        {
+            "SectorName" : "emp1",
+            "SectorData" : [
+            	 {
+			            "ItemID" : "count",
+			            "ItemLabel" : "l1",
+			            "ItemProjectionName" : "YearBased",
+			            "ItemYear" : "2010",
+			            "ItemValue" : 1000
+			         },
+			         {
+			            "ItemID" : "Industrial",
+			            "ItemLabel" : "Industrial density",
+			            "ItemProjectionName" : "YearBased",
+			            "ItemYear" : "2010",
+			            "ItemValue" : 20
+			         },
+			         {
+			            "ItemID" : "Commercial",
+			            "ItemLabel" : "Commercial density",
+			            "ItemProjectionName" : "YearBased",
+			            "ItemYear" : "2010",
+			            "ItemValue" : 40
+			         },
+			         {
+			            "ItemID" : "Infill",
+			            "ItemLabel" : "Infill Rate",
+			            "ItemProjectionName" : "YearBased",
+			            "ItemYear" : "2010",
+			            "ItemValue" : 40
+			         }
+            ]       
+        },
+       {
+            "SectorName" : "emp2",
+            "SectorData" : [
+            	 {
+			            "ItemID" : "count",
+			            "ItemLabel" : "l2",
+			            "ItemProjectionName" : "YearBased",
+			            "ItemYear" : "2010",
+			            "ItemValue" : 2000
+			         },
+			         {
+			            "ItemID" : "Industrial",
+			            "ItemLabel" : "Industrial density",
+			            "ItemProjectionName" : "YearBased",
+			            "ItemYear" : "2010",
+			            "ItemValue" : 40
+			         },
+			         {
+			            "ItemID" : "Commercial",
+			            "ItemLabel" : "Commercial density",
+			            "ItemProjectionName" : "YearBased",
+			            "ItemYear" : "2010",
+			            "ItemValue" : 60
+			         },
+			         {
+			            "ItemID" : "Infill",
+			            "ItemLabel" : "Infill Rate",
+			            "ItemProjectionName" : "YearBased",
+			            "ItemYear" : "2010",
+			            "ItemValue" : 80
+			         }
+            ]       
+        }       
+    ]
+}
+//
+
+
+{
+    "label": "demandScenarioNewTest",
+    "docType": "DemandScenarioNew",
+    "projectId": "346410c78a29b7d90cbd63b209000f45",
+    "featureFieldName" : ""
+    "demandDataItems": [
+        {
+            "ItemID" : "TotalPopulation",
+            "ItemLabel" : "Total Population",
+            "ItemProjectionName" : "YearBased",
+            "ItemYear" : "2005",
+            "ItemValue" : 1000
+        },
+        {
+            "ItemID" : "AverageHouseholdSize",
+            "ItemLabel" : "Average Household Size",
+            "ItemProjectionName" : "YearBased",
+            "ItemYear" : "2005",
+            "ItemValue" : 2.5
+        }
+    ]
+    
+}
+/////////////////////////////////////
+works.
+{
+    "docType": "DemandScenarioNew",
+    "projectId": "176bf47f1c37cd08814663e76b00843e",
+    "label": "test",
+    "demandDataItems": [{
+        "itemLabel": "lbl2",
+        "itemID": "i2",
+        "itemProjectionName": "pp2",
+        "itemYear": "3000",
+        "itemValue": 300.0
+    }, {
+        "itemLabel": "lbl",
+        "itemID": "i1",
+        "itemProjectionName": "pp",
+        "itemYear": "2000",
+        "itemValue": 200.0
+    }],
+    "demandEmpItems": [{
+        "sectorName": "emp1",
+        "sectorData": [{
+            "itemLabel": "lbl2",
+            "itemID": "i2",
+            "itemProjectionName": "pp2",
+            "itemYear": "3000",
+            "itemValue": 300.0
+        }, {
+            "itemLabel": "lbl",
+            "itemID": "i1",
+            "itemProjectionName": "pp",
+            "itemYear": "2000",
+            "itemValue": 200.0
+        }]
+    }],
+    "manualAreaRequirements": [{
+        "allocationLUId": "f25dc90940cfb795957fcb9b9d030762",
+        "allocationLULabel": "Industrial",
+        "requiredArea": 200.0,
+        "projection": {
+            "year": 2005,
+            "label": "2005"
+        }
+    }, {
+        "allocationLUId": "f25dc90940cfb795957fcb9b9d030762",
+        "allocationLULabel": "Industrial",
+        "requiredArea": 300.0,
+        "projection": {
+            "year": 2010,
+            "label": "2010"
+        }
+    }],
+}

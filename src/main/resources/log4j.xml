@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" >
+<log4j:configuration>
+
+	<appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%c{5}:%L - %m%n" />
+			<param name="ConversionPattern" value="%p-%c{1}:%L - %m%n" />
+			<!-- <param name="ConversionPattern" value="%d{ABSOLUTE} %c{1}:%L - %m%n"/> -->
+			<!-- <param name="ConversionPattern" value="%L: %m%n"/> -->
+
+		</layout>
+	</appender>
+	<appender name="wifReport" class="org.apache.log4j.FileAppender">
+		<param name="File" value="/wifReport.log" />
+		<param name="Append" value="true" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<!-- <param name="ConversionPattern" value="%t %c{1} - %m%n"/> -->
+			<param name="ConversionPattern" value="%t %c{2} - %m%n" />
+		</layout>
+	</appender>
+	
+	<!-- FOR -->
+	<logger name="org.springframework" additivity="false">
+<!-- 		<level value="trace" /> -->
+		<!-- <level value="info" /> -->
+<!-- 		<level value="debug" /> -->
+		<level value="error" />
+		<appender-ref ref="stdout" />
+	</logger>
+	
+	<!-- FOR what if report -->
+	<logger name="au.org.aurin" additivity="false">
+<!-- 		<level value="trace" /> -->
+		<level value="info" />
+<!-- 		<level value="debug" /> -->
+<!-- 		<level value="error" /> -->
+		<appender-ref ref="stdout" />
+	</logger>
+	<!-- FOR what if report -->
+	<logger name="org.ektorp" additivity="false">
+		<!-- <level value="trace" /> -->
+		<!-- <level value="info" /> -->
+		<!-- <level value="debug" /> -->
+		<level value="error" />
+		<appender-ref ref="stdout" />
+	</logger>
+
+	<logger name="au.org.aurin.wif.impl.lsa.SuitabilityAnalyzer"
+		additivity="false">
+		<level value="trace" />
+<!-- 		<level value="info" /> -->
+<!-- 		<level value="debug" /> -->
+		<!-- <level value="error" /> -->
+		<appender-ref ref="stdout" />
+	</logger>
+	<logger
+		name="au.org.aurin.wif.impl.suitability.SuitabilityScenarioServiceImpl"
+		additivity="false">
+		<!-- <level value="trace" /> -->
+		<!-- <level value="info" /> -->
+		<!-- <level value="debug" /> -->
+		<level value="error" />
+		<appender-ref ref="stdout" />
+	</logger>
+
+	<logger
+		name="au.org.aurin.wif.controller.suitability.SuitabilityScenarioController"
+		additivity="false">
+		<!-- <level value="trace" /> -->
+		<level value="info" />
+<!-- 		<level value="debug" /> -->
+<!-- 		<level value="error" /> -->
+		<appender-ref ref="stdout" />
+	</logger>
+		<logger
+		name="au.org.aurin.dispatcher"
+		additivity="false">
+		<!-- <level value="trace" /> -->
+		<!-- <level value="info" /> -->
+<!-- 		<level value="debug" /> -->
+		<level value="error" />
+		<appender-ref ref="stdout" />
+	</logger>
+
+		<logger
+		name="au.org.aurin.wifui"
+		additivity="false">
+		<!-- <level value="trace" /> -->
+		<!-- <level value="info" /> -->
+<!-- 		<level value="debug" /> -->
+		<level value="error" />
+		<appender-ref ref="stdout" />
+	</logger>
+	<logger name="au.org.aurin.wif.impl.lsa.scoring" additivity="false">
+<!-- 		<level value="trace" /> -->
+		<!-- <level value="info" /> -->
+<!-- 		<level value="debug" /> -->
+		<level value="error" />
+		<appender-ref ref="stdout" />
+	</logger>
+	<logger name="org.springframework.integration" additivity="false">
+		<!-- <level value="trace" /> -->
+		<!-- <level value="info" /> -->
+		<!-- <level value="debug" /> -->
+		<level value="error" />
+		<appender-ref ref="stdout" />
+	</logger>
+	<root>
+		<priority value="info"></priority>
+		<appender-ref ref="stdout" />
+	</root>
+</log4j:configuration>

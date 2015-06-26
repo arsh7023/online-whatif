@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+default-autowire="byName">
+
+	<context:property-placeholder
+		location="file:///${aurin.dir}/whatif-combined.properties,classpath*:whatif-combined.properties" />
+
+  <import resource="../spring/owi-datasource-context.xml" />
+  <import resource="../spring/owi-application-context.xml" />
+
+  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+	<property name="messageConverters">
+	  <list>
+	    <bean id="featureHttpMessageConverter"
+	      class="au.org.aurin.wif.io.FeatureHttpMessageConverter">
+	      <property name="featureJSON" ref="featureJSON" />
+	    </bean>
+	    <bean id="stringHttpMessageConverter"
+	      class="org.springframework.http.converter.StringHttpMessageConverter" />
+	    <bean id="MappingJacksonHttpMessageConverter"
+	      class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />
+	    <bean id="formHttpMessageConverter"
+	      class="org.springframework.http.converter.FormHttpMessageConverter" />
+	  </list>
+	</property>
+  </bean>
+  
+<!--   <bean id="xmlConverter" class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
+  <constructor-arg ref="jaxbMarshaller"/>
+  <property name="supportedMediaTypes" value="application/xml" />
+ </bean>   -->
+
+  <bean id="dataStoreClient" class="au.org.aurin.wif.io.DataStoreClientImpl">
+    <property name="url" value="${aurin.data-store-service.uri}" />
+    <property name="restTemplate" ref="restTemplate" />
+  </bean>
+
+  <bean id="featureJSON" class="org.geotools.geojson.feature.FeatureJSON">
+  	<constructor-arg>
+	  <bean id="geomJSON" class="org.geotools.geojson.geom.GeometryJSON">
+	  	<constructor-arg value="15" />
+	  </bean>
+  	</constructor-arg>
+  </bean>
+
+<!-- <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor"> -->
+<!--   <property name="corePoolSize" value="5" /> -->
+<!--   <property name="maxPoolSize" value="10" /> -->
+<!--   <property name="queueCapacity" value="25" /> -->
+<!-- </bean>   -->
+  
+</beans>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+<!-- 
+	<context:property-placeholder
+		location="file:///${aurin.dir}/aurin-data-provider2-combined.properties,
+               classpath*:aurin-data-provider2-service.properties, file:///${aurin.dir}/aurin-wif-combined.properties,classpath*:aurin-wif-combined.properties" />
+    -->
+  	<context:property-placeholder
+		location="file:///${aurin.dir}/aurin-wif-combined.properties,classpath*:aurin-wif-combined.properties" />
+    
+    <import resource="spring/owi-application-context.xml" />
+  <import resource="test-datasource-context.xml" />
+  
+  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+	<property name="messageConverters">
+	  <list>
+	    <bean id="featureHttpMessageConverter"
+	      class="au.edu.unimelb.eresearch.spring.http.converter.geojson.FeatureHttpMessageConverter">
+	      <property name="featureJSON" ref="featureJSON" />
+	    </bean>
+	    <bean id="stringHttpMessageConverter"
+	      class="org.springframework.http.converter.StringHttpMessageConverter" />
+	    <bean id="MappingJacksonHttpMessageConverter"
+	      class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />
+	    <bean id="formHttpMessageConverter"
+	      class="org.springframework.http.converter.FormHttpMessageConverter" />
+	  </list>
+	</property>
+  </bean>
+
+  <bean id="dataStoreClient" class="au.org.aurin.data.store.client.DataStoreClientImpl">
+    <property name="url" value="${aurin.data-store-service.uri}" />
+    <property name="restTemplate" ref="restTemplate" />
+  </bean>
+
+  <bean id="featureJSON" class="org.geotools.geojson.feature.FeatureJSON" />
+  
+  <bean id="geoserverPublisher" class="it.geosolutions.geoserver.rest.GeoServerRESTPublisher">
+    <constructor-arg value="${geoserver.rest-url}"/>
+    <constructor-arg value="${geoserver.username}"/>
+    <constructor-arg value="${geoserver.password}"/>
+  </bean>
+ 
+  <bean id="geoserverConfig" class="au.org.aurin.wif.config.GeoServerConfig" >
+    <property name="workspace" value="${wif.geoserver.workspace}" />
+    <property name="storeName" value="${wif.geoserver.storeName}" />
+  </bean>
+   
+  <bean id="integrationTestConfig" class="au.org.aurin.wif.config.IntegrationTestConfig" >
+    <property name="unionDemoDatastore" value="${wif.test.unionDemoDatastore}" />
+        <property name="uazDemoDatastore" value="${wif.test.uazDemoDatastore}" />
+    
+  </bean>
+</beans>

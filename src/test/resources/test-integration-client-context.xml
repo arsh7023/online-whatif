@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+  default-autowire="byName">
+	<context:property-placeholder
+		location="file:${aurin.dir}/aurin-wif-combined.properties,classpath*:aurin-wif-combined.properties" />
+  <!-- Enable Spring beans annotation support -->
+  <context:annotation-config />
+<!--   	<context:component-scan base-package="au.org.aurin.wif.restclient" /> -->
+  <bean id="projectServiceClient"
+    class="au.org.aurin.wif.restclient.ProjectServiceClientImpl">
+    <property name="url" value="${wif.restclient.url}" />
+  </bean>
+  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" />
+
+  <bean id="suitabilityScenarioServiceClient"
+    class="au.org.aurin.wif.restclient.suitability.SuitabilityScenarioServiceClientImpl">
+    <property name="url" value="${wif.restclient.url}" />
+  </bean>
+
+  <bean id="suitabilityLUServiceClient"
+    class="au.org.aurin.wif.restclient.suitability.SuitabilityLUServiceClientImpl">
+    <property name="url" value="${wif.restclient.url}" />
+  </bean>
+  
+  <bean id="allocationLUServiceClient"
+    class="au.org.aurin.wif.restclient.AllocationLUServiceClientImpl">
+    <property name="url" value="${wif.restclient.url}" />
+  </bean>
+
+  <bean id="factorServiceClient"
+    class="au.org.aurin.wif.restclient.suitability.FactorServiceClientImpl">
+    <property name="url" value="${wif.restclient.url}" />
+  </bean>
+
+  <bean id="demandConfigServiceClient"
+    class="au.org.aurin.wif.restclient.demand.DemandConfigServiceClientImpl">
+    <property name="url" value="${wif.restclient.url}" />
+  </bean>
+  
+  <bean id="demandScenarioServiceClient"
+    class="au.org.aurin.wif.restclient.demand.DemandScenarioServiceClientImpl">
+    <property name="url" value="${wif.restclient.url}" />
+  </bean>
+  <bean id="allocationScenarioServiceClient"
+    class="au.org.aurin.wif.restclient.allocation.AllocationScenarioServiceClientImpl">
+    <property name="url" value="${wif.restclient.url}" />
+  </bean>
+    <bean id="integrationTestConfig" class="au.org.aurin.wif.config.IntegrationTestConfig" >
+    <property name="unionDemoDatastore" value="${wif.test.unionDemoDatastore}" />
+        <property name="uazDemoDatastore" value="${wif.test.uazDemoDatastore}" />
+    </bean>
+    <bean id="aurinServiceClient"
+    class="au.org.aurin.wif.restclient.AurinServiceClientImpl">   
+  </bean>
+      <bean id="wifFileUtils"
+    class="au.org.aurin.wif.io.WifFileUtils">   
+  </bean>
+  <bean id="wifConfig" class="au.org.aurin.wif.config.WifConfig">
+		<property name="serverWMSURL" value="${wif.config.serverWMSURL}" />
+		<property name="restClientTargetURL" value="${wif.config.restClientTargetURL}" />
+				<property name="testAllocationArea" value="${wif.config.testAllocationArea}" />
+				<property name="standAlone" value="${wif.config.standAlone}" />
+		<property name="middlewareService" value="${wif.config.middlewareService}" />
+		</bean>
+</beans>

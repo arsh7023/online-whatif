@@ -1,0 +1,544 @@
+{
+   "docType": "DemandConfig",
+   "projectId": "DemonstrationTestID",
+   "baseYear": 2005,
+   "totalPopulationFeatureFieldName": "UAZ_POP",
+   "localDemandAreasFeatureFieldName": "POLITICAL",
+   "numberOfHouseholdsFeatureFieldName": "UAZ_HH",
+   "numberOfHousingUnitsFeatureFieldName": "UAZ_HU",
+   "groupQuartersPopulationFeatureFieldName": "UAZ_GQ",
+   "enumerationDistrictAreaFeatureFieldName": "BG_ACRES",
+   "enumerationDistrictFeatureFieldName": "BLK_GRP",
+   "clippedEnumerationDistrictAreaFeatureFieldName": "CLIP_ACRES",
+   "projections": [
+       {
+           "year": 2005
+       },
+       {
+           "year": 2010
+       },
+       {
+           "year": 2015
+       }
+   ],
+   "sectors": [
+       {
+           "code": "NAICS 11",
+           "label": "Ag/Forest/Fish/Hunt",
+           "featureFieldName": null,
+           "associatedALUs": {
+           }
+       },
+       {
+           "code": "NAICS 21",
+           "label": "Mining",
+           "featureFieldName": null,
+           "associatedALUs": {
+           }
+       },
+       {
+           "code": "NAICS 44-45",
+           "label": "Retail Trade",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c33116a": "Local Retail",
+               "4ef0e97f1b756990ce10fe447c3351d3": "Regional Retail"
+           }
+       },
+       {
+           "code": "NAICS 62",
+           "label": "Healthcare",
+           "featureFieldName": null,
+           "associatedALUs": {
+           }
+       },
+       {
+           "code": "NAICS 54",
+           "label": "Professional",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c331313": "Office"
+           }
+       },
+       {
+           "code": "NAICS ",
+           "label": "Manufacturing",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c336a08": "Industrial"
+           }
+       },
+       {
+           "code": "NAICS 51",
+           "label": "Information",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c331313": "Office"
+           }
+       },
+       {
+           "code": "NAICS 22",
+           "label": "Utilities",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c336a08": "Industrial",
+               "4ef0e97f1b756990ce10fe447c335c01": "Public/Semi-pub."
+           }
+       },
+       {
+           "code": "NAICS 53",
+           "label": "Real Estate/Rental",
+           "featureFieldName": null,
+           "associatedALUs": {
+           }
+       },
+       {
+           "code": "NAICS 71",
+           "label": "Arts/Entertain/Rec.",
+           "featureFieldName": null,
+           "associatedALUs": {
+           }
+       },
+       {
+           "code": "NAICS ",
+           "label": "Wholesale",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c336a08": "Industrial"
+           }
+       },
+       {
+           "code": "NAICS 61",
+           "label": "Educational Services",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c335c01": "Public/Semi-pub."
+           }
+       },
+       {
+           "code": "NAICS 72",
+           "label": "Accommodation/Food",
+           "featureFieldName": null,
+           "associatedALUs": {
+           }
+       },
+       {
+           "code": "NAICS 23",
+           "label": "Construction",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c336a08": "Industrial"
+           }
+       },
+       {
+           "code": "NAICS 52",
+           "label": "Finance/Insurance",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c331313": "Office"
+           }
+       },
+       {
+           "code": "NAICS 55",
+           "label": "Management",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c331313": "Office",
+               "4ef0e97f1b756990ce10fe447c336a08": "Industrial"
+           }
+       },
+       {
+           "code": "NAICS ",
+           "label": "Transport/Warehouse",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c336a08": "Industrial"
+           }
+       },
+       {
+           "code": "NAICS ?",
+           "label": "Other Services",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c331313": "Office"
+           }
+       },
+       {
+           "code": "NAICS 56",
+           "label": "Admin/Support",
+           "featureFieldName": null,
+           "associatedALUs": {
+               "4ef0e97f1b756990ce10fe447c331313": "Office",
+               "4ef0e97f1b756990ce10fe447c336a08": "Industrial"
+           }
+       }
+   ],
+   "currentDemographic": {
+       "employmentCurrentDatas": [
+           {
+               "sectorLabel": "Utilities",
+               "employees": 63
+           },
+           {
+               "sectorLabel": "Other Services",
+               "employees": 1736
+           },
+           {
+               "sectorLabel": "Professional",
+               "employees": 4685
+           },
+           {
+               "sectorLabel": "Construction",
+               "employees": 2180
+           },
+           {
+               "sectorLabel": "Real Estate/Rental",
+               "employees": 1068
+           },
+           {
+               "sectorLabel": "Arts/Entertain/Rec.",
+               "employees": 1354
+           },
+           {
+               "sectorLabel": "Information",
+               "employees": 3005
+           },
+           {
+               "sectorLabel": "Transport/Warehouse",
+               "employees": 719
+           },
+           {
+               "sectorLabel": "Healthcare",
+               "employees": 2791
+           },
+           {
+               "sectorLabel": "Management",
+               "employees": 3
+           },
+           {
+               "sectorLabel": "Accommodation/Food",
+               "employees": 5661
+           },
+           {
+               "sectorLabel": "Ag/Forest/Fish/Hunt",
+               "employees": 80
+           },
+           {
+               "sectorLabel": "Retail Trade",
+               "employees": 5771
+           },
+           {
+               "sectorLabel": "Mining",
+               "employees": 6
+           },
+           {
+               "sectorLabel": "Admin/Support",
+               "employees": 1328
+           },
+           {
+               "sectorLabel": "Educational Services",
+               "employees": 1796
+           },
+           {
+               "sectorLabel": "Manufacturing",
+               "employees": 1164
+           },
+           {
+               "sectorLabel": "Finance/Insurance",
+               "employees": 2945
+           },
+           {
+               "sectorLabel": "Wholesale",
+               "employees": 4205
+           }
+       ]
+   },
+   "residentialPastTrendInfos": [
+       {
+           "label": "1990",
+           "year": 1990,
+           "totalPopulation": 13880,
+           "households": 4689,
+           "gQPopulation": 75
+       },
+       {
+           "label": "2000",
+           "year": 2000,
+           "totalPopulation": 16423,
+           "households": 6344,
+           "gQPopulation": 117
+       }
+   ],
+   "employmentPastTrendInfos": [
+       {
+           "label": "2003",
+           "year": 2003,
+           "employmentEntries": [
+               {
+                   "sectorLabel": "Transport/Warehouse",
+                   "employees": 22500
+               },
+               {
+                   "sectorLabel": "Professional",
+                   "employees": 43797
+               },
+               {
+                   "sectorLabel": "Retail Trade",
+                   "employees": 86500
+               },
+               {
+                   "sectorLabel": "Information",
+                   "employees": 19947
+               },
+               {
+                   "sectorLabel": "Construction",
+                   "employees": 30200
+               },
+               {
+                   "sectorLabel": "Utilities",
+                   "employees": 450
+               },
+               {
+                   "sectorLabel": "Wholesale",
+                   "employees": 34500
+               },
+               {
+                   "sectorLabel": "Educational Services",
+                   "employees": 52500
+               },
+               {
+                   "sectorLabel": "Finance/Insurance",
+                   "employees": 54000
+               },
+               {
+                   "sectorLabel": "Management",
+                   "employees": 3100
+               },
+               {
+                   "sectorLabel": "Ag/Forest/Fish/Hunt",
+                   "employees": 800
+               },
+               {
+                   "sectorLabel": "Accommodation/Food",
+                   "employees": 58500
+               },
+               {
+                   "sectorLabel": "Admin/Support",
+                   "employees": 18500
+               },
+               {
+                   "sectorLabel": "Arts/Entertain/Rec.",
+                   "employees": 8338
+               },
+               {
+                   "sectorLabel": "Healthcare",
+                   "employees": 82517
+               },
+               {
+                   "sectorLabel": "Mining",
+                   "employees": 445
+               },
+               {
+                   "sectorLabel": "Other Services",
+                   "employees": 32345
+               },
+               {
+                   "sectorLabel": "Real Estate/Rental",
+                   "employees": 12500
+               },
+               {
+                   "sectorLabel": "Manufacturing",
+                   "employees": 61050
+               }
+           ]
+       },
+       {
+           "label": "1998",
+           "year": 1998,
+           "employmentEntries": [
+               {
+                   "sectorLabel": "Other Services",
+                   "employees": 31435
+               },
+               {
+                   "sectorLabel": "Healthcare",
+                   "employees": 71070
+               },
+               {
+                   "sectorLabel": "Accommodation/Food",
+                   "employees": 56142
+               },
+               {
+                   "sectorLabel": "Management",
+                   "employees": 2850
+               },
+               {
+                   "sectorLabel": "Ag/Forest/Fish/Hunt",
+                   "employees": 850
+               },
+               {
+                   "sectorLabel": "Mining",
+                   "employees": 555
+               },
+               {
+                   "sectorLabel": "Real Estate/Rental",
+                   "employees": 1182
+               },
+               {
+                   "sectorLabel": "Utilities",
+                   "employees": 400
+               },
+               {
+                   "sectorLabel": "Admin/Support",
+                   "employees": 18000
+               },
+               {
+                   "sectorLabel": "Manufacturing",
+                   "employees": 55500
+               },
+               {
+                   "sectorLabel": "Construction",
+                   "employees": 30000
+               },
+               {
+                   "sectorLabel": "Retail Trade",
+                   "employees": 84771
+               },
+               {
+                   "sectorLabel": "Wholesale",
+                   "employees": 39344
+               },
+               {
+                   "sectorLabel": "Finance/Insurance",
+                   "employees": 66658
+               },
+               {
+                   "sectorLabel": "Transport/Warehouse",
+                   "employees": 24300
+               },
+               {
+                   "sectorLabel": "Arts/Entertain/Rec.",
+                   "employees": 6573
+               },
+               {
+                   "sectorLabel": "Professional",
+                   "employees": 41542
+               },
+               {
+                   "sectorLabel": "Educational Services",
+                   "employees": 51000
+               },
+               {
+                   "sectorLabel": "Information",
+                   "employees": 19467
+               }
+           ]
+       }
+   ],
+   "localJurisdictions": [
+       {
+           "label": "Edge Township"
+       },
+       {
+           "label": "Edge City"
+       },
+       {
+           "label": "Central City"
+       }
+   ]
+}
+
+////
+
+{
+    "docType": "DemandConfig",
+    "projectId": "557958277777f87c4f3ab60644046f0b",
+    "baseYear": 2014,
+    "totalPopulationFeatureFieldName": "UFI",
+    "numberOfHouseholdsFeatureFieldName": "UFI",
+    "numberOfHousingUnitsFeatureFieldName": "UFI",
+    "groupQuartersPopulationFeatureFieldName": "UFI",
+    "projections": [
+        {
+            "year": 2005,
+            "label": "2005"
+        },
+        {
+            "year": 2010,
+            "label": "2010"
+        },
+        {
+            "year": 2015,
+            "label": "2015"
+        }
+    ],
+    "sectors": [
+        {
+            "code": "c2",
+            "label": "l2",
+            "featureFieldName": "STORMSURGE",
+            "associatedALUs": {
+                "176bf47f1c37cd08814663e76b009799": "Industrial",
+                "176bf47f1c37cd08814663e76b009aa1": "Parkland",
+                "176bf47f1c37cd08814663e76b009b67": "Residential"
+            }
+        },
+        {
+            "code": "c1",
+            "label": "l1",
+            "featureFieldName": "FLOOD1PCT",
+            "associatedALUs": {
+                "176bf47f1c37cd08814663e76b008a79": "Commercial",
+                "176bf47f1c37cd08814663e76b008c0f": "Education"
+            }
+        }
+    ],
+    "currentDemographic": {},
+    "residentialPastTrendInfos": [],
+    "employmentPastTrendInfos": [],
+    "employmentGrowthRates": [],
+    "demographicTrends": [
+        {
+            "label": "Growth Trend",
+            "demographicData": [
+                {
+                    "@class": ".ResidentialDemographicData",
+                    "projectionLabel": "2010",
+                    "totalPopulation": 357363122962432,
+                    "housingUnits": 348987424768,
+                    "gQPopulation": 3250198669434,
+                    "averageHouseholdSize": 1014.6867742538441,
+                    "households": 348987424768,
+                    "vacantLand": null
+                },
+                {
+                    "@class": ".EmploymentDemographicData",
+                    "projectionLabel": "2005",
+                    "sectorLabel": "dds",
+                    "employees": 132550
+                },
+                {
+                    "@class": ".EmploymentDemographicData",
+                    "projectionLabel": "2010",
+                    "sectorLabel": "dds",
+                    "employees": 404510
+                },
+                {
+                    "@class": ".ResidentialDemographicData",
+                    "projectionLabel": "2005",
+                    "totalPopulation": 348987424768,
+                    "housingUnits": 10905857024,
+                    "gQPopulation": 33282034375,
+                    "averageHouseholdSize": 28.9482421875,
+                    "households": 10905857024,
+                    "vacantLand": null
+                }
+            ]
+        }
+    ],
+    "localJurisdictions": [],
+    "includeTrends": false
+}
+
+///////////////////
+

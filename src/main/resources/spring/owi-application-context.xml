@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+   http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+	<!-- default-autowire="byName"> don't know if this was the cause of a Dao 
+		problem before, not updating entities -->
+	<!-- Enable automatic classpath scanning -->
+	<context:component-scan base-package="au.org.aurin.wif" />
+	<!-- 
+	<context:component-scan base-package="au.org.aurin.data.provider.broker.si"/>
+	<import
+     resource="classpath*:au/org/aurin/data/provider/client/integration-context.xml" />
+     
+    <bean id="jobRequestSubmitter" class="au.org.aurin.data.provider.broker.JobRequestSubmitter" />
+	<context:property-placeholder
+		location="file:///${aurin.dir}/aurin-data-provider2-combined.properties,
+               classpath*:aurin-data-provider2-service.properties, file:///${aurin.dir}/aurin-wif-combined.properties,classpath*:aurin-wif-combined.properties" />
+	-->
+	<context:property-placeholder
+		location="file:///${aurin.dir}/whatif-combined.properties,classpath*:whatif-combined.properties" /> <!-- location="file:///${aurin.dir}/aurin-wif-combined.properties,classpath*:aurin-wif-combined.properties"  -->
+		
+	<!-- WHAT IF ANALYSIS data source PROPERTIES -->
+
+	<bean id="geoserverPublisher" class="it.geosolutions.geoserver.rest.GeoServerRESTPublisher">
+		<constructor-arg value="${geoserver.rest-url}" />
+		<constructor-arg value="${geoserver.username}" />
+		<constructor-arg value="${geoserver.password}" />
+	</bean>
+	
+	<bean id="geoserverConfig" class="au.org.aurin.wif.config.GeoServerConfig">
+		<property name="workspace" value="${wif.geoserver.workspace}" />
+		<property name="storeName" value="${wif.geoserver.storeName}" />
+		<property name="restUrl" value="${geoserver.rest-url}" />
+		<property name="userName" value="${geoserver.username}" />
+		<property name="password" value="${geoserver.password}" />
+	</bean>
+
+	<bean id="couchdbConfig" class="au.org.aurin.wif.config.CouchDBConfig">
+		<property name="repoURL" value="${wif.couchdb.repoURL}" />
+		<property name="wifDB" value="${wif.couchdb.wifDB}" />
+		<property name="login" value="${wif.couchdb.login}" />
+		<property name="password" value="${wif.couchdb.password}" />
+		<property name="loginRequired" value="${wif.couchdb.loginRequired}" />
+	</bean>
+	<bean id="wifConfig" class="au.org.aurin.wif.config.WifConfig">
+		<property name="serverWMSURL" value="${wif.config.serverWMSURL}" />
+		<property name="restClientTargetURL" value="${wif.config.restClientTargetURL}" />
+				<property name="testAllocationArea" value="${wif.config.testAllocationArea}" />
+				<property name="standAlone" value="${wif.config.standAlone}" />
+		<property name="middlewareService" value="${wif.config.middlewareService}" />
+		<property name="productionLevel" value="${wif.config.productionLevel}" />
+	</bean>
+	
+		<bean id="SuitabilityAnalysisReport" class="au.org.aurin.wif.model.reports.suitability.SuitabilityAnalysisReport">
+		</bean>
+		
+		<bean id="AllocationSimpleAnalysisReport" class="au.org.aurin.wif.model.reports.allocation.AllocationSimpleAnalysisReport">
+		</bean>
+		
+		<bean id="BirtReport" class="au.org.aurin.wif.model.reports.BirtReport">
+		</bean>
+
+	<!-- Activates @Scheduled and @Async annotations for scheduling -->
+	<!-- <task:annotation-driven executor="executorWithPoolSizeRange" scheduler="taskScheduler"/> -->
+
+	<!-- Activates @Async annotations for scheduling -->
+	<task:annotation-driven executor="asyncTaskExecutor" />
+
+	<!-- The 'executor' element: When a task is submitted, the executor will 
+		first try to use a free thread if the number of active threads is currently 
+		less than the core size. If the core size has been reached, then the task 
+		will be added to the queue as long as its capacity has not yet been reached. 
+		Only then, if the queue's capacity has been reached, will the executor create 
+		a new thread beyond the core size. If the max size has also been reached, 
+		then the executor will reject the task See: 25.4.2 The 'executor' element -->
+
+	<!-- Defines a ThreadPoolTaskExecutor instance with configurable pool size, 
+		queue-capacity, keep-alive, and rejection-policy values. The id becomes the 
+		default thread name prefix -->
+
+	<task:executor id="asyncTaskExecutor" pool-size="5-25"
+		queue-capacity="100" rejection-policy="CALLER_RUNS" />
+
+	<!-- Defines a ThreadPoolTaskScheduler instance with configurable pool size. 
+		The id becomes the default thread name prefix. -->
+	<!-- <task:scheduler id="taskScheduler" pool-size="1"/> -->
+
+</beans>

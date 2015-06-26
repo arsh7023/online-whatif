@@ -1,0 +1,14 @@
+       {
+           "_id": "86922660023c51b064ba22439705d379",
+           "docType": "SuitabilityLU",
+           "projectId": "DemonstrationTestID",
+           "label": "Residential",
+           "featureFieldName": "SCORE_1",
+           "_rev": "1-2e398ddf6399230833ed37c7b140d706",
+           "associatedALUs": {
+               "86922660023c51b064ba22439704cb6e": "Low Density Res.",
+               "86922660023c51b064ba22439704a966": "Mixed Use",
+               "86922660023c51b064ba224397050c44": "Nursing Home",
+               "86922660023c51b064ba22439704b5e4": "Med Density Res."
+           }
+       }

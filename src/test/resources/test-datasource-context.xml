@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+	<!-- default-autowire="byName"> don't know if this was the cause of a Dao 
+		problem before, not updating entities -->
+<!-- TODO Find out if we can merge this datasource-context with one from the production, the only difference is the property placeholder -->
+	
+		<context:property-placeholder
+		location="file:${aurin.dir}/aurin-wif-combined.properties,classpath*:aurin-wif-combined.properties" ignore-unresolvable="true" />
+				
+	<bean id="wifDataStoreConfig"
+		class="au.edu.unimelb.eresearch.data.config.PostgisDataStoreConfig">
+		<property name="host" value="${wif.geo.db.host}" />
+		<property name="databaseName" value="${wif.geo.db.name}" />
+		<property name="port" value="${wif.geo.db.port}" />
+		<property name="user" value="${wif.geo.db.user}" />
+		<property name="password" value="${wif.geo.db.password}" />
+		<property name="databaseType" value="${wif.geo.db.type}" />
+		<property name="validateConnection" value="${wif.geo.db.validateConnection}" />
+		<property name="schema" value="${wif.geo.db.schema}" />
+	</bean>
+
+	<bean id="dataSourceFactory" class="au.edu.unimelb.eresearch.data.DataSourceFactory" />
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${wif.datasource.driverclassname}" />
+		<property name="url" value="${wif.datasource.url}" />
+		<property name="username" value="${wif.datasource.username}" />
+		<property name="password" value="${wif.datasource.password}" />
+		<property name="initialSize" value="15" />
+		<property name="maxActive" value="10" />
+	</bean>
+
+</beans>

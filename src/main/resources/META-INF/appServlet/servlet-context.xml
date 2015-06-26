@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd" >
+
+    <!--
+        Add FeatureHttpMessageConverter to the default list of HttpMessageConverters..
+        ref: https://jira.springsource.org/browse/SPR-7504?focusedCommentId=58053&page=com.atlassian.jira.plugin.system.issuetabpanels%253Acomment-tabpanel
+    -->
+    <mvc:annotation-driven >
+        <mvc:message-converters>
+            <bean id="featureGeoJsonHttpMessageConverter" class="au.org.aurin.wif.io.FeatureHttpMessageConverterJson"><!-- au.edu.unimelb.eresearch.spring.http.converter.geojson.FeatureHttpMessageConverter -->
+                <property name="featureJSON" ref="featureJSON" />
+            </bean>
+            <bean id="featureJsonHttpMessageConverter" class="au.org.aurin.wif.io.FeatureHttpMessageConverter"><!-- au.edu.unimelb.eresearch.spring.http.converter.json.FeatureHttpMessageConverter -->
+                <property name="featureJSON" ref="featureJSON" />
+            </bean>
+     
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <mvc:resources location="/resources/" mapping="/resources/**" />
+
+    <bean
+        class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <property name="mediaTypes">
+            <map>
+                      <entry key="json" value="application/json" />    
+                <entry key="geojson" value="application/geo+json" />
+            </map>
+        </property>
+<!--         <property name="defaultContentType" value="application/geo+json" /> -->
+             <property name="defaultContentType" value="application/json" />
+        <property name="useNotAcceptableStatusCode" value="true" />
+    </bean>
+
+ <bean id="multipartResolver"
+  class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+
+<!--   <bean id="jspViewResolver" -->
+<!-- 	class="org.springframework.web.servlet.view.InternalResourceViewResolver"> -->
+<!-- 		<property name="viewClass" -->
+<!-- 			value="org.springframework.web.servlet.view.JstlView" /> -->
+<!-- 		<property name="prefix" value="/WEB-INF/jsp/" /> -->
+<!-- 		<property name="suffix" value=".jsp" /> -->
+<!--   </bean> -->
+  
+  
+    <import resource="controllers.xml" />
+
+ <!-- 
+    <bean id="featureJSON" class="org.geotools.geojson.feature.FeatureJSON"/>
+-->
+</beans>

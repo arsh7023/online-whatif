@@ -1,0 +1,144 @@
+{
+   "label": "SuburbanizationNew",
+   "docType": "SuitabilityScenario",
+   "projectId": "DemonstrationTestID",
+   "featureFieldName": "Suburbanization",
+   "suitabilityRules": [
+       {
+           "docType": "SuitabilityRule",
+           "suitabilityLU": {
+               "86922660023c51b064ba22439705d379": "Residential"
+           },
+          "convertibleLUs": {
+               "86922660023c51b064ba22439704f0e1": "Undeveloped",
+               "86922660023c51b064ba22439705050d": "Agriculture"
+           },
+           "scenarioId": "SuburbanizationTestID",
+         "factorImportances": [
+               {
+                   "factor": {
+                       "86922660023c51b064ba224397051006": "streams"
+                   },
+                   "importance": 0,
+                   "factorTypeRatings": [
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba224397052ed9": "Outside buffers"
+                           },
+                           "score": 0
+                       },
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba224397052784": "<100' - <250'"
+                           },
+                           "score": 0
+                       },
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba224397051aed": "<100'"
+                           },
+                           "score": 0
+                       },
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba224397053ad0": "<250' - <500'"
+                           },
+                           "score": 0
+                       }
+                   ]
+               },
+               {
+                   "factor": {
+                       "86922660023c51b064ba224397057ae4": "slopes"
+                   },
+                   "importance": 100,
+                   "factorTypeRatings": [
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba2243970592c4": "18% - <25%"
+                           },
+                           "score": 0
+                       },
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba224397058292": "6% - <12%"
+                           },
+                           "score": 50
+                       },
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba2243970592a4": ">=25%"
+                           },
+                           "score": 0
+                       },
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba224397059254": "12% - <18%"
+                           },
+                           "score": 0
+                       },
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba22439705a02d": "<6%"
+                           },
+                           "score": 100
+                       }
+                   ]
+               },
+               {
+                   "factor": {
+                       "86922660023c51b064ba22439705ae7e": "100-year flood"
+                   },
+                   "importance": 25,
+                   "factorTypeRatings": [
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba22439705c08a": "Inside Flood"
+                           },
+                           "score": 0
+                       },
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba22439705b8b1": "Outside Flood"
+                           },
+                           "score": 100
+                       }
+                   ]
+               },
+               {
+                   "factor": {
+                       "86922660023c51b064ba224397053ba0": "access"
+                   },
+                   "importance": 25,
+                   "factorTypeRatings": [
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba224397055363": "Low"
+                           },
+                           "score": 25
+                       },
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba224397054bc0": "High"
+                           },
+                           "score": 100
+                       },
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba2243970549dc": "Medium High"
+                           },
+                           "score": 75
+                       },
+                       {
+                           "factorType": {
+                               "86922660023c51b064ba224397055d23": "Medium"
+                           },
+                           "score": 50
+                       }
+                   ]
+               }
+           ]
+	   }
+   ],
+   "ready": true
+}
