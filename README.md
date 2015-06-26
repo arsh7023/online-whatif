@@ -1,6 +1,6 @@
 # Online WhatIf
 
-Online WhatIf is a reimplementation of [What if? 2.0](http://www.whatifinc.biz/product.php), originally conceived and written by Dick Klosterman.  This is the What If scenario module, which provides a RESTful backend to all functionality, and is intended to be used with [WhatIf-UI](https://github.com/AURIN/online-whatif), a web front end and [WorkbenchAuth](https://github.com/AURIN/workbenchauth), a simple authentication system.
+Online WhatIf is a reimplementation of [What if? 2.0](http://www.whatifinc.biz/product.php), originally conceived and written by Dick Klosterman.  This is the What If scenario module, which provides a RESTful backend to all functionality, and is intended to be used with [Online WhatIf UI](https://github.com/AURIN/online-whatif-ui), a web front end and [WorkbenchAuth](https://github.com/AURIN/workbenchauth), a simple authentication system.
 
 It is assumed that you are proficient with Linux, including installing custom server softare.  This document will guide you through installing all of the required components on a single virtual machine.
 
