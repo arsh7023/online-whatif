@@ -115,7 +115,7 @@ CREATE TABLE application
   appname CHARACTER varying(255) NOT NULL,
   appcontact CHARACTER varying(255) NOT NULL,
   appurl CHARACTER varying(255) NOT NULL,
-  CONSTRAINT app_pkey PRIMARY KEY (app_id)
+  CONSTRAINT app_pkey PRIMARY KEY (app_id),
   CONSTRAINT users_apps UNIQUE (appname)
 )
 WITH (
