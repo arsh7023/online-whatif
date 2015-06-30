@@ -487,15 +487,12 @@ Allow the dev machine to be able to talk to github account.  If you're cloning f
 	git clone git@github.com:AURIN/online-whatif.git
 	git clone git@github.com:AURIN/online-whatif-ui.git
 	cd workbenchauth
-	git checkout develop
 	export AURIN_DIR="/etc/aurin"
 	export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre
 	mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
 	cd ../online-whatif
-	git checkout develop
 	mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
 	cd ../online-whatif-ui
-	git checkout develop
 	mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
 
 If you have problem with the tests you can use -Dmaven.test.skip=true.
@@ -505,8 +502,8 @@ If you have problem with the tests you can use -Dmaven.test.skip=true.
 If you're building on a different machine, copy these to the what-if machine first, then deploy them in the Tomcat application container:
 
 	sudo cp ~/wd/workbenchauth/target/workbenchauth-1.0.0.war /var/lib/tomcat7/webapps/workbenchauth.war
-	sudo cp ~/wd/online-whatif/target/aurin-wif-0.3.1.war /var/lib/tomcat7/webapps/aurin-wif.war
-	sudo cp ~/wd/online-whatif-ui/target/whatif-0.3.1.war /var/lib/tomcat7/webapps/whatif.war
+	sudo cp ~/wd/online-whatif/target/aurin-wif-1.0.war /var/lib/tomcat7/webapps/aurin-wif.war
+	sudo cp ~/wd/online-whatif-ui/target/whatif-1.0.war /var/lib/tomcat7/webapps/whatif.war
 
 Restart the services:
 
