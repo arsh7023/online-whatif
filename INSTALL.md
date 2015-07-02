@@ -263,7 +263,26 @@ However, it can be suppressed by adding the following line to /etc/apache2/apach
 
 ### A note on Tomcat and Self Signed Certificates
 
-XXX Write this section
+If you're relying on self-signed certificates, some care is necessary in order to make sure that all of the components trust the certificate that you create.  If you follow the installation instructions in this document, this should all be taken care of for you, and you can safely skip this section.  If you need to generate your own self-signed certificate then this section might be useful to you.
+
+To generate a self-signed certificate, refer to the [Ubuntu Server Guide](https://help.ubuntu.com/lts/serverguide/certificates-and-security.html), and keep these points in mind:
+
+* The Common Name (CN) in the certificate must match the server's DNS name.  In our example this is: whatif-demo.
+* Make sure that you save your public key in /etc/ssl/certs with a .pem file extension.
+
+Once this is done, update the /etc/apache2/sites-enabled/default-ssl.conf to point to your new certificate:
+
+	SSLCertificateFile      /etc/ssl/certs/ssl-cert-snakeoil.pem
+	SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+
+Next we need to import the public key into the java keystore.  This happens automatically the first time you install the ca-certificates-java package (when you install java).  To the java keystore to include your new public key, run the refresh-java-keystore.sh script from the utils directory:
+
+	sudo refresh-java-keystore.sh
+
+Possible reasons you might want to generate your own public key:
+
+* If whatif can't authenticate against the workbenchauth service
+* If your server's hostname (/etc/hostname) does not match the DNS name that you're using
 
 ### Configure Tomcat
 
@@ -533,8 +552,6 @@ You should now be able to [log in to whatif](https://whatif-demo/whatif/login). 
 ## Local Development Setup
 
 Note that this documentation is only required if you wish to contribute to WhatIf.  It may also be out of date.
-
-XXX Need to add reference on how to access/generate the API documentation.
 
 ### Javadocs
 
