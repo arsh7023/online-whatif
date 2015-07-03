@@ -284,6 +284,24 @@ Possible reasons you might want to generate your own public key:
 * If whatif can't authenticate against the workbenchauth service
 * If your server's hostname (/etc/hostname) does not match the DNS name that you're using
 
+Here's an example of the error message you'd see in the tomcat log (/var/log/tomcat7/catalina.out) if the java keystore does not contain your SSL public key:
+
+	15:39:09.147 [ajp-bio-8009-exec-1] INFO  a.o.aurin.dispatcher.RestController - org.springframework.web.client.ResourceAccessException: I/O error: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target; nested exception is javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+
+In this case, running the above-mentioned refresh-java-keystore.sh script and restarting tomcat should fix the problem, e.g.:
+
+	root@whatif-demo:/home/whatif/wd/online-whatif/utils# ./refresh-java-keystore.sh 
+	Replacing debian:Starfield_Class_2_CA.pem
+	Replacing debian:Juur-SK.pem
+	[snip]
+	Replacing debian:Verisign_Class_2_Public_Primary_Certification_Authority_-_G2.pem
+	Replacing debian:TC_TrustCenter_Class_3_CA_II.pem
+	Adding debian:whatif-demo.pem
+	Replacing debian:GlobalSign_Root_CA.pem
+	Replacing debian:Thawte_Premium_Server_CA.pem
+	[snip]
+	done.
+
 ### Configure Tomcat
 
 	sudo vim /etc/tomcat7/server.xml 
