@@ -275,7 +275,7 @@ Once this is done, update the /etc/apache2/sites-enabled/default-ssl.conf to poi
 	SSLCertificateFile      /etc/ssl/certs/ssl-cert-snakeoil.pem
 	SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
 
-Next we need to import the public key into the java keystore.  This happens automatically the first time you install the ca-certificates-java package (when you install java).  To the java keystore to include your new public key, run the refresh-java-keystore.sh script from the utils directory:
+Next we need to import the public key into the java keystore.  This happens automatically the first time you install the ca-certificates-java package (when you install java).  To the java keystore to include your new public key, run the [refresh-java-keystore.sh](utils/refresh-java-keystore.sh) script from the utils directory:
 
 	sudo refresh-java-keystore.sh
 
