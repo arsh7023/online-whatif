@@ -66,15 +66,15 @@ public class AsyncAllocationService {
   @Resource
   private DemandConfigService demandConfigService;
 
-  /** The demand config service. */
+  /** The demand scenario service. */
   @Resource
   private DemandScenarioService demandScenarioService;
 
-  /** The manual demand config service. */
+  /** The demand outcome service. */
   @Resource
   private DemandOutcomeService manualdemandScenarioService;
 
-  /** The demand config service. */
+  /** The suitability scenario service. */
   @Resource
   private SuitabilityScenarioService suitabilityScenarioService;
 
