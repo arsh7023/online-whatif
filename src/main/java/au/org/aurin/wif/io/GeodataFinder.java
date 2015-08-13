@@ -489,7 +489,7 @@ public class GeodataFinder {
           + " as b from "
           + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
           + uazTbl + " group by " + "\"" + attribute + "\"" + "," + "\""
-          + "color" + "\"" + ") as c";
+          + stColumns.get(0) + "\"" + ") as c";
     }
 
     // final String query = "SELECT DISTINCT \"" + attribute + "\" FROM "

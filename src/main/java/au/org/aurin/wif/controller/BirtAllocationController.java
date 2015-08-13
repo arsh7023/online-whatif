@@ -619,7 +619,7 @@ public class BirtAllocationController {
   /////////////////////////////////////////////////////////////////////
   
   /**
-   * Generated allocation scenario xls report
+   * Generated allocation scenario pdf new report
    * 
    * @param response
    * @param id
@@ -812,7 +812,7 @@ public class BirtAllocationController {
       birtEngine = factory.createReportEngine(config);
 
       final URL peopleresource = getClass()
-          .getResource("/allocationnew.rptdesign"); // allocation.rptdesign
+          .getResource("/allocationnewpdf.rptdesign"); // allocation.rptdesign
 
       IReportRunnable runnable = null;
       runnable = birtEngine.openReportDesign(peopleresource.getFile());
@@ -828,10 +828,14 @@ public class BirtAllocationController {
       pdfOptions.setOutputFormat("pdf");
       pdfOptions.setOutputFileName(tempDir + "/palloc.pdf");
 
-         
-
+      //pdfOptions.setOutputFormat(IPDFRenderOption.OUTPUT_EMITTERID_PDF); 
+      
       pdfOptions.setOption(IPDFRenderOption.PAGE_OVERFLOW,
           IPDFRenderOption.FIT_TO_PAGE_SIZE);
+      pdfOptions.setOption(IPDFRenderOption.PDF_HYPHENATION, true);
+      pdfOptions.setOption(IPDFRenderOption.PDF_TEXT_WRAPPING, true);
+      
+
       runAndRenderTask.setRenderOption(pdfOptions);
 
       runAndRenderTask.run();
@@ -848,11 +852,11 @@ public class BirtAllocationController {
       file.delete();
       LOGGER
           .info(
-              "*******>> Completed Birt Report xls for Allocation Scenario  id ={}",
+              "*******>> Completed Birt Report pdf new for Allocation Scenario  id ={}",
               id);
 
     } catch (final Exception e) {
-      LOGGER.debug("getBirt xls Report error : ={}", e.toString());
+      LOGGER.debug("getBirt pdf Report error : ={}", e.toString());
 
     } finally {
       birtEngine.destroy();
@@ -1073,8 +1077,10 @@ public class BirtAllocationController {
       xlsOptions.setOutputFormat("xls");
       xlsOptions.setOutputFileName(tempDir + "/xalloc.xls");
 
+     
       xlsOptions.setOption(IPDFRenderOption.PAGE_OVERFLOW,
-          IPDFRenderOption.FIT_TO_PAGE_SIZE);
+         IPDFRenderOption.FIT_TO_PAGE_SIZE);
+      
       // pdfOptions.setOutputStream(response.getOutputStream());
       runAndRenderTask.setRenderOption(xlsOptions);
 
@@ -1104,6 +1110,8 @@ public class BirtAllocationController {
     return bytem;
 
   }
+  
+  
 
   
 

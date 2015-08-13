@@ -289,9 +289,9 @@ public class BirtDemandControllerNew {
       filexml.delete();
 
       LOGGER.info(
-          "*******>> Completed Birt Report for demand Scenario  id ={}", id);
+          "*******>> Completed Birt Demand Report for demand Scenario  id ={}", id);
     } catch (final Exception e) {
-      LOGGER.debug("getBirt Report error : ={}", e.toString());
+      LOGGER.debug("getBirt Demand Report error : ={}", e.toString());
     } finally {
       birtEngine.destroy();
     }
@@ -312,261 +312,68 @@ public class BirtDemandControllerNew {
    * @throws WifInvalidConfigException
    * @throws ParsingException
    * @throws IOException
+ * @throws IncompleteDemandScenarioException 
    */
-  @RequestMapping(method = RequestMethod.GET, value = "/{projectId}/demandScenarioNew/{id}/pdfOutcome")
+  @RequestMapping(method = RequestMethod.GET, value = "/{projectId}/demandScenarios/{id}/pdfOutcome")
   @ResponseBody
   public byte[] getPDFDemandOutcome(final HttpServletResponse response,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException, IOException {
+      WifInvalidConfigException, ParsingException, IOException, IncompleteDemandScenarioException {
 
     byte[] bytem = null;
     LOGGER.info(
-        "*******>> getBirt Report pdf for Suitability Scenario  id ={}", id);
+        "*******>> getBirt Demand Report pdf for demand Scenario  id ={}", id);
 
-    // SuitabilityScenario suitabilityScenario = suitabilityScenarioService
-    // .getSuitabilityScenario("59c979a3ed6fdab3ecf88de7260f3182");
 
-    final SuitabilityScenario suitabilityScenario = suitabilityScenarioService
-        .getSuitabilityScenario(id);
-    SuitabilityAnalysisReport = new SuitabilityAnalysisReport();
-    SuitabilityAnalysisReport = reportService
-        .getSuitabilityAnalysisReport(suitabilityScenario);
+    final DemandScenario demandScenario = demandScenarioService
+        .getDemandScenario(id);
 
-    // carServiceNew = new carServiceNew(2);
+    final WifProject project = demandScenario.getWifProject();
+
     BirtReport = new BirtReport();
-    BirtReport.setProjectName(SuitabilityAnalysisReport.getLabel());
-    BirtReport.setScenarioName(SuitabilityAnalysisReport.getScenarioLabel());
+    BirtReport.setProjectName(project.getLabel());
+    BirtReport.setScenarioName(demandScenario.getLabel());
 
-    // System.out.println(BirtReport.getProjectName());
-    // //System.out.println(SuitabilityAnalysisReport.toString());
-    final Set<SuitabilityAnalysisItem> it = SuitabilityAnalysisReport
-        .getItems();
+    final String demandConfigId = project.getDemandConfigId();
+    final DemandConfig demandConfig = demandConfigDao
+        .findDemandConfigById(demandConfigId);
 
     StringBuilder str = new StringBuilder("<property name='data'><list>");
-    StringBuilder str1 = new StringBuilder("");
-    StringBuilder str2 = new StringBuilder("");
-    StringBuilder str3 = new StringBuilder("");
-    StringBuilder str4 = new StringBuilder("");
-    StringBuilder str5 = new StringBuilder("");
-    StringBuilder str6 = new StringBuilder("");
-    StringBuilder str7 = new StringBuilder("");
-    StringBuilder str8 = new StringBuilder("");
-    StringBuilder str9 = new StringBuilder("");
 
-    for (final SuitabilityAnalysisItem s : it) {
-      // System.out.println(s.getTotalArea());
-      final Set<CategoryItem> ct = s.getSuitabilityCategories();
+    for (final Projection projection : demandConfig.getProjections()) {
 
-      str1 = new StringBuilder("");
-      str2 = new StringBuilder("");
-      str3 = new StringBuilder("");
-      str4 = new StringBuilder("");
-      str5 = new StringBuilder("");
-      str6 = new StringBuilder("");
-      str7 = new StringBuilder("");
-      str8 = new StringBuilder("");
-      str9 = new StringBuilder("");
+    }// end for projection
+    final List<AreaRequirement> areaRequirements = demandScenarioService
+        .getOutcome(id);
 
-      for (final CategoryItem st : ct) {
+    for (final AreaRequirement areaRequirement : areaRequirements) {
 
-        if (st.getCategory().equals("Undefined")) {
-
-          str1.append("<list>");
-          str1.append("<value>");
-          str1.append(st.getCategory());
-          str1.append("</value>");
-          str1.append("<value>");
-          str1.append(st.getScoreRange());
-          str1.append("</value>");
-          str1.append("<value>");
-          str1.append(st.getArea());
-          str1.append("</value>");
-          str1.append("<value>");
-          str1.append(s.getSuitabilityLULabel());
-          str1.append("</value>");
-          str1.append("<value>");
-          str1.append(s.getTotalArea());
-          str1.append("</value>");
-          str1 = str1.append("</list>");
-        }
-        if (st.getCategory().equals("Not Developable")) {
-          str2.append("<list>");
-          str2.append("<value>");
-          str2.append(st.getCategory());
-          str2.append("</value>");
-          str2.append("<value>");
-          str2.append(st.getScoreRange());
-          str2.append("</value>");
-          str2.append("<value>");
-          str2.append(st.getArea());
-          str2.append("</value>");
-          str2.append("<value>");
-          str2.append(s.getSuitabilityLULabel());
-          str2.append("</value>");
-          str2.append("<value>");
-          str2.append(s.getTotalArea());
-          str2.append("</value>");
-          str2.append("</list>");
-        }
-        if (st.getCategory().equals("Not Convertible")) {
-          str3.append("<list>");
-          str3.append("<value>");
-          str3.append(st.getCategory());
-          str3.append("</value>");
-          str3.append("<value>");
-          str3.append(st.getScoreRange());
-          str3.append("</value>");
-          str3.append("<value>");
-          str3.append(st.getArea());
-          str3.append("</value>");
-          str3.append("<value>");
-          str3.append(s.getSuitabilityLULabel());
-          str3.append("</value>");
-          str3.append("<value>");
-          str3.append(s.getTotalArea());
-          str3.append("</value>");
-          str3.append("</list>");
-        }
-        if (st.getCategory().equals("Not Suitable")) {
-          str4.append("<list>");
-          str4.append("<value>");
-          str4.append(st.getCategory());
-          str4.append("</value>");
-          str4.append("<value>");
-          str4.append(st.getScoreRange());
-          str4.append("</value>");
-          str4.append("<value>");
-          str4.append(st.getArea());
-          str4.append("</value>");
-          str4.append("<value>");
-          str4.append(s.getSuitabilityLULabel());
-          str4.append("</value>");
-          str4.append("<value>");
-          str4.append(s.getTotalArea());
-          str4.append("</value>");
-          str4.append("</list>");
-        }
-        if (st.getCategory().equals("LOW")) {
-          str5.append("<list>");
-          str5.append("<value>");
-          str5.append(st.getCategory());
-          str5.append("</value>");
-          str5.append("<value>");
-          str5.append(st.getScoreRange());
-          str5.append("</value>");
-          str5.append("<value>");
-          str5.append(st.getArea());
-          str5.append("</value>");
-          str5.append("<value>");
-          str5.append(s.getSuitabilityLULabel());
-          str5.append("</value>");
-          str5.append("<value>");
-          str5.append(s.getTotalArea());
-          str5.append("</value>");
-          str5.append("</list>");
-        }
-        if (st.getCategory().equals("MEDIUM_LOW")) {
-          str6.append("<list>");
-          str6.append("<value>");
-          str6.append(st.getCategory());
-          str6.append("</value>");
-          str6.append("<value>");
-          str6.append(st.getScoreRange());
-          str6.append("</value>");
-          str6.append("<value>");
-          str6.append(st.getArea());
-          str6.append("</value>");
-          str6.append("<value>");
-          str6.append(s.getSuitabilityLULabel());
-          str6.append("</value>");
-          str6.append("<value>");
-          str6.append(s.getTotalArea());
-          str6.append("</value>");
-          str6.append("</list>");
-        }
-        if (st.getCategory().equals("MEDIUM")) {
-          str7.append("<list>");
-          str7.append("<value>");
-          str7.append(st.getCategory());
-          str7.append("</value>");
-          str7.append("<value>");
-          str7.append(st.getScoreRange());
-          str7.append("</value>");
-          str7.append("<value>");
-          str7.append(st.getArea());
-          str7.append("</value>");
-          str7.append("<value>");
-          str7.append(s.getSuitabilityLULabel());
-          str7.append("</value>");
-          str7.append("<value>");
-          str7.append(s.getTotalArea());
-          str7.append("</value>");
-          str7.append("</list>");
-        }
-        if (st.getCategory().equals("MEDIUM_HIGH")) {
-          str8.append("<list>");
-          str8.append("<value>");
-          str8.append(st.getCategory());
-          str8.append("</value>");
-          str8.append("<value>");
-          str8.append(st.getScoreRange());
-          str8.append("</value>");
-          str8.append("<value>");
-          str8.append(st.getArea());
-          str8.append("</value>");
-          str8.append("<value>");
-          str8.append(s.getSuitabilityLULabel());
-          str8.append("</value>");
-          str8.append("<value>");
-          str8.append(s.getTotalArea());
-          str8.append("</value>");
-          str8.append("</list>");
-        }
-        if (st.getCategory().equals("HIGH")) {
-          str9.append("<list>");
-          str9.append("<value>");
-          str9.append(st.getCategory());
-          str9.append("</value>");
-          str9.append("<value>");
-          str9.append(st.getScoreRange());
-          str9.append("</value>");
-          str9.append("<value>");
-          str9.append(st.getArea());
-          str9.append("</value>");
-          str9.append("<value>");
-          str9.append(s.getSuitabilityLULabel());
-          str9.append("</value>");
-          str9.append("<value>");
-          str9.append(s.getTotalArea());
-          str9.append("</value>");
-          str9.append("</list>");
-        }
-
-      }
-      str.append(str1);
-      str.append(str2);
-      str.append(str3);
-      str.append(str4);
-      str.append(str5);
-      str.append(str6);
-      str.append(str7);
-      str.append(str8);
-      str.append(str9);
-
+      // if (areaRequirement.getProjectionLabel()
+      // .equals(projection.getLabel())) {
+      str.append("<list>");
+      str.append("<value>");
+      str.append(areaRequirement.getAllocationLULabel());
+      str.append("</value>");
+      str.append("<value>");
+      str.append(areaRequirement.getRequiredArea());
+      str.append("</value>");
+      str.append("<value>");
+      str.append(areaRequirement.getProjectionLabel());
+      str.append("</value>");
+      str.append("</list>");
     }
+
     str = str.append("</list>");
     str = str.append("</property>");
 
-    // ///////////////
-
+    //
     final String tempDir = System.getProperty("java.io.tmpdir");
-    final File filexml = new File(tempDir + "/suin.xml");
+    final File filexml = new File(tempDir + "/demand.xml");
     if (!filexml.exists()) {
       filexml.createNewFile();
     }
-    final FileWriter fwxml = new FileWriter(tempDir + "/suin.xml");
+    final FileWriter fwxml = new FileWriter(tempDir + "/demand.xml");
 
-    // FileWriter fwxml = new FileWriter("/Users/ashamakhy/Documents/ali.xml");
     final BufferedWriter bufferWritterxml = new BufferedWriter(fwxml);
 
     String strxml = "<?xml version='1.0' encoding='UTF-8'?>\n"
@@ -593,7 +400,6 @@ public class BirtDemandControllerNew {
     bufferWritterxml.write(strxml);
     bufferWritterxml.close();
     fwxml.close();
-
     final ApplicationContext context = new FileSystemXmlApplicationContext("/"
         + filexml.getPath());
 
@@ -606,11 +412,7 @@ public class BirtDemandControllerNew {
       // System.out.println(servletContext.getBean("BirtReport").toString());
       final BirtReport cc = (au.org.aurin.wif.model.reports.BirtReport) context
           .getBean("BirtReport");
-      // System.out.println(cc.getScenarioName().toString());
-
-      // System.out.println(cc.getData().toString());
-      // ArrayList<String[]> data = cc.getData();
-
+  
       config.getAppContext().put(
           EngineConstants.APPCONTEXT_BIRT_VIEWER_HTTPSERVET_REQUEST, context);
 
@@ -620,24 +422,24 @@ public class BirtDemandControllerNew {
       birtEngine = factory.createReportEngine(config);
 
       final URL peopleresource = getClass().getResource(
-          "/SpringSampleBIRTViewer.rptdesign"); // SpringSampleBIRTViewer.rptdesign
+          "/demand.rptdesign"); // SpringSampleBIRTViewer.rptdesign
 
       IReportRunnable runnable = null;
       runnable = birtEngine.openReportDesign(peopleresource.getFile());
       final IRunAndRenderTask runAndRenderTask = birtEngine
           .createRunAndRenderTask(runnable);
 
-      final File file = new File(tempDir + "/psuin.pdf");
+      final File file = new File(tempDir + "/pdemand.pdf");
       if (!file.exists()) {
         file.createNewFile();
       }
 
       final PDFRenderOption pdfOptions = new PDFRenderOption();
       pdfOptions.setOutputFormat("pdf");
-      pdfOptions.setOutputFileName(tempDir + "/psuin.pdf");
+      pdfOptions.setOutputFileName(tempDir + "/pdemand.pdf");
 
       pdfOptions.setOption(IPDFRenderOption.PAGE_OVERFLOW,
-          IPDFRenderOption.FIT_TO_PAGE_SIZE);
+          IPDFRenderOption.FIT_TO_PAGE);
       runAndRenderTask.setRenderOption(pdfOptions);
 
       runAndRenderTask.run();
@@ -654,11 +456,11 @@ public class BirtDemandControllerNew {
       file.delete();
       LOGGER
           .info(
-              "*******>> Completed Birt Report pdf for Suitability Scenario  id ={}",
+              "*******>> Completed Birt Demand Report pdf for demand Scenario  id ={}",
               id);
 
     } catch (final Exception e) {
-      LOGGER.debug("getBirt pdf Report error : ={}", e.toString());
+      LOGGER.debug("getBirtDemand pdf Report error : ={}", e.toString());
     } finally {
       birtEngine.destroy();
     }
@@ -677,352 +479,160 @@ public class BirtDemandControllerNew {
    * @throws WifInvalidConfigException
    * @throws ParsingException
    * @throws IOException
+ * @throws IncompleteDemandScenarioException 
    */
-  @RequestMapping(method = RequestMethod.GET, value = "/{projectId}/demandScenarioNew/{id}/xlsOutcome")
+  @RequestMapping(method = RequestMethod.GET, value = "/{projectId}/demandScenarios/{id}/xlsOutcome")
   @ResponseBody
   public byte[] getXLSDemandOutcome(final HttpServletResponse response,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException, IOException {
+      WifInvalidConfigException, ParsingException, IOException, IncompleteDemandScenarioException {
+	  
+	    byte[] bytem = null;
+	    LOGGER.info(
+	        "*******>> getBirt Demand Report xls for demand Scenario  id ={}", id);
 
-    byte[] bytem = null;
 
-    LOGGER.info(
-        "*******>> getBirt Report xls for Suitability Scenario  id ={}", id);
+	    final DemandScenario demandScenario = demandScenarioService
+	        .getDemandScenario(id);
 
-    final SuitabilityScenario suitabilityScenario = suitabilityScenarioService
-        .getSuitabilityScenario(id);
-    SuitabilityAnalysisReport = new SuitabilityAnalysisReport();
-    SuitabilityAnalysisReport = reportService
-        .getSuitabilityAnalysisReport(suitabilityScenario);
+	    final WifProject project = demandScenario.getWifProject();
 
-    BirtReport = new BirtReport();
-    BirtReport.setProjectName(SuitabilityAnalysisReport.getLabel());
-    BirtReport.setScenarioName(SuitabilityAnalysisReport.getScenarioLabel());
+	    BirtReport = new BirtReport();
+	    BirtReport.setProjectName(project.getLabel());
+	    BirtReport.setScenarioName(demandScenario.getLabel());
 
-    final Set<SuitabilityAnalysisItem> it = SuitabilityAnalysisReport
-        .getItems();
+	    final String demandConfigId = project.getDemandConfigId();
+	    final DemandConfig demandConfig = demandConfigDao
+	        .findDemandConfigById(demandConfigId);
 
-    StringBuilder str = new StringBuilder("<property name='data'><list>");
-    StringBuilder str1 = new StringBuilder("");
-    StringBuilder str2 = new StringBuilder("");
-    StringBuilder str3 = new StringBuilder("");
-    StringBuilder str4 = new StringBuilder("");
-    StringBuilder str5 = new StringBuilder("");
-    StringBuilder str6 = new StringBuilder("");
-    StringBuilder str7 = new StringBuilder("");
-    StringBuilder str8 = new StringBuilder("");
-    StringBuilder str9 = new StringBuilder("");
+	    StringBuilder str = new StringBuilder("<property name='data'><list>");
 
-    for (final SuitabilityAnalysisItem s : it) {
-      // System.out.println(s.getTotalArea());
-      final Set<CategoryItem> ct = s.getSuitabilityCategories();
+	    for (final Projection projection : demandConfig.getProjections()) {
 
-      str1 = new StringBuilder("");
-      str2 = new StringBuilder("");
-      str3 = new StringBuilder("");
-      str4 = new StringBuilder("");
-      str5 = new StringBuilder("");
-      str6 = new StringBuilder("");
-      str7 = new StringBuilder("");
-      str8 = new StringBuilder("");
-      str9 = new StringBuilder("");
+	    }// end for projection
+	    final List<AreaRequirement> areaRequirements = demandScenarioService
+	        .getOutcome(id);
 
-      for (final CategoryItem st : ct) {
+	    for (final AreaRequirement areaRequirement : areaRequirements) {
 
-        if (st.getCategory().equals("Undefined")) {
+	      // if (areaRequirement.getProjectionLabel()
+	      // .equals(projection.getLabel())) {
+	      str.append("<list>");
+	      str.append("<value>");
+	      str.append(areaRequirement.getAllocationLULabel());
+	      str.append("</value>");
+	      str.append("<value>");
+	      str.append(areaRequirement.getRequiredArea());
+	      str.append("</value>");
+	      str.append("<value>");
+	      str.append(areaRequirement.getProjectionLabel());
+	      str.append("</value>");
+	      str.append("</list>");
+	    }
 
-          str1.append("<list>");
-          str1.append("<value>");
-          str1.append(st.getCategory());
-          str1.append("</value>");
-          str1.append("<value>");
-          str1.append(st.getScoreRange());
-          str1.append("</value>");
-          str1.append("<value>");
-          str1.append(st.getArea());
-          str1.append("</value>");
-          str1.append("<value>");
-          str1.append(s.getSuitabilityLULabel());
-          str1.append("</value>");
-          str1.append("<value>");
-          str1.append(s.getTotalArea());
-          str1.append("</value>");
-          str1 = str1.append("</list>");
-        }
-        if (st.getCategory().equals("Not Developable")) {
-          str2.append("<list>");
-          str2.append("<value>");
-          str2.append(st.getCategory());
-          str2.append("</value>");
-          str2.append("<value>");
-          str2.append(st.getScoreRange());
-          str2.append("</value>");
-          str2.append("<value>");
-          str2.append(st.getArea());
-          str2.append("</value>");
-          str2.append("<value>");
-          str2.append(s.getSuitabilityLULabel());
-          str2.append("</value>");
-          str2.append("<value>");
-          str2.append(s.getTotalArea());
-          str2.append("</value>");
-          str2.append("</list>");
-        }
-        if (st.getCategory().equals("Not Convertible")) {
-          str3.append("<list>");
-          str3.append("<value>");
-          str3.append(st.getCategory());
-          str3.append("</value>");
-          str3.append("<value>");
-          str3.append(st.getScoreRange());
-          str3.append("</value>");
-          str3.append("<value>");
-          str3.append(st.getArea());
-          str3.append("</value>");
-          str3.append("<value>");
-          str3.append(s.getSuitabilityLULabel());
-          str3.append("</value>");
-          str3.append("<value>");
-          str3.append(s.getTotalArea());
-          str3.append("</value>");
-          str3.append("</list>");
-        }
-        if (st.getCategory().equals("Not Suitable")) {
-          str4.append("<list>");
-          str4.append("<value>");
-          str4.append(st.getCategory());
-          str4.append("</value>");
-          str4.append("<value>");
-          str4.append(st.getScoreRange());
-          str4.append("</value>");
-          str4.append("<value>");
-          str4.append(st.getArea());
-          str4.append("</value>");
-          str4.append("<value>");
-          str4.append(s.getSuitabilityLULabel());
-          str4.append("</value>");
-          str4.append("<value>");
-          str4.append(s.getTotalArea());
-          str4.append("</value>");
-          str4.append("</list>");
-        }
-        if (st.getCategory().equals("LOW")) {
-          str5.append("<list>");
-          str5.append("<value>");
-          str5.append(st.getCategory());
-          str5.append("</value>");
-          str5.append("<value>");
-          str5.append(st.getScoreRange());
-          str5.append("</value>");
-          str5.append("<value>");
-          str5.append(st.getArea());
-          str5.append("</value>");
-          str5.append("<value>");
-          str5.append(s.getSuitabilityLULabel());
-          str5.append("</value>");
-          str5.append("<value>");
-          str5.append(s.getTotalArea());
-          str5.append("</value>");
-          str5.append("</list>");
-        }
-        if (st.getCategory().equals("MEDIUM_LOW")) {
-          str6.append("<list>");
-          str6.append("<value>");
-          str6.append(st.getCategory());
-          str6.append("</value>");
-          str6.append("<value>");
-          str6.append(st.getScoreRange());
-          str6.append("</value>");
-          str6.append("<value>");
-          str6.append(st.getArea());
-          str6.append("</value>");
-          str6.append("<value>");
-          str6.append(s.getSuitabilityLULabel());
-          str6.append("</value>");
-          str6.append("<value>");
-          str6.append(s.getTotalArea());
-          str6.append("</value>");
-          str6.append("</list>");
-        }
-        if (st.getCategory().equals("MEDIUM")) {
-          str7.append("<list>");
-          str7.append("<value>");
-          str7.append(st.getCategory());
-          str7.append("</value>");
-          str7.append("<value>");
-          str7.append(st.getScoreRange());
-          str7.append("</value>");
-          str7.append("<value>");
-          str7.append(st.getArea());
-          str7.append("</value>");
-          str7.append("<value>");
-          str7.append(s.getSuitabilityLULabel());
-          str7.append("</value>");
-          str7.append("<value>");
-          str7.append(s.getTotalArea());
-          str7.append("</value>");
-          str7.append("</list>");
-        }
-        if (st.getCategory().equals("MEDIUM_HIGH")) {
-          str8.append("<list>");
-          str8.append("<value>");
-          str8.append(st.getCategory());
-          str8.append("</value>");
-          str8.append("<value>");
-          str8.append(st.getScoreRange());
-          str8.append("</value>");
-          str8.append("<value>");
-          str8.append(st.getArea());
-          str8.append("</value>");
-          str8.append("<value>");
-          str8.append(s.getSuitabilityLULabel());
-          str8.append("</value>");
-          str8.append("<value>");
-          str8.append(s.getTotalArea());
-          str8.append("</value>");
-          str8.append("</list>");
-        }
-        if (st.getCategory().equals("HIGH")) {
-          str9.append("<list>");
-          str9.append("<value>");
-          str9.append(st.getCategory());
-          str9.append("</value>");
-          str9.append("<value>");
-          str9.append(st.getScoreRange());
-          str9.append("</value>");
-          str9.append("<value>");
-          str9.append(st.getArea());
-          str9.append("</value>");
-          str9.append("<value>");
-          str9.append(s.getSuitabilityLULabel());
-          str9.append("</value>");
-          str9.append("<value>");
-          str9.append(s.getTotalArea());
-          str9.append("</value>");
-          str9.append("</list>");
-        }
+	    str = str.append("</list>");
+	    str = str.append("</property>");
 
-      }
-      str.append(str1);
-      str.append(str2);
-      str.append(str3);
-      str.append(str4);
-      str.append(str5);
-      str.append(str6);
-      str.append(str7);
-      str.append(str8);
-      str.append(str9);
+	    //
+	    final String tempDir = System.getProperty("java.io.tmpdir");
+	    final File filexml = new File(tempDir + "/demand.xml");
+	    if (!filexml.exists()) {
+	      filexml.createNewFile();
+	    }
+	    final FileWriter fwxml = new FileWriter(tempDir + "/demand.xml");
 
-    }
-    str = str.append("</list>");
-    str = str.append("</property>");
+	    final BufferedWriter bufferWritterxml = new BufferedWriter(fwxml);
 
-    // ///////////////
+	    String strxml = "<?xml version='1.0' encoding='UTF-8'?>\n"
+	        + "<beans xmlns='http://www.springframework.org/schema/beans'\n"
+	        + "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:tx='http://www.springframework.org/schema/tx'\n"
+	        + "xmlns:context='http://www.springframework.org/schema/context'\n"
+	        + "xmlns:task='http://www.springframework.org/schema/task'\n"
+	        + "xsi:schemaLocation='\n"
+	        + "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd\n"
+	        + "http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd\n"
+	        + "http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd\n"
+	        + "http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd'>\n";
+	    // + "<context:component-scan base-package='au.org.aurin.wif' />\n";
+	    bufferWritterxml.write(strxml);
 
-    final String tempDir = System.getProperty("java.io.tmpdir");
-    final File filexml = new File(tempDir + "/suin.xml");
-    if (!filexml.exists()) {
-      filexml.createNewFile();
-    }
-    final FileWriter fwxml = new FileWriter(tempDir + "/suin.xml");
+	    strxml = "<bean id='BirtReport' class='au.org.aurin.wif.model.reports.BirtReport'>"
+	        + "<property name='scenarioName' value='"
+	        + BirtReport.getScenarioName()
+	        + "' />"
+	        + "<property name='projectName' value='"
+	        + BirtReport.getProjectName()
+	        + "' />" + str + "</bean>\n</beans>";
 
-    // FileWriter fwxml = new FileWriter("/Users/ashamakhy/Documents/ali.xml");
-    final BufferedWriter bufferWritterxml = new BufferedWriter(fwxml);
+	    bufferWritterxml.write(strxml);
+	    bufferWritterxml.close();
+	    fwxml.close();
+	    final ApplicationContext context = new FileSystemXmlApplicationContext("/"
+	        + filexml.getPath());
 
-    String strxml = "<?xml version='1.0' encoding='UTF-8'?>\n"
-        + "<beans xmlns='http://www.springframework.org/schema/beans'\n"
-        + "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:tx='http://www.springframework.org/schema/tx'\n"
-        + "xmlns:context='http://www.springframework.org/schema/context'\n"
-        + "xmlns:task='http://www.springframework.org/schema/task'\n"
-        + "xsi:schemaLocation='\n"
-        + "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd\n"
-        + "http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd\n"
-        + "http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd\n"
-        + "http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd'>\n";
-    // + "<context:component-scan base-package='au.org.aurin.wif' />\n";
-    bufferWritterxml.write(strxml);
+	    // ///////////////birt
+	    // String mystr = "";
+	    IReportEngine birtEngine = null;
+	    try {
+	      final EngineConfig config = new EngineConfig();
 
-    strxml = "<bean id='BirtReport' class='au.org.aurin.wif.model.reports.BirtReport'>"
-        + "<property name='scenarioName' value='"
-        + BirtReport.getScenarioName()
-        + "' />"
-        + "<property name='projectName' value='"
-        + BirtReport.getProjectName()
-        + "' />" + str + "</bean>\n</beans>";
+	      // System.out.println(servletContext.getBean("BirtReport").toString());
+	      final BirtReport cc = (au.org.aurin.wif.model.reports.BirtReport) context
+	          .getBean("BirtReport");
+	  
+	      config.getAppContext().put(
+	          EngineConstants.APPCONTEXT_BIRT_VIEWER_HTTPSERVET_REQUEST, context);
 
-    bufferWritterxml.write(strxml);
-    bufferWritterxml.close();
-    fwxml.close();
+	      Platform.startup(config);
+	      final IReportEngineFactory factory = (IReportEngineFactory) Platform
+	          .createFactoryObject(IReportEngineFactory.EXTENSION_REPORT_ENGINE_FACTORY);
+	      birtEngine = factory.createReportEngine(config);
 
-    final ApplicationContext context = new FileSystemXmlApplicationContext("/"
-        + filexml.getPath());
+	      final URL peopleresource = getClass().getResource(
+	          "/demand.rptdesign"); // SpringSampleBIRTViewer.rptdesign
 
-    // ///////////////birt
-    // String mystr = "";
-    IReportEngine birtEngine = null;
-    try {
-      final EngineConfig config = new EngineConfig();
+	      IReportRunnable runnable = null;
+	      runnable = birtEngine.openReportDesign(peopleresource.getFile());
+	      final IRunAndRenderTask runAndRenderTask = birtEngine
+	          .createRunAndRenderTask(runnable);
 
-      // System.out.println(servletContext.getBean("BirtReport").toString());
-      final BirtReport cc = (au.org.aurin.wif.model.reports.BirtReport) context
-          .getBean("BirtReport");
+	      final File file = new File(tempDir + "/xdemand.xls");
+	      if (!file.exists()) {
+	        file.createNewFile();
+	      }
 
-      // ArrayList<String[]> data = cc.getData();
+	      final PDFRenderOption pdfOptions = new PDFRenderOption();
+	      pdfOptions.setOutputFormat("xls");
+	      pdfOptions.setOutputFileName(tempDir + "/xdemand.xls");
 
-      config.getAppContext().put(
-          EngineConstants.APPCONTEXT_BIRT_VIEWER_HTTPSERVET_REQUEST, context);
+	      pdfOptions.setOption(IPDFRenderOption.PAGE_OVERFLOW,
+	          IPDFRenderOption.FIT_TO_PAGE);
+	      runAndRenderTask.setRenderOption(pdfOptions);
 
-      Platform.startup(config);
-      final IReportEngineFactory factory = (IReportEngineFactory) Platform
-          .createFactoryObject(IReportEngineFactory.EXTENSION_REPORT_ENGINE_FACTORY);
-      birtEngine = factory.createReportEngine(config);
+	      runAndRenderTask.run();
+	      runAndRenderTask.close();
+	      filexml.delete();
 
-      final URL peopleresource = getClass().getResource(
-          "/SpringSampleBIRTViewer.rptdesign"); // SpringSampleBIRTViewer.rptdesign
+	      bytem = org.springframework.util.FileCopyUtils.copyToByteArray(file);
 
-      IReportRunnable runnable = null;
-      runnable = birtEngine.openReportDesign(peopleresource.getFile());
-      final IRunAndRenderTask runAndRenderTask = birtEngine
-          .createRunAndRenderTask(runnable);
+	      response.setHeader("Content-Disposition", "attachment; filename=\""
+	          + file.getName() + "\"");
+	      response.setContentLength(bytem.length);
+	      response.setContentType("application/xls");
 
-      final File file = new File(tempDir + "/xsuin.xls");
-      if (!file.exists()) {
-        file.createNewFile();
-      }
+	      file.delete();
+	      LOGGER
+	          .info(
+	              "*******>> Completed Birt Demand Report xls for demand Scenario  id ={}",
+	              id);
 
-      final EXCELRenderOption xlsOptions = new EXCELRenderOption();
-      xlsOptions.setOutputFormat("xls");
-      xlsOptions.setOutputFileName(tempDir + "/xsuin.xls");
-
-      xlsOptions.setOption(IPDFRenderOption.PAGE_OVERFLOW,
-          IPDFRenderOption.FIT_TO_PAGE_SIZE);
-      // pdfOptions.setOutputStream(response.getOutputStream());
-      runAndRenderTask.setRenderOption(xlsOptions);
-
-      runAndRenderTask.run();
-      runAndRenderTask.close();
-      filexml.delete();
-
-      bytem = org.springframework.util.FileCopyUtils.copyToByteArray(file);
-
-      response.setHeader("Content-Disposition", "attachment; filename=\""
-          + file.getName() + "\"");
-      response.setContentLength(bytem.length);
-      response.setContentType("application/xls");
-
-      file.delete();
-      LOGGER
-          .info(
-              "*******>> Completed Birt Report xls for Suitability Scenario  id ={}",
-              id);
-
-    } catch (final Exception e) {
-      LOGGER.debug("getBirt xls Report error : ={}", e.toString());
-
-    } finally {
-      birtEngine.destroy();
-    }
-    return bytem;
+	    } catch (final Exception e) {
+	      LOGGER.debug("getBirtDemand xls Report error : ={}", e.toString());
+	    } finally {
+	      birtEngine.destroy();
+	    }
+	    return bytem;
+	    // /////////////////////////////////////////////////////////////////
 
   }
 

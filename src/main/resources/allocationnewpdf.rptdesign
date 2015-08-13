@@ -238,6 +238,7 @@
             <property name="fontSize">10pt</property>
         </style>
         <style name="crosstab" id="5">
+            <property name="fontSize">xx-large</property>
             <property name="borderBottomColor">#CCCCCC</property>
             <property name="borderBottomStyle">solid</property>
             <property name="borderBottomWidth">1pt</property>
@@ -420,9 +421,11 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                         <extended-item extensionName="AggregationCell" id="226">
                             <property name="aggregationOnRow">GroupLU/Customer</property>
                             <property name="aggregationOnColumn">GroupYear/Favorite</property>
-                            <property name="height">0.375in</property>
+                            <property name="height">1.09375in</property>
+                            <property name="width">2in</property>
                             <property name="content">
                                 <data id="227">
+                                    <property name="fontSize">xx-large</property>
                                     <property name="textAlign">center</property>
                                     <property name="resultSetColumn">Color_GroupLU/Customer_GroupYear/Favorite_1</property>
                                 </data>
@@ -433,6 +436,7 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                         <extended-item extensionName="CrosstabCell" id="228">
                             <property name="content">
                                 <label id="229">
+                                    <property name="fontSize">x-large</property>
                                     <property name="textAlign">center</property>
                                     <text-property name="text">Allocation</text-property>
                                 </label>
@@ -447,8 +451,10 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                         <extended-item extensionName="AggregationCell" id="240">
                             <property name="aggregationOnRow">GroupLU/Customer</property>
                             <property name="aggregationOnColumn">GroupYear/Favorite</property>
+                            <property name="width">2in</property>
                             <property name="content">
                                 <data id="241">
+                                    <property name="fontSize">xx-large</property>
                                     <property name="resultSetColumn">Color1_GroupLU/Customer_GroupYear/Favorite</property>
                                 </data>
                             </property>
@@ -458,6 +464,7 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                         <extended-item extensionName="CrosstabCell" id="242">
                             <property name="content">
                                 <label id="243">
+                                    <property name="fontSize">x-large</property>
                                     <text-property name="text">Demand</text-property>
                                 </label>
                             </property>
@@ -470,8 +477,10 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                         <extended-item extensionName="AggregationCell" id="245">
                             <property name="aggregationOnRow">GroupLU/Customer</property>
                             <property name="aggregationOnColumn">GroupYear/Favorite</property>
+                            <property name="width">1.7604166666666667in</property>
                             <property name="content">
                                 <data id="246">
+                                    <property name="fontSize">xx-large</property>
                                     <property name="resultSetColumn">Color2_GroupLU/Customer_GroupYear/Favorite</property>
                                 </data>
                             </property>
@@ -481,6 +490,7 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                         <extended-item extensionName="CrosstabCell" id="247">
                             <property name="content">
                                 <label id="248">
+                                    <property name="fontSize">x-large</property>
                                     <text-property name="text">Percentage</text-property>
                                 </label>
                             </property>
@@ -500,9 +510,11 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                                         <extended-item extensionName="CrosstabCell" id="217">
                                             <property name="content">
                                                 <data name="Customer" id="218">
+                                                    <property name="fontSize">xx-large</property>
                                                     <property name="resultSetColumn">Customer</property>
                                                 </data>
                                             </property>
+                                            <property name="width">2.1875in</property>
                                         </extended-item>
                                     </property>
                                 </extended-item>
@@ -523,6 +535,7 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                                         <extended-item extensionName="CrosstabCell" id="223">
                                             <property name="content">
                                                 <data name="Favorite" id="224">
+                                                    <property name="fontSize">x-large</property>
                                                     <property name="textAlign">center</property>
                                                     <property name="resultSetColumn">Favorite</property>
                                                 </data>
@@ -554,6 +567,9 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                     </property>
                 </extended-item>
             </property>
+            <property name="fontSize">xx-large</property>
+            <property name="overflow">auto</property>
+            <structure name="toc"/>
             <list-property name="boundDataColumns">
                 <structure>
                     <property name="name">Customer</property>
