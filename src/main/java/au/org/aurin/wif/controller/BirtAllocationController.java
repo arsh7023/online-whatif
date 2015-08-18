@@ -723,7 +723,8 @@ public class BirtAllocationController {
     	  {
     		  if (Integer.valueOf(area.getProjectionLabel()) == s.getYear())
     		  {
-    			  demand_value = area.getRequiredArea();
+    			  //demand_value = area.getRequiredArea();
+    			  demand_value = (double) (Math.round(area.getRequiredArea() * 100000) / 100000);
     		  }
     	  }
       }
@@ -731,8 +732,11 @@ public class BirtAllocationController {
       Double percentage=0.0;
       if (demand_value != 0.0)
       {
-    	  percentage = ( demand_value/ ((double) Math.round(s.getSumofArea() * 100000) / 100000)) * 100.0;
-    	  percentage = Math.round(percentage * 100.0) / 100.0;
+    	  if (s.getSumofArea() != 0.0)
+    	  {	  
+	    	  percentage = ( demand_value/ ((double) Math.round(s.getSumofArea() * 100000) / 100000)) * 100.0;
+	    	  percentage = Math.round(percentage * 100.0) / 100.0;
+    	  }
       }
       
       
@@ -972,7 +976,8 @@ public class BirtAllocationController {
     	  {
     		  if (Integer.valueOf(area.getProjectionLabel()) == s.getYear())
     		  {
-    			  demand_value = area.getRequiredArea();
+    			  //demand_value = area.getRequiredArea();
+    			  demand_value = (double) (Math.round(area.getRequiredArea() * 100000) / 100000);
     		  }
     	  }
       }
@@ -980,8 +985,11 @@ public class BirtAllocationController {
       Double percentage=0.0;
       if (demand_value != 0.0)
       {
-    	  percentage = ( demand_value/ ((double) Math.round(s.getSumofArea() * 100000) / 100000)) * 100.0;
-    	  percentage = Math.round(percentage * 100.0) / 100.0;
+    	  if (s.getSumofArea() != 0.0)
+    	  {	  
+	    	  percentage = ( demand_value/ ((double) Math.round(s.getSumofArea() * 100000) / 100000)) * 100.0;
+	    	  percentage = Math.round(percentage * 100.0) / 100.0;
+    	  }
       }
       
       
