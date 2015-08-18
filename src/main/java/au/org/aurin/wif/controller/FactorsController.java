@@ -24,6 +24,7 @@ import au.org.aurin.wif.exception.config.WifInvalidConfigException;
 import au.org.aurin.wif.exception.validate.InvalidLabelException;
 import au.org.aurin.wif.exception.validate.WifInvalidInputException;
 import au.org.aurin.wif.model.suitability.Factor;
+import au.org.aurin.wif.model.suitability.FactorType;
 import au.org.aurin.wif.svc.suitability.FactorService;
 
 /**
@@ -191,6 +192,129 @@ public class FactorsController {
         .info("*******>> deleteFactor request for project  id ={}", projectId);
 
     factorService.deleteFactor(id, projectId);
+  }
+  
+  
+  /**
+   * Gets the factorTypes.
+   * 
+   * @param projectId
+   *          the project id
+   * @param factorId
+   *          the factorId
+   * @return the factorTypes
+   * @throws WifInvalidInputException
+   *           the wif invalid input exception
+   * @throws WifInvalidConfigException
+   *           the wif invalid config exception
+   */
+  @RequestMapping(method = RequestMethod.GET, value = "/{projectId}/factors/{factorId}/factorTypes", produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  public @ResponseBody
+  List<FactorType> getFactorsTypesForFactorID(
+      @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
+      @PathVariable("factorId") final String factorId,
+      @PathVariable("projectId") final String projectId)
+      throws WifInvalidInputException {
+    LOGGER.info("*******>> getFactorsTypesForFactorID request for factor  id ={}",
+    		factorId);
+    return factorService.getFactorTypes(factorId);
+  }
+  
+  
+  /**
+   * GET factorType.
+   * 
+   * @param roleId
+   *          the role id
+   * @param projectId
+   *          the project id
+   * @param factorId
+   *          the factorId
+   * @param id
+   *          the id
+   * @throws WifInvalidInputException
+   *           the wif invalid input exception
+   * @throws WifInvalidConfigException
+   *           the wif invalid config exception
+   */
+  @RequestMapping(method = RequestMethod.GET, value = "/{projectId}/factors/{factorId}/factorTypes/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  public @ResponseBody
+   FactorType getFactorType(
+      @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
+      @PathVariable("projectId") final String projectId,
+      @PathVariable("factorId") final String factorId,
+      @PathVariable("id") final String id) throws WifInvalidInputException,
+      WifInvalidConfigException {
+    LOGGER
+        .info("*******>> getFactorType request for id ={}", id);
+
+    return factorService.getFactorType(projectId, factorId, id);
+  }
+  
+
+  /**
+   * GET factorType.
+   * 
+   * @param roleId
+   *          the role id
+   * @param projectId
+   *          the project id
+   * @param factorId
+   *          the factorId
+   * @param id
+   *          the id
+   * @throws WifInvalidInputException
+   *           the wif invalid input exception
+   * @throws WifInvalidConfigException
+   *           the wif invalid config exception
+   */
+  @RequestMapping(method = RequestMethod.GET, value = "/{projectId}/factors/{factorId}/factorTypesByLable/{lable}")
+  @ResponseStatus(HttpStatus.OK)
+  public @ResponseBody
+   List<FactorType> getFactorTypesByLabel(
+      @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
+      @PathVariable("projectId") final String projectId,
+      @PathVariable("factorId") final String factorId,
+      @PathVariable("lable") final String lable) throws WifInvalidInputException,
+      WifInvalidConfigException {
+    LOGGER
+        .info("*******>> getFactorTypeByLable request for lable ={}", lable);
+
+    return factorService.getFactorTypeByLable(projectId, factorId, lable);
+  }
+  
+  
+  
+  /**
+   * Delete factorType.
+   * 
+   * @param roleId
+   *          the role id
+   * @param projectId
+   *          the project id
+   * @param factorId
+   *          the factorId
+   * @param id
+   *          the id
+   * @throws WifInvalidInputException
+   *           the wif invalid input exception
+   * @throws WifInvalidConfigException
+   *           the wif invalid config exception
+   */
+  @RequestMapping(method = RequestMethod.DELETE, value = "/{projectId}/factors/{factorId}/factorTypes/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteFactorType(
+      @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
+      @PathVariable("projectId") final String projectId,
+      @PathVariable("factorId") final String factorId,
+      @PathVariable("id") final String id) throws WifInvalidInputException,
+      WifInvalidConfigException {
+    LOGGER
+        .info("*******>> deleteFactorType request for id ={}", id);
+
+    factorService.deleteFactorType(projectId, factorId, id);
   }
 
 }

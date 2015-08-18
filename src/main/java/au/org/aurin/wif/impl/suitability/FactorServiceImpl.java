@@ -1,5 +1,6 @@
 package au.org.aurin.wif.impl.suitability;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +52,7 @@ public class FactorServiceImpl implements FactorService {
   /** The factor dao. */
   @Autowired
   private CouchFactorDao factorDao;
+  
 
   /** The mapper. */
   @Autowired
@@ -347,5 +349,96 @@ public class FactorServiceImpl implements FactorService {
 
     return factorDao.getFactors(projectID);
   }
+  
+  public List<FactorType> getFactorTypes(String factorID)
+	      throws WifInvalidInputException {
+	    LOGGER.info("getting allfactorTypes for factorID: {} ",factorID);
+	    return factorTypeDao.getFactorTypes(factorID);
+  }
+  
+  public void deleteFactorType(String projectId, String factorId, String id)
+	      throws WifInvalidInputException, WifInvalidConfigException {
+	    LOGGER.info("deleting the factorType with ID={}", id);
+	    try {
+	      FactorType factorType = factorTypeDao.findFactorTypeById(id);
+	      if (factorType == null) {
+	        LOGGER.error("illegal argument, the factorType with the ID " + id
+	            + " supplied was not found ");
+	        throw new InvalidEntityIdException(
+	            "illegal argument, the factorType with the ID " + id
+	                + " supplied was not found ");
+	      }
+	      if (factorType.getFactorId().equals(factorId)) {
+	       
+	            factorTypeDao.deleteFactorType(factorType);
+
+		        WifProject project = projectService.getProject(projectId);
+
+		        Object oldFactorType = project.getFactorById(factorId).getFactorTypeById(id);
+		        
+		        project.getFactorById(factorId).getFactorTypes().remove(oldFactorType);
+		        projectService.updateProject(project);
+	       
+	       
+	      } else {
+	        LOGGER
+	            .error("illegal argument, the factortype supplied doesn't belong to factor: "
+	                + factorId);
+	        throw new WifInvalidInputException(
+	            "illegal argument, the factor supplied doesn't belong to factor: "
+	                + factorId);
+	      }
+	    } catch (IllegalArgumentException e) {
+
+	      LOGGER.error("illegal argument, the ID " + id
+	          + " supplied doesn't identify a valid factorType ");
+	      throw new InvalidEntityIdException("illegal argument, the ID " + id
+	          + " supplied doesn't identify a valid factorType ");
+	    }
+	  }
+
+	public FactorType getFactorType(String projectId, String factorId, String id)
+			throws WifInvalidInputException, WifInvalidConfigException {
+		
+	    LOGGER.debug("getting the factorType with ID={}", id);
+	    try {
+	      FactorType factorType = factorTypeDao.findFactorTypeById(id);
+	      if (factorType == null) {
+	        LOGGER.error("illegal argument, the factorType with the ID " + id
+	            + " supplied was not found ");
+	        throw new InvalidEntityIdException(
+	            "illegal argument, the factorType with the ID " + id
+	                + " supplied was not found ");
+	      }
+	      return factorType;
+
+	    } catch (IllegalArgumentException e) {
+
+	      LOGGER.error("illegal argument, the ID " + id
+	          + " supplied doesn't identify a valid factorType ");
+	      throw new WifInvalidInputException("illegal argument, the ID  " + id
+	          + "supplied doesn't identify a valid factorType ");
+	    }
+	}
+
+	
+	public List<FactorType> getFactorTypeByLable(String projectId, String factorId, String lable)
+			throws WifInvalidInputException, WifInvalidConfigException {
+
+		
+		List<FactorType> outList=new ArrayList<FactorType>();
+	    LOGGER.info("getting allfactorTypes for factorID: {} and Label: {} ",factorId, lable);
+	    for (FactorType ft :factorTypeDao.getFactorTypes(factorId))
+	    {
+	    	if (ft.getLabel().equals(lable))
+	    	{
+	    		outList.add(ft);
+	    	}
+	    }
+	    
+	    return outList;
+		
+		
+	}
 
 }

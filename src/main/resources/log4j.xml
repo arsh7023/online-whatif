@@ -48,8 +48,8 @@
 
 	<logger name="au.org.aurin.wif.impl.lsa.SuitabilityAnalyzer"
 		additivity="false">
-		<level value="trace" />
-<!-- 		<level value="info" /> -->
+<!-- 		<level value="trace" />  -->
+ 		<level value="info" /> 
 <!-- 		<level value="debug" /> -->
 		<!-- <level value="error" /> -->
 		<appender-ref ref="stdout" />
