@@ -22,6 +22,7 @@
 # More information on installing Online WhatIf is available at:
 #
 # https://github.com/AURIN/online-whatif/blob/master/INSTALL.md
+set -x
 initial_pwd="`pwd`"
 
 if [[ $EUID -ne 0 ]]; then
@@ -29,28 +30,48 @@ if [[ $EUID -ne 0 ]]; then
 	exit 1
 fi
 
-# Upgrade all packages and install dependencies
-echo Updating OS packages to latest versions
-apt-get update && apt-get dist-upgrade -y
-apt-get install -y tomcat7 postgresql postgis postgresql-9.3-postgis-2.1 couchdb apache2 unzip curl pwgen
+echo Updating OS packages and installing basic dependencies
+#apt-get update && apt-get dist-upgrade -y
+#apt-get install -y tomcat7 postgresql postgis postgresql-9.3-postgis-2.1 couchdb apache2 unzip curl pwgen
 
 # Set all variables and passwords (you may update these to your liking)
 pg_user=whatif
 pg_pass=`pwgen -n 16 -N 1`
 database=whatif-development
 schema=wifdemo
-geoserver_download_url="http://downloads.sourceforge.net/project/geoserver/GeoServer/2.7.2/geoserver-2.7.2-war.zip?r=http%3A%2F%2Fgeoserver.org%2Frelease%2Fstable%2F&ts=1439864876&use_mirror=aarnet"
-geoserver_file_name="geoserver-2.7.2-war.zip"
+geoserver_download_url="http://internode.dl.sourceforge.net/project/geoserver/GeoServer/2.7.2/geoserver-2.7.2-war.zip"
+geoserver_file_name="geoserver-2.7.2-war.zip" # must end in .zip
 geoserver_master_pw_initial=geoserver
 geoserver_master_pw=`pwgen -n 16 -N 1`
 workspace=whatif
 datastore=whatifStore
-hostname=whatif-sh
+hostname=`hostname`
 auth_user=envision
 auth_pass=`pwgen -n 16 -N 1`
 auth_db=envisiondb
 email_user=admin
 email_pass=`pwgen -n 16 -N 1`
+
+# if we've run before, get the passwords from the config files
+if [ -f /etc/aurin/whatif-combined.properties ]
+then
+	echo pulling passwords from /etc/aurin/whatif-combined.properties
+	pg_pass=`perl -ne 'while(/wif.geo.db.password=(.*)/g){print "$1";}' /etc/aurin/whatif-combined.properties`
+	geoserver_master_pw=`perl -ne 'while(/geoserver.password=(.*)/g){print "$1";}' /etc/aurin/whatif-combined.properties`
+fi
+if [ -f /etc/aurin/envision-combined.properties ]
+then
+	echo pulling passwords from /etc/aurin/envision-combined.properties
+	auth_pass=`perl -ne 'while(/env.geo.db.password=(.*)/g){print "$1";}' /etc/aurin/envision-combined.properties`
+	email_pass=`perl -ne 'while(/env.mail.password=(.*)/g){print "$1";}' /etc/aurin/envision-combined.properties`
+fi
+
+echo -n "DNS name to use for whatif and associated services [$hostname]:"
+read host_in
+if [[ ! $host_in == "" ]]
+then
+	hostname="$host_in"
+fi
 
 # whatif expects /usr/local/bin/pgsql2shp but Ubuntu has /usr/bin/pgsql2shp
 if [ ! -e /usr/local/bin/pgsql2shp ]
@@ -71,57 +92,70 @@ then
 fi
 
 # Create database
-sudo -u postgres createuser -S -D -R $pg_user
-sudo -u postgres psql -q -c "ALTER USER $pg_user WITH PASSWORD '$pg_pass';"
-sudo -u postgres createdb -O $pg_user $database
-sudo -u postgres psql -q $database << EOF
+if ! sudo -u postgres psql -lqt | cut -d \| -f 1 | grep -w whatif-development | wc -l > /dev/null
+then
+	sudo -u postgres createuser -S -D -R $pg_user
+	sudo -u postgres psql -q -c "ALTER USER $pg_user WITH PASSWORD '$pg_pass';"
+	sudo -u postgres createdb -O $pg_user $database
+	sudo -u postgres psql -q $database << EOF
 create extension postgis;
 ALTER USER $pg_user WITH SUPERUSER;
 CREATE SCHEMA IF NOT EXISTS $schema AUTHORIZATION $pg_user;
 \q
 EOF
+fi
 
 # Deploy geoserver on Tomcat
-UUIDGEN="`which uuidgen`"
-if [ "$UUIDGEN" != "" ]
+if [ ! -e /var/lib/tomcat7/webapps/geoserver.war ]
 then
-	tempdir="/tmp/`uuidgen -t`"
-else
-	tempdir="/tmp/6039708c-4551-11e5-9220-08002757beab"
+	UUIDGEN="`which uuidgen`"
+	if [ "$UUIDGEN" != "" ]
+	then
+		tempdir="/tmp/`uuidgen -t`"
+	else
+		tempdir="/tmp/6039708c-4551-11e5-9220-08002757beab"
+	fi
+	service tomcat7 stop
+	mkdir -p $tempdir && cd $tempdir
+	curl -s -o "$geoserver_file_name" "$geoserver_download_url"
+	geo_base="`basename $geoserver_file_name .zip`"
+	mkdir -p "$geo_base" && cd "$geo_base"
+	unzip -q "../$geoserver_file_name"
+	mv geoserver.war /var/lib/tomcat7/webapps/
+	chown root:root /var/lib/tomcat7/webapps/geoserver.war
+	cd "$initial_pwd"
+	rm -rf "$tempdir"
+	service tomcat7 start
 fi
-service tomcat7 stop
-mkdir $tempdir && cd $tempdir
-curl -s -o "$geoserver_file_name" "$geoserver_download_url"
-geo_base="`basename $geoserver_file_name`"
-mkdir "$geo_base" && cd "$geo_base"
-unzip -q "../$geoserver_file_name"
-mv geoserver.war /var/lib/tomcat7/webapps/
-chown root:root /var/lib/tomcat7/webapps/geoserver.war
-cd "$initial_pwd"
-rm -rf "$tempdir"
-service tomcat7 start
 
 # update the master password
-xml="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+if [ ! -f /etc/aurin/whatif-combined.properties ]
+then
+	xml="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <masterPassword>
    <oldMasterPassword>$geoserver_master_pw_initial</oldMasterPassword>
    <newMasterPassword>$geoserver_master_pw</newMasterPassword>
 </masterPassword>"
-curl -v -u "admin:$geoserver_master_pw_initial" -XPUT -H "Content-type: text/xml" -d "$xml" http://localhost:8080/geoserver/rest/security/masterpw.xml
-
-# update the admin password using the digest we just set for the master password (so the admin and master passwords will be the same).
-master_digest=$(</var/lib/tomcat7/webapps/geoserver/data/security/masterpw.digest)
-sed -i "s/^\s*<user.*name=\"admin\".*>/<user enabled=\"true\" name=\"admin\" password=\"$master_digest\"\/>/" /var/lib/tomcat7/webapps/geoserver/data/security/usergroup/default/users.xml
+	curl -v -u "admin:$geoserver_master_pw_initial" -XPUT -H "Content-type: text/xml" -d "$xml" http://localhost:8080/geoserver/rest/security/masterpw.xml
+	# update the admin password using the digest we just set for the master password (so the admin and master passwords will be the same).
+	master_digest=$(</var/lib/tomcat7/webapps/geoserver/data/security/masterpw.digest)
+	sed -i "s/^\s*<user.*name=\"admin\".*>/<user enabled=\"true\" name=\"admin\" password=\"$master_digest\"\/>/" /var/lib/tomcat7/webapps/geoserver/data/security/usergroup/default/users.xml
+fi
 
 # create a new workspace
-xml="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+if ! curl -s -u "admin:$geoserver_master_pw" -XGET -H "Accept: text/xml" -H "Content-type: text/xml" http://localhost:8080/geoserver/rest/workspaces.xml |grep -q "<name>$workspace</name>"
+then
+	xml="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <workspace>
   <name>$workspace</name>
 </workspace>"
-curl -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" http://localhost:8080/geoserver/rest/workspaces
+	curl -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" http://localhost:8080/geoserver/rest/workspaces
+fi
 
 # create a new datastore
-xml="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+if ! curl -v -u "admin:$geoserver_master_pw" -XGET -H "Accept: text/xml" -H "Content-type: text/xml" http://localhost:8080/geoserver/rest/workspaces/$workspace/datastores.xml |grep -q "<name>$datastore</name>"
+then
+	xml="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <dataStore>
   <name>$datastore</name>
   <type>PostGIS</type>
@@ -156,7 +190,8 @@ xml="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
     <entry key=\"user\">$pg_user</entry>
   </connectionParameters>
 </dataStore>"
-curl -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" "http://localhost:8080/geoserver/rest/workspaces/$workspace/datastores"
+	curl -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" "http://localhost:8080/geoserver/rest/workspaces/$workspace/datastores"
+fi
 
 # Configure the apache reverse proxy
 a2ensite default-ssl > /dev/null
@@ -165,10 +200,12 @@ a2enmod proxy_http > /dev/null
 a2enmod ssl > /dev/null
 a2enmod rewrite > /dev/null
 
-# XXX feels like sed might be the wrong tool for this job
+# feels like sed might be the wrong tool for this job, though it works
 # 000-default
-sed -i "s/<VirtualHost \*:80>/<VirtualHost \*:80>\n\tServerName $hostname/" /etc/apache2/sites-enabled/000-default.conf
-conf="	ProxyPreserveHost On
+if ! grep -q "ProxyPass /geoserver" /etc/apache2/sites-enabled/000-default.conf
+then
+	sed -i "s/<VirtualHost \*:80>/<VirtualHost \*:80>\n\tServerName $hostname/" /etc/apache2/sites-enabled/000-default.conf
+	conf="	ProxyPreserveHost On
 
 	RewriteEngine  On
 	RewriteRule     ^/$             https://$hostname/whatif/      [R]
@@ -178,13 +215,16 @@ conf="	ProxyPreserveHost On
 
 	# Allow long GET requests for what-if
 	LimitRequestLine 64000"
-conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
-conf=$(echo "$conf" | sed -e 's/$/\\/g') # newlines
-sed -i "s/<\/VirtualHost>/$conf \n<\/VirtualHost>/" /etc/apache2/sites-enabled/000-default.conf
+	conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
+	conf=$(echo "$conf" | sed -e 's/$/\\/g') # escape newlines
+	sed -i "s/<\/VirtualHost>/$conf \n<\/VirtualHost>/" /etc/apache2/sites-enabled/000-default.conf
+fi
 
 # default-ssl
-sed -i "s/<VirtualHost _default_:443>/<VirtualHost _default_:443>\n\t\tServerName $hostname/" /etc/apache2/sites-enabled/default-ssl.conf
-conf="	# Allow long GET requests for what-if
+if ! grep -q "ProxyPass /whatif/" /etc/apache2/sites-enabled/default-ssl.conf
+then
+	sed -i "s/<VirtualHost _default_:443>/<VirtualHost _default_:443>\n\t\tServerName $hostname/" /etc/apache2/sites-enabled/default-ssl.conf
+	conf="	# Allow long GET requests for what-if
 		LimitRequestLine 64000
 
 		ProxyPreserveHost On
@@ -206,19 +246,26 @@ conf="	# Allow long GET requests for what-if
 
 		ProxyPass /workbenchauth ajp://localhost:8009/workbenchauth
 		ProxyPassReverse /workbenchauth ajp://localhost:8009/workbenchauth"
-conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
-conf=$(echo "$conf" | sed -e 's/$/\\/g') # newlines
-sed -i "s/<\/VirtualHost>/${conf} \n\t<\/VirtualHost>/" /etc/apache2/sites-enabled/default-ssl.conf
+	conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
+	conf=$(echo "$conf" | sed -e 's/$/\\/g') # escape newlines
+	sed -i "s/<\/VirtualHost>/${conf} \n\t<\/VirtualHost>/" /etc/apache2/sites-enabled/default-ssl.conf
+fi
 
 # apache2.conf
-sed -i "1iServername ${hostname}" /etc/apache2/apache2.conf
+if ! grep -q "Servername" /etc/apache2/apache2.conf
+then
+	sed -i "1iServername ${hostname}" /etc/apache2/apache2.conf
+fi
 
 # Configure tomcat, enabling AJP connector
+# XXX need to check existing file first
 sed -i "s/<\!-- Define an AJP 1.3 Connector on port 8009 -->/<\!-- Define an AJP 1.3 Connector on port 8009 -->\n    <Connector port=\"8009\" protocol=\"AJP\/1.3\" redirectPort=\"8443\" \/>/" /etc/tomcat7/server.xml
 
 # create whatif configuration file
-sudo mkdir -p /etc/aurin
-cat > /etc/aurin/whatif-combined.properties << EOF
+if [ ! -e /etc/aurin/whatif-combined.properties ]
+then
+	sudo mkdir -p /etc/aurin
+	cat > /etc/aurin/whatif-combined.properties << EOF
 # wif.geo
 wif.geo.db.password=$pg_pass
 wif.geo.db.port=5432
@@ -271,8 +318,10 @@ aurin.data-store-service.uri=https://api-dev.aurin.org.au/data_store/
 # printing - deprecated but required for now
 wif.ui.mapprintURL=http://localhost:3000/print/
 EOF
+fi
 
 # Install the authentication system
+# XXX need to check for db presence first
 sudo -u postgres createuser -S -D -R $auth_user
 sudo -u postgres createdb -O $auth_user $auth_db
 sudo -u postgres psql -q $auth_db << EOF
@@ -283,59 +332,83 @@ EOF
 sudo -u postgres psql $auth_db -f ../db/structure.sql
 
 # Set up SMTP daemon for sending email to new users
-debconf-set-selections <<< "postfix postfix/mailname string $hostname"
-debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
-apt-get install -y postfix dovecot-core
+if ! dpkg -s postfix |grep Status |grep -q installed
+then
+	debconf-set-selections <<< "postfix postfix/mailname string $hostname"
+	debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
+	apt-get install -y postfix
+fi
+#XXX need to make it not prompt about self-signed cert
+if ! dpkg -s dovecot-core |grep Status |grep -q installed
+then
+	debconf-set-selections <<< "dovecot-core dovecot-core/create-ssl-cert boolean true"
+	debconf-set-selections <<< "dovecot-core dovecot-core/ssl-cert-name string $hostname"
+	debconf-set-selections <<< "ssl-cert make-ssl-cert/hostname string $hostname"
+	apt-get install -y dovecot-core
+fi
 
 # Enable the submission service
-conf="submission     inet  n       -       -       -       -       smtpd
+if ! grep -q "^submission" /etc/postfix/master.cf
+then
+	conf="submission     inet  n       -       -       -       -       smtpd
   -o syslog_name=postfix/smtps
   -o smtpd_tls_wrappermode=no
   -o smtpd_sasl_auth_enable=yes
   -o smtpd_client_restrictions=permit_sasl_authenticated,reject
   -o milter_macro_daemon_name=ORIGINATING
   -o smtpd_reject_unlisted_sender=yes"
-conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
-conf=$(echo "$conf" | sed -e 's/$/\\/g') # newlines
-sed -i "s/#submission/${conf} \n#submission/" /etc/postfix/master.cf
+	conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
+	conf=$(echo "$conf" | sed -e 's/$/\\/g') # escape newlines
+	sed -i "s/#submission/${conf} \n#submission/" /etc/postfix/master.cf
+fi
 
 #Set up dovecot to allow user authentication within postfix.
-conf="  # Postfix smtp-auth
+if ! grep -q "unix_listener /var/spool/postfix/private/auth" /etc/dovecot/conf.d/10-master.conf
+then
+	conf="  # Postfix smtp-auth
   unix_listener /var/spool/postfix/private/auth {
     mode = 0660
     user = postfix
     group = postfix
   }"
-conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
-conf=$(echo "$conf" | sed -e 's/$/\\/g') # newlines
-sed -i "s/  # Auth process is run as this user./${conf} \n  # Auth process is run as this user./" /etc/dovecot/conf.d/10-master.conf
+	conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
+	conf=$(echo "$conf" | sed -e 's/$/\\/g') # escape newlines
+	sed -i "s/  # Auth process is run as this user./${conf} \n  # Auth process is run as this user./" /etc/dovecot/conf.d/10-master.conf
+fi
 
 # Set up auth
 sed -i "s/#disable_plaintext_auth = yes/disable_plaintext_auth = yes/" /etc/dovecot/conf.d/10-auth.conf
 sed -i "s/#auth_username_format = %Lu/auth_username_format = %n/" /etc/dovecot/conf.d/10-auth.conf
 sed -i "s/^auth_mechanisms.*/auth_mechanisms = plain/" /etc/dovecot/conf.d/10-auth.conf
 
-
 # Connect postfix and dovecot
-conf="smtpd_sasl_auth_enable = yes
+if ! grep -q "smtpd_sasl_auth_enable = yes" /etc/postfix/main.cf
+then
+	conf="smtpd_sasl_auth_enable = yes
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 smtpd_sasl_authenticated_header = no
 smtpd_sasl_security_options = noanonymous
 smtpd_sasl_local_domain =
 broken_sasl_auth_clients = yes"
-conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
-conf=$(echo "$conf" | sed -e 's/$/\\/g') # newlines
-sed -i "s/#submission/${conf} \n#submission/" /etc/postfix/main.cf
+	conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
+	conf=$(echo "$conf" | sed -e 's/$/\\/g') # escape newlines
+	sed -i "s/#submission/${conf} \n#submission/" /etc/postfix/main.cf
+fi
 
 # Create a linux user to send/receive email:
-adduser $email_user --gecos "User Administration" --disabled-password
-chpasswd << END
+if ! getent passwd $email_user 2>&1 >/dev/null
+then
+	adduser $email_user --gecos "User Administration" --disabled-password
+	chpasswd << END
 $email_user:$email_pass
 END
+fi
 
 #Create config file for auth system
-cat > /etc/aurin/envision-combined.properties << EOF
+if [ ! -e /etc/aurin/envision-combined.properties ]
+then
+	cat > /etc/aurin/envision-combined.properties << EOF
 #Properties
 env.ui.authURL=http://localhost/workbenchauth/
 env.ui.authpub_URL=https://localhost/workbenchauth/
@@ -369,16 +442,23 @@ env.mail.password=$email_pass
 env.mail.from=$email_user@$hostname
 env.mail.url=https://$hostname/workbenchauth/
 EOF
+fi
 
 # Build and deploy the war files
 
 # Install the build dependencies
-apt-get install git tig maven default-jdk
+apt-get -y install git tig maven default-jdk
 
 # Clone the source and build
-mkdir dependencies && cd dependencies
-git clone https://github.com/AURIN/online-whatif-ui.git
-git clone https://github.com/AURIN/workbenchauth.git
+mkdir -p dependencies && cd dependencies
+if [ ! -e online-whatif-ui ]
+then
+	git clone https://github.com/AURIN/online-whatif-ui.git
+fi
+if [ ! -e workbenchauth ]
+then
+	git clone https://github.com/AURIN/workbenchauth.git
+fi
 export AURIN_DIR="/etc/aurin"
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre
 cd workbenchauth
