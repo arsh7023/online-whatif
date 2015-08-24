@@ -22,7 +22,7 @@
 # More information on installing Online WhatIf is available at:
 #
 # https://github.com/AURIN/online-whatif/blob/master/INSTALL.md
-set -x
+#set -x
 initial_pwd="`pwd`"
 
 if [[ $EUID -ne 0 ]]; then
@@ -31,8 +31,8 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 echo Updating OS packages and installing basic dependencies
-#apt-get update && apt-get dist-upgrade -y
-#apt-get install -y tomcat7 postgresql postgis postgresql-9.3-postgis-2.1 couchdb apache2 unzip curl pwgen
+apt-get update && apt-get dist-upgrade -y
+apt-get install -y tomcat7 postgresql postgis postgresql-9.3-postgis-2.1 couchdb apache2 unzip curl pwgen
 
 # Set all variables and passwords (you may update these to your liking)
 pg_user=whatif
@@ -461,13 +461,24 @@ then
 fi
 export AURIN_DIR="/etc/aurin"
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre
-cd workbenchauth
-mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
-cd ../online-whatif-ui
-mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
-cd "$initial_pwd/.."
-mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
-cd "$initial_pwd"
+if [ ! -f workbenchauth/target/workbenchauth-1.0.0.war ]
+then
+	cd workbenchauth
+	mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
+	cd ..
+fi
+if [ ! -f online-whatif-ui/target/whatif-1.0.war ]
+then
+	cd online-whatif-ui
+	mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
+	cd ..
+fi
+if [ ! -f ${initial_pwd}/../target/aurin-wif-1.0.war ]
+then
+	cd "$initial_pwd/.."
+	mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
+	cd "$initial_pwd"
+fi
 
 # Deploy the war files
 sudo cp dependencies/workbenchauth/target/workbenchauth-1.0.0.war /var/lib/tomcat7/webapps/workbenchauth.war
