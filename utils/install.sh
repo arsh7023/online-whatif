@@ -325,7 +325,7 @@ fi
 sudo -u postgres createuser -S -D -R $auth_user
 sudo -u postgres createdb -O $auth_user $auth_db
 sudo -u postgres psql -q $auth_db << EOF
-ALTER USER $pg_user WITH PASSWORD '$pg_pass';
+ALTER USER $auth_user WITH PASSWORD '$auth_pass';
 create extension postgis;
 \q
 EOF
@@ -363,7 +363,7 @@ then
 fi
 
 #Set up dovecot to allow user authentication within postfix.
-if ! grep -q "unix_listener /var/spool/postfix/private/auth" /etc/dovecot/conf.d/10-master.conf
+if ! grep -q "[^#]unix_listener /var/spool/postfix/private/auth" /etc/dovecot/conf.d/10-master.conf
 then
 	conf="  # Postfix smtp-auth
   unix_listener /var/spool/postfix/private/auth {
@@ -393,7 +393,7 @@ smtpd_sasl_local_domain =
 broken_sasl_auth_clients = yes"
 	conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
 	conf=$(echo "$conf" | sed -e 's/$/\\/g') # escape newlines
-	sed -i "s/#submission/${conf} \n#submission/" /etc/postfix/main.cf
+	sed -i "s/inet_protocols = all/inet_protocols = all\n${conf} /" /etc/postfix/main.cf
 fi
 
 # Create a linux user to send/receive email:
@@ -487,6 +487,7 @@ sudo cp ../target/aurin-wif-1.0.war /var/lib/tomcat7/webapps/aurin-wif.war
 
 # Restart relevant services
 sudo service dovecot restart
+sudo service postfix restart
 sudo service postgresql restart
 sudo service couchdb restart
 sudo service tomcat7 restart
