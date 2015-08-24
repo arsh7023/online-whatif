@@ -8,20 +8,31 @@
 # Tested on the following operating systems:
 #  * Ubuntu 14.04
 #
-# To get started, install Linux then, on that machine install git, and clone
-# online-whatif with e.g.:
+# To get started, install Linux and install git, and clone online-whatif:
 #
-# git clone https://github.com/AURIN/online-whatif.git
+#   sudo apt-get install git
+#   git clone https://github.com/AURIN/online-whatif.git
 #
 # Change to the online-whatif/utils directory and run the install script as
 # root:
 #
-# cd online-whatif/utils
-# sudo ./install.sh
+#   cd online-whatif/utils
+#   sudo ./install.sh
+#
+# Open the workbenchauth page in a web browser and create a new user:
+#
+#   https://servername/workbenchauth
+#
+# Your temporary username and password will be emailed to you, or you can find
+# it in the log file /var/log/tomcat7/catalina.out. Then log in to Online
+# WhatIf:
+#
+#   https://servername/whatif
 #
 # More information on installing Online WhatIf is available at:
 #
 # https://github.com/AURIN/online-whatif/blob/master/INSTALL.md
+#
 #set -x
 initial_pwd="`pwd`"
 
