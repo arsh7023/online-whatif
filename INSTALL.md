@@ -1,6 +1,25 @@
 # Installing Online WhatIf
 
-It is assumed that you are proficient with Linux, including installing custom server softare.  This document will guide you through installing all of the required components on a single virtual machine.
+It is assumed that you are proficient with Linux, including installing custom server software.  This document will guide you through installing all of the required components on a single virtual machine.
+
+# Automatic installation script
+
+There is a [shell script](utils/install.sh) that will automatically install Online WhatIf on a fresh Ubuntu 14.04 system.  To run it, install Ubuntu 14.04, then do:
+
+	sudo apt-get install git
+	git clone https://github.com/AURIN/online-whatif.git
+	cd online-whatif/utils
+	sudo ./install.sh
+
+Open the workbenchauth page in a web browser and create a new user:
+
+[https://example.com/workbenchauth](https://example.com/workbenchauth)
+
+Your temporary username and password will be emailed to you, or you can find it in the log file /var/log/tomcat7/catalina.out. Then log in to Online WhatIf:
+
+[https://example.com/whatif](https://example.com/whatif)
+
+# Manual installation instructions
 
 ## Service dependencies
 
