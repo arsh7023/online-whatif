@@ -1234,12 +1234,23 @@ public class BirtController {
 
     for (final suitabilityFactorReport sr : listOut) {
 
+      String lname = sr.getLUName();
+      lname = lname.replaceAll(",", "");
+      //lname = lname.replaceAll("/", "");
+      lname = lname.replaceAll(">", "Greater");
+      lname = lname.replaceAll("<", "Lower");
+      String lfname = sr.getFactorName();
+      lfname = lfname.replaceAll(",", "");
+      //lfname = lfname.replaceAll("/", "");
+      lfname = lfname.replaceAll(">", "Greater ");
+      lfname = lfname.replaceAll("<", "Lower ");
+      
       str.append("<list>");
       str.append("<value>");
-      str.append(sr.getLUName());
+      str.append(lname);
       str.append("</value>");
       str.append("<value>");
-      str.append(sr.getFactorName());
+      str.append(lfname);
       str.append("</value>");
       str.append("<value>");
       str.append(sr.getFatorValue());
@@ -1326,6 +1337,7 @@ public class BirtController {
       final EXCELRenderOption xlsOptions = new EXCELRenderOption();
       xlsOptions.setOutputFormat("xls");
       xlsOptions.setOutputFileName(tempDir + "/xfact.xls");
+      
 
       xlsOptions.setOption(IPDFRenderOption.PAGE_OVERFLOW,
           IPDFRenderOption.FIT_TO_PAGE_SIZE);
