@@ -243,5 +243,18 @@ public interface SuitabilityScenarioService {
   SuitabilityScenario restoreSuitabilityScenario(
       SuitabilityScenario suitabilityScenario, WifProject restoreProject)
       throws WifInvalidInputException;
+ 
+  /**
+   * duplicate suitability scenario
+   * 
+   * @param projectID
+   * @param scenarioID
+   * @return String
+   * @throws WifInvalidInputException
+   * @throws WifInvalidConfigException 
+   * @throws ParsingException 
+   */
+  public String duplicateSuitabiliyScenario(final String projectID, final String scenarioID, final String name)
+		  throws WifInvalidInputException, WifInvalidConfigException, ParsingException;
 
 }

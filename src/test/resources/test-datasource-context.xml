@@ -11,10 +11,10 @@
 <!-- TODO Find out if we can merge this datasource-context with one from the production, the only difference is the property placeholder -->
 	
 		<context:property-placeholder
-		location="file:${aurin.dir}/aurin-wif-combined.properties,classpath*:aurin-wif-combined.properties" ignore-unresolvable="true" />
+		location="file:${aurin.dir}/whatif-combined.properties,classpath*:whatif-combined.properties" ignore-unresolvable="true" />
 				
 	<bean id="wifDataStoreConfig"
-		class="au.edu.unimelb.eresearch.data.config.PostgisDataStoreConfig">
+		class="au.org.aurin.wif.io.PostgisDataStoreConfig"> <!-- au.edu.unimelb.eresearch.data.config.PostgisDataStoreConfig -->
 		<property name="host" value="${wif.geo.db.host}" />
 		<property name="databaseName" value="${wif.geo.db.name}" />
 		<property name="port" value="${wif.geo.db.port}" />
@@ -25,7 +25,7 @@
 		<property name="schema" value="${wif.geo.db.schema}" />
 	</bean>
 
-	<bean id="dataSourceFactory" class="au.edu.unimelb.eresearch.data.DataSourceFactory" />
+	<bean id="dataSourceFactory" class="au.org.aurin.wif.io.DataSourceFactory" /> <!-- au.edu.unimelb.eresearch.data.DataSourceFactory -->
 
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
 		<property name="driverClassName" value="${wif.datasource.driverclassname}" />
@@ -34,6 +34,18 @@
 		<property name="password" value="${wif.datasource.password}" />
 		<property name="initialSize" value="15" />
 		<property name="maxActive" value="10" />
+	</bean>
+	
+	<bean id="myjdbcDataStoreConfig"
+		class="au.org.aurin.wif.io.jdbcDataStoreConfig">
+		<property name="host" value="${wif.geo.db.host}" />
+		<property name="databaseName" value="${wif.geo.db.name}" />
+		<property name="port" value="${wif.geo.db.port}" />
+		<property name="user" value="${wif.geo.db.user}" />
+		<property name="password" value="${wif.geo.db.password}" />
+		<property name="databaseType" value="${wif.geo.db.type}" />
+		<property name="validateConnection" value="${wif.geo.db.validateConnection}" />
+		<property name="schema" value="${wif.geo.db.schema}" />
 	</bean>
 
 </beans>

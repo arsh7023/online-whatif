@@ -228,4 +228,33 @@ public class SuitabilityScenarioServiceIT extends
     SuitabilityScenario suitabilityScenario = suitabilityScenarioService
         .getSuitabilityScenario(testID, projectId);
   }
+  
+  @Test(enabled = true)
+	  public void duplicateSuitabilityScenarioTest() throws Exception {
+
+	  
+	    String projectid= "DemonstrationTestID";
+	   
+	    SuitabilityScenario suitabilityScenario = suitabilityScenarioService
+	        .getSuitabilityScenario(WifKeys.TEST_SUITABILITY_SCENARIO_ID);
+	    suitabilityScenario.setLabel(suitabilityScenario.getLabel()+"new");
+	    
+	     project = projectService
+	            .getProjectConfiguration(suitabilityScenario.getProjectId());
+	    
+	    
+	    final SuitabilityScenario restoredSuitabilityScenario = suitabilityScenarioService
+	            .restoreSuitabilityScenario(suitabilityScenario, project);
+	    project.getSuitabilityScenariosMap().put(
+	            restoredSuitabilityScenario.getId(),
+	            restoredSuitabilityScenario.getLabel());
+	    
+	    
+	    wifProjectDao.updateProject(project);
+	    
+	    Assert.assertNotNull(suitabilityScenario.getId());
+	    Assert.assertTrue(suitabilityScenario.getReady());
+	  }
+  
+  
 }

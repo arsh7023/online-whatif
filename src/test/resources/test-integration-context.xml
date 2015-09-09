@@ -13,16 +13,16 @@
                classpath*:aurin-data-provider2-service.properties, file:///${aurin.dir}/aurin-wif-combined.properties,classpath*:aurin-wif-combined.properties" />
     -->
   	<context:property-placeholder
-		location="file:///${aurin.dir}/aurin-wif-combined.properties,classpath*:aurin-wif-combined.properties" />
+		location="file:///${aurin.dir}/whatif-combined.properties,classpath*:whatif-combined.properties" />
     
     <import resource="spring/owi-application-context.xml" />
   <import resource="test-datasource-context.xml" />
   
-  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+   <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
 	<property name="messageConverters">
 	  <list>
 	    <bean id="featureHttpMessageConverter"
-	      class="au.edu.unimelb.eresearch.spring.http.converter.geojson.FeatureHttpMessageConverter">
+	      class="au.org.aurin.wif.io.FeatureHttpMessageConverter">
 	      <property name="featureJSON" ref="featureJSON" />
 	    </bean>
 	    <bean id="stringHttpMessageConverter"
@@ -35,7 +35,8 @@
 	</property>
   </bean>
 
-  <bean id="dataStoreClient" class="au.org.aurin.data.store.client.DataStoreClientImpl">
+
+    <bean id="dataStoreClient" class="au.org.aurin.wif.io.DataStoreClientImpl">
     <property name="url" value="${aurin.data-store-service.uri}" />
     <property name="restTemplate" ref="restTemplate" />
   </bean>
@@ -48,14 +49,17 @@
     <constructor-arg value="${geoserver.password}"/>
   </bean>
  
-  <bean id="geoserverConfig" class="au.org.aurin.wif.config.GeoServerConfig" >
-    <property name="workspace" value="${wif.geoserver.workspace}" />
-    <property name="storeName" value="${wif.geoserver.storeName}" />
-  </bean>
+	<bean id="geoserverConfig" class="au.org.aurin.wif.config.GeoServerConfig">
+		<property name="workspace" value="${wif.geoserver.workspace}" />
+		<property name="storeName" value="${wif.geoserver.storeName}" />
+		<property name="restUrl" value="${geoserver.rest-url}" />
+		<property name="userName" value="${geoserver.username}" />
+		<property name="password" value="${geoserver.password}" />
+	</bean>
    
-  <bean id="integrationTestConfig" class="au.org.aurin.wif.config.IntegrationTestConfig" >
+<!--   <bean id="integrationTestConfig" class="au.org.aurin.wif.config.IntegrationTestConfig" >
     <property name="unionDemoDatastore" value="${wif.test.unionDemoDatastore}" />
         <property name="uazDemoDatastore" value="${wif.test.uazDemoDatastore}" />
     
-  </bean>
+  </bean> -->
 </beans>

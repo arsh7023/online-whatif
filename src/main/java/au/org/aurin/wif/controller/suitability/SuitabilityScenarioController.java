@@ -3,6 +3,7 @@ package au.org.aurin.wif.controller.suitability;
 import static au.org.aurin.wif.io.RestAPIConstants.HEADER_USER_ID_KEY;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -631,5 +632,63 @@ public class SuitabilityScenarioController {
 
     return reportService.getSuitabilityLUsScores(projectId);
   }
+  
+  
+  /**
+   * duplicates suitability scenario.
+   * 
+   * @param roleId
+   *          the role id
+   * @param projectId
+   *          the project id
+   * @param id
+   *          the id
+   * @param inparams
+   *          the input name
+   * @return List<String>
+   * @throws Exception
+   */
+  @RequestMapping(method = RequestMethod.POST, value = "/{projectId}/suitabilityScenarios/{id}/duplicate", produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  public @ResponseBody List<String> duplicateScenario(
+      @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
+      @PathVariable("projectId") final String projectID,
+      @PathVariable("id") final String scenarioID,
+      @RequestBody final Map<String, String> params)
+   {
+        LOGGER.info("*******>> duplicate request for scenario  id ={}, with a new name: {}",
+    		scenarioID, params.get("name"));
+	    List<String>  out= new ArrayList<String>();
+	    try
+	    {
+	    	
+	    	List<SuitabilityScenario> listScenario= suitabilityScenarioService.getSuitabilityScenarios(projectID);
+	    	Boolean lsw= true;
+	    	for (SuitabilityScenario st: listScenario)
+	    	{
+	    		if (st.getLabel().equals(params.get("name")))
+	    		{
+	    			lsw = false;	    			
+	    		}
+	    	}
+	    	if (lsw == true)
+	    	{
+	    		out.add(suitabilityScenarioService.duplicateSuitabiliyScenario(projectID, scenarioID, params.get("name")));
+	    	}
+	    	else
+	    	{
+	    		out.add("Name already exists!");
+	    	}
+	    		
+	        
+	      } catch (final Exception e) {
+	          LOGGER.error("duplicateScenario failed: {}", e.getMessage());
+	          out.add("Error!" + e.getMessage());
+	      }
+	     
+    return out;
+  }
+  
+  
 
 }

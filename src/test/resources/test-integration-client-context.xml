@@ -7,7 +7,7 @@
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
   default-autowire="byName">
 	<context:property-placeholder
-		location="file:${aurin.dir}/aurin-wif-combined.properties,classpath*:aurin-wif-combined.properties" />
+		location="file:${aurin.dir}/aurin-wif-combined.properties,classpath*:whatif-combined.properties" />
   <!-- Enable Spring beans annotation support -->
   <context:annotation-config />
 <!--   	<context:component-scan base-package="au.org.aurin.wif.restclient" /> -->
