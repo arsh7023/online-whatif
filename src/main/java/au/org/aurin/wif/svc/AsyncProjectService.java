@@ -3,10 +3,13 @@ package au.org.aurin.wif.svc;
 import java.io.IOException;
 import java.util.concurrent.Future;
 
+import au.org.aurin.wif.exception.config.WifInvalidConfigException;
 import au.org.aurin.wif.exception.io.DataStoreCreationException;
 import au.org.aurin.wif.exception.io.DataStoreUnavailableException;
 import au.org.aurin.wif.exception.io.MiddlewarePersistentException;
 import au.org.aurin.wif.exception.io.WifIOException;
+import au.org.aurin.wif.exception.validate.InvalidFFNameException;
+import au.org.aurin.wif.exception.validate.InvalidLabelException;
 import au.org.aurin.wif.exception.validate.WifInvalidInputException;
 import au.org.aurin.wif.model.WifProject;
 
@@ -17,7 +20,7 @@ public interface AsyncProjectService {
 
   /**
    * Setup project async.
-   * 
+   *
    * @param project
    *          the project
    * @param username
@@ -29,14 +32,17 @@ public interface AsyncProjectService {
    *           the data store unavailable exception
    * @throws DataStoreCreationException
    *           the data store creation exception
+   * @throws InvalidFFNameException
+   * @throws InvalidLabelException
+   * @throws WifInvalidConfigException
    */
   Future<String> setupProjectAsync(WifProject project, String username)
       throws WifInvalidInputException, DataStoreUnavailableException,
-      DataStoreCreationException;
+      DataStoreCreationException, WifInvalidConfigException, InvalidLabelException, InvalidFFNameException;
 
   /**
    * Upload uaz async.
-   * 
+   *
    * @param project
    *          the project
    * @param roleId

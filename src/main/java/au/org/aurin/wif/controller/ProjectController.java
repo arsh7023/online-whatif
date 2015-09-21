@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.vividsolutions.jts.io.ParseException;
+
 import au.org.aurin.wif.exception.config.GeoServerConfigException;
 import au.org.aurin.wif.exception.config.InvalidEntityIdException;
 import au.org.aurin.wif.exception.config.ParsingException;
@@ -42,6 +44,8 @@ import au.org.aurin.wif.exception.io.DatabaseFailedException;
 import au.org.aurin.wif.exception.io.MiddlewarePersistentException;
 import au.org.aurin.wif.exception.io.WifIOException;
 import au.org.aurin.wif.exception.validate.IncompleteSuitabilityLUConfigException;
+import au.org.aurin.wif.exception.validate.InvalidFFNameException;
+import au.org.aurin.wif.exception.validate.InvalidLabelException;
 import au.org.aurin.wif.exception.validate.ProjectNotReadyException;
 import au.org.aurin.wif.exception.validate.ProjectSetupFailedException;
 import au.org.aurin.wif.exception.validate.UAZAlreadyCreatedException;
@@ -50,16 +54,16 @@ import au.org.aurin.wif.io.GeodataFinder;
 import au.org.aurin.wif.io.parsers.ProjectCouchParser;
 import au.org.aurin.wif.model.WifProject;
 import au.org.aurin.wif.model.allocation.AllocationConfigs;
+import au.org.aurin.wif.model.allocation.AllocationLU;
 import au.org.aurin.wif.model.allocation.ColorALU;
 import au.org.aurin.wif.model.reports.ProjectReport;
 import au.org.aurin.wif.model.suitability.SuitabilityConfig;
 import au.org.aurin.wif.repo.allocation.AllocationConfigsDao;
+import au.org.aurin.wif.svc.AllocationLUService;
 import au.org.aurin.wif.svc.AsyncProjectService;
 import au.org.aurin.wif.svc.ProjectService;
 import au.org.aurin.wif.svc.WifKeys;
 import au.org.aurin.wif.svc.report.ReportService;
-
-import com.vividsolutions.jts.io.ParseException;
 
 /**
  * The Class ProjectController.
@@ -101,9 +105,12 @@ public class ProjectController {
   /** The uploads pool. */
   private final HashMap<String, Future<String>> uploadsPool = new HashMap<String, Future<String>>();
 
+  @Resource
+  private AllocationLUService allocationLUService;
+
   /**
    * Gets the project revision.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -120,7 +127,7 @@ public class ProjectController {
   String getProjectRevision(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
     final String msg = "getProjectRevision failed: {}";
     try {
       return projectService.getProjectNoMapping(id).getRevision();
@@ -135,7 +142,7 @@ public class ProjectController {
 
   /**
    * Gets the zipfile of the project.
-   * 
+   *
    * @param roleId
    * @param id
    * @param response
@@ -151,8 +158,8 @@ public class ProjectController {
       // public byte[] getZipUAZ(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id, final HttpServletResponse response)
-      throws WifInvalidConfigException, WifInvalidInputException,
-      DatabaseFailedException {
+          throws WifInvalidConfigException, WifInvalidInputException,
+          DatabaseFailedException {
 
     LOGGER.info("*******>> getProjectZipUAZ request for project  id ={}", id);
     final String msg = "getProject failed: {}";
@@ -186,7 +193,7 @@ public class ProjectController {
 
   /**
    * Gets the project.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -202,7 +209,7 @@ public class ProjectController {
   public @ResponseBody
   WifProject getProject(@RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id) throws WifInvalidConfigException,
-      WifInvalidInputException {
+  WifInvalidInputException {
 
     LOGGER.info("*******>> getProject request for project  id ={}", id);
     final String msg = "getProject failed: {}";
@@ -220,7 +227,7 @@ public class ProjectController {
 
   /**
    * Gets the all projects.
-   * 
+   *
    * @param roleId
    *          the role id
    * @return the all projects
@@ -246,15 +253,15 @@ public class ProjectController {
   List<WifProject> getAllProjects(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       final HttpServletResponse response) throws WifInvalidConfigException,
-      WifInvalidInputException, NoSuchAuthorityCodeException, FactoryException,
-      TransformException, ParseException, CQLException {
+  WifInvalidInputException, NoSuchAuthorityCodeException, FactoryException,
+  TransformException, ParseException, CQLException {
 
     response.setHeader("Access-Control-Allow-Origin", "*");
     response.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
     response.setHeader("Access-Control-Allow-Headers", HEADER_USER_ID_KEY);
     response
-        .setHeader("Access-Control-Allow-Headers",
-            "Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+    .setHeader("Access-Control-Allow-Headers",
+        "Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
 
     LOGGER.info("*******>> getAllProjectsNoMapping");
 
@@ -268,7 +275,7 @@ public class ProjectController {
 
   /**
    * Gets the project configuration.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -285,12 +292,12 @@ public class ProjectController {
   WifProject getProjectConfiguration(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
 
     LOGGER
-        .info(
-            "*******>> getProjectFullConfiguration request for project  id ={}",
-            id);
+    .info(
+        "*******>> getProjectFullConfiguration request for project  id ={}",
+        id);
     final String msg = "getProjectFullConfiguration failed: {}";
 
     try {
@@ -306,7 +313,7 @@ public class ProjectController {
 
   /**
    * Gets the status.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -325,7 +332,7 @@ public class ProjectController {
   HashMap<String, String> getStatus(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ProjectSetupFailedException {
+  WifInvalidConfigException, ProjectSetupFailedException {
     LOGGER.trace("*******>> getProjectStatus request for project  id ={}", id);
 
     if (id == null) {
@@ -392,7 +399,7 @@ public class ProjectController {
 
   /**
    * Update project.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -409,7 +416,7 @@ public class ProjectController {
   public void updateProject(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id, @RequestBody final WifProject project)
-      throws WifInvalidInputException, WifInvalidConfigException {
+          throws WifInvalidInputException, WifInvalidConfigException {
     LOGGER.info("*******>> updateProject request for project  id ={}", id);
     // TODO we'll need to wire the project id on the wifProject object so
     // that the DAO will be able to handle it. Doing it this way will also
@@ -433,7 +440,7 @@ public class ProjectController {
 
   /**
    * Delete project.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -448,7 +455,7 @@ public class ProjectController {
   public void deleteProject(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
     LOGGER.info("*******>> deleteProject request for project  id ={}", id);
     final String msg = "deleteProject failed: {}";
     try {
@@ -465,7 +472,7 @@ public class ProjectController {
 
   /**
    * Creates the project.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param project
@@ -481,6 +488,8 @@ public class ProjectController {
    *           the data store unavailable exception
    * @throws DataStoreCreationException
    *           the data store creation exception
+   * @throws InvalidFFNameException
+   * @throws InvalidLabelException
    */
   @RequestMapping(method = RequestMethod.POST, value = "/", consumes = "application/json", produces = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
@@ -488,8 +497,8 @@ public class ProjectController {
   WifProject createProject(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @RequestBody WifProject project, final HttpServletResponse response)
-      throws WifInvalidConfigException, WifInvalidInputException,
-      DataStoreUnavailableException, DataStoreCreationException {
+          throws WifInvalidConfigException, WifInvalidInputException,
+          DataStoreUnavailableException, DataStoreCreationException, InvalidLabelException, InvalidFFNameException {
     LOGGER.info("*******>> createProject request for project  label ={}",
         project.getLabel());
     final String msg = "createProject failed: {}";
@@ -497,9 +506,9 @@ public class ProjectController {
     try {
       project = projectService.createProject(project, roleId);
       LOGGER
-          .info(
-              "*******>> project created with ID ={} requesting asynchronous task to finish setup ",
-              project.getId());
+      .info(
+          "*******>> project created with ID ={} requesting asynchronous task to finish setup ",
+          project.getId());
       final Future<String> future = asyncProjectService.setupProjectAsync(
           project, roleId);
 
@@ -524,7 +533,7 @@ public class ProjectController {
 
   /**
    * Gets the uAZ attributes.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -551,9 +560,9 @@ public class ProjectController {
         return geodataFinder.getUAZAttributes(uazTbl);
       } else {
         LOGGER
-            .error(
-                "No analysisConfig set, getUAZAttributes project failed for {}",
-                id);
+        .error(
+            "No analysisConfig set, getUAZAttributes project failed for {}",
+            id);
         throw new WifInvalidInputException(
             "No analysisConfig set, getUAZAttributes project failed for " + id);
       }
@@ -578,7 +587,7 @@ public class ProjectController {
 
   /**
    * Gets the distinct entries for uaz attribute.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -598,9 +607,9 @@ public class ProjectController {
       @PathVariable("attr") final String attr) throws WifInvalidInputException {
 
     LOGGER
-        .info(
-            "*******>> getDistinctEntriesForUAZAttribute on Project id ={} and attr ={}",
-            id, attr);
+    .info(
+        "*******>> getDistinctEntriesForUAZAttribute on Project id ={} and attr ={}",
+        id, attr);
     try {
       final WifProject project = projectService.getProjectNoMapping(id);
       final SuitabilityConfig suitabilityConfig = project
@@ -610,9 +619,9 @@ public class ProjectController {
         return geodataFinder.getDistinctEntriesForUAZAttribute(uazTbl, attr);
       } else {
         LOGGER
-            .error(
-                "No analysisConfig set, getDistinctEntriesForUAZAttribute project failed for {}",
-                id);
+        .error(
+            "No analysisConfig set, getDistinctEntriesForUAZAttribute project failed for {}",
+            id);
         throw new WifInvalidInputException(
             "No analysisConfig set, getDistinctEntriesForUAZAttribute project failed for "
                 + id);
@@ -624,9 +633,9 @@ public class ProjectController {
             "getDistinctEntriesForUAZAttribute project failed " + e.toString());
       } else if (e instanceof NumberFormatException) {
         LOGGER
-            .error(
-                "NumberFormatException getDistinctEntriesForUAZAttribute a project failed for {}",
-                id);
+        .error(
+            "NumberFormatException getDistinctEntriesForUAZAttribute a project failed for {}",
+            id);
         throw new WifInvalidInputException(
             "NumberFormatException getDistinctEntriesForUAZAttribute project failed "
                 + e.toString());
@@ -659,9 +668,9 @@ public class ProjectController {
         return geodataFinder.getDistinctEntriesForUAZAttribute(uazTbl, attr);
       } else {
         LOGGER
-            .error(
-                "No analysisConfig set, getDistinctEntriesForUAZAttributefixed project failed for {}",
-                id);
+        .error(
+            "No analysisConfig set, getDistinctEntriesForUAZAttributefixed project failed for {}",
+            id);
         throw new WifInvalidInputException(
             "No analysisConfig set, getDistinctEntriesForUAZAttributefixed project failed for "
                 + id);
@@ -669,15 +678,15 @@ public class ProjectController {
     } catch (final Exception e) {
       if (e instanceof InvalidEntityIdException) {
         LOGGER
-            .error("getDistinctEntriesForUAZAttributefixed failed for {}", id);
+        .error("getDistinctEntriesForUAZAttributefixed failed for {}", id);
         throw new InvalidEntityIdException(
             "getDistinctEntriesForUAZAttributefixed project failed "
                 + e.toString());
       } else if (e instanceof NumberFormatException) {
         LOGGER
-            .error(
-                "NumberFormatException getDistinctEntriesForUAZAttributefixed a project failed for {}",
-                id);
+        .error(
+            "NumberFormatException getDistinctEntriesForUAZAttributefixed a project failed for {}",
+            id);
         throw new WifInvalidInputException(
             "NumberFormatException getDistinctEntriesForUAZAttributefixed project failed "
                 + e.toString());
@@ -700,9 +709,9 @@ public class ProjectController {
       @PathVariable("attr") final String attr) throws WifInvalidInputException {
 
     LOGGER
-        .info(
-            "*******>> getDistinctColorsForUAZAttribute on Project id ={} and attr ={}",
-            id, attr);
+    .info(
+        "*******>> getDistinctColorsForUAZAttribute on Project id ={} and attr ={}",
+        id, attr);
     try {
       final WifProject project = projectService.getProjectNoMapping(id);
       final SuitabilityConfig suitabilityConfig = project
@@ -712,9 +721,9 @@ public class ProjectController {
         return geodataFinder.getDistinctColorsForUAZAttribute(uazTbl, attr);
       } else {
         LOGGER
-            .error(
-                "No analysisConfig set, getDistinctColorsForUAZAttribute project failed for {}",
-                id);
+        .error(
+            "No analysisConfig set, getDistinctColorsForUAZAttribute project failed for {}",
+            id);
         throw new WifInvalidInputException(
             "No analysisConfig set, getDistinctColorsForUAZAttribute project failed for "
                 + id);
@@ -726,9 +735,9 @@ public class ProjectController {
             "getDistinctColorsForUAZAttribute project failed " + e.toString());
       } else if (e instanceof NumberFormatException) {
         LOGGER
-            .error(
-                "NumberFormatException getDistinctColorsForUAZAttribute a project failed for {}",
-                id);
+        .error(
+            "NumberFormatException getDistinctColorsForUAZAttribute a project failed for {}",
+            id);
         throw new WifInvalidInputException(
             "NumberFormatException getDistinctColorsForUAZAttribute project failed "
                 + e.toString());
@@ -761,9 +770,9 @@ public class ProjectController {
         return geodataFinder.getDistinctColorsForALUConfig(uazTbl, attr);
       } else {
         LOGGER
-            .error(
-                "No analysisConfig set, getDistinctColorsForAluConfig project failed for {}",
-                id);
+        .error(
+            "No analysisConfig set, getDistinctColorsForAluConfig project failed for {}",
+            id);
         throw new WifInvalidInputException(
             "No analysisConfig set, getDistinctColorsForAluConfig project failed for "
                 + id);
@@ -775,9 +784,9 @@ public class ProjectController {
             "getDistinctColorsForUAZAttribute project failed " + e.toString());
       } else if (e instanceof NumberFormatException) {
         LOGGER
-            .error(
-                "NumberFormatException getDistinctColorsForAluConfig a project failed for {}",
-                id);
+        .error(
+            "NumberFormatException getDistinctColorsForAluConfig a project failed for {}",
+            id);
         throw new WifInvalidInputException(
             "NumberFormatException getDistinctColorsForAluConfig project failed "
                 + e.toString());
@@ -800,9 +809,9 @@ public class ProjectController {
       @PathVariable("attr") final String attr) throws WifInvalidInputException {
 
     LOGGER
-        .info(
-            "*******>> getDistinctColorsForUAZAttribute on Project id ={} and attr ={}",
-            id, attr);
+    .info(
+        "*******>> getDistinctColorsForUAZAttribute on Project id ={} and attr ={}",
+        id, attr);
     try {
 
       final List<String> lst = new ArrayList<String>();
@@ -836,9 +845,9 @@ public class ProjectController {
             "getDistinctColorsForUAZAttribute project failed " + e.toString());
       } else if (e instanceof NumberFormatException) {
         LOGGER
-            .error(
-                "NumberFormatException getDistinctColorsForUAZAttribute a project failed for {}",
-                id);
+        .error(
+            "NumberFormatException getDistinctColorsForUAZAttribute a project failed for {}",
+            id);
         throw new WifInvalidInputException(
             "NumberFormatException getDistinctColorsForUAZAttribute project failed "
                 + e.toString());
@@ -854,7 +863,7 @@ public class ProjectController {
 
   /**
    * Update uaz.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -883,18 +892,18 @@ public class ProjectController {
   public void updateUAZ(@RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id,
       @RequestBody final List<String> optionalColumns)
-      throws WifInvalidInputException, BindException,
-      UAZAlreadyCreatedException, IncompleteSuitabilityLUConfigException,
-      FactoryException, DataStoreUnavailableException,
-      WifInvalidConfigException, GeoServerConfigException,
-      DataStoreCreationException {
+          throws WifInvalidInputException, BindException,
+          UAZAlreadyCreatedException, IncompleteSuitabilityLUConfigException,
+          FactoryException, DataStoreUnavailableException,
+          WifInvalidConfigException, GeoServerConfigException,
+          DataStoreCreationException {
     final String msg = "updateUAZ failed: {}";
 
     LOGGER.info("*******>> updateUAZ request for project id ={}", id);
     try {
       projectService.convertUnionToUAZ(id, optionalColumns, roleId);
       LOGGER
-          .info(" finalized setup process for project id ={} <<*******>>", id);
+      .info(" finalized setup process for project id ={} <<*******>>", id);
     } catch (final WifInvalidInputException e) {
       LOGGER.error(msg, e.getMessage());
       throw new WifInvalidInputException(msg, e);
@@ -921,7 +930,7 @@ public class ProjectController {
 
   /**
    * Restore project.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectReport
@@ -941,7 +950,7 @@ public class ProjectController {
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @RequestBody final ProjectReport projectReport,
       final HttpServletResponse response) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
     LOGGER.info("*******>> restoreProject request for projectReport label ={}",
         projectReport.getLabel());
     final String msg = "restoreProject failed: {}";
@@ -950,7 +959,7 @@ public class ProjectController {
       final WifProject wifProject = projectService
           .restoreProjectConfiguration(projectReport);
       LOGGER
-          .info("*******>> project restored with ID ={} ", wifProject.getId());
+      .info("*******>> project restored with ID ={} ", wifProject.getId());
       response.setHeader("Location",
           OWIURLs.PROJECT_SVC_URI + "/" + wifProject.getId());
       return wifProject;
@@ -965,7 +974,7 @@ public class ProjectController {
 
   /**
    * Delete project configuration.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -980,11 +989,11 @@ public class ProjectController {
   public void deleteProjectConfiguration(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
     LOGGER
-        .info(
-            "*******>> deleteProjectconfiguration only request for project  id ={}",
-            id);
+    .info(
+        "*******>> deleteProjectconfiguration only request for project  id ={}",
+        id);
     final String msg = "deleteProjectconfiguration failed: {}";
     try {
       projectService.deleteProject(id, false);
@@ -1000,7 +1009,7 @@ public class ProjectController {
 
   /**
    * Gets the project report.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -1019,7 +1028,7 @@ public class ProjectController {
   ProjectReport getProjectReport(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id) throws WifInvalidConfigException,
-      WifInvalidInputException, ParsingException {
+  WifInvalidInputException, ParsingException {
 
     LOGGER.info("*******>> getProjectReport request for project  id ={}", id);
     final String msg = "getProjectReport failed: {}";
@@ -1042,7 +1051,7 @@ public class ProjectController {
 
   /**
    * Upload uaz async.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -1066,9 +1075,9 @@ public class ProjectController {
   public void uploadUAZAsync(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      DataStoreUnavailableException, WifInvalidConfigException, WifIOException,
-      ProjectNotReadyException, IOException, DataStoreCreationException,
-      MiddlewarePersistentException {
+  DataStoreUnavailableException, WifInvalidConfigException, WifIOException,
+  ProjectNotReadyException, IOException, DataStoreCreationException,
+  MiddlewarePersistentException {
     LOGGER.info("*******>> uploadUAZAsync request for project  id ={}", id);
 
     final WifProject project = projectService.getProject(id);
@@ -1085,7 +1094,7 @@ public class ProjectController {
 
   /**
    * Gets the upload status.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -1104,7 +1113,7 @@ public class ProjectController {
   HashMap<String, String> getUploadStatus(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ProjectSetupFailedException {
+  WifInvalidConfigException, ProjectSetupFailedException {
     LOGGER.info("*******>> getUploadStatus request for project  id ={}", id);
 
     if (id == null) {
@@ -1169,7 +1178,7 @@ public class ProjectController {
 
   /**
    * Gets the uAZ uri.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param id
@@ -1191,8 +1200,8 @@ public class ProjectController {
   public String getUAZUri(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      DataStoreUnavailableException, WifInvalidConfigException, WifIOException,
-      ProjectNotReadyException {
+  DataStoreUnavailableException, WifInvalidConfigException, WifIOException,
+  ProjectNotReadyException {
     LOGGER.info("*******>> getUAZUri request for project  id ={}", id);
 
     final WifProject project = projectService.getProjectNoMapping(id);
@@ -1201,7 +1210,7 @@ public class ProjectController {
 
   /**
    * Gets the all project names.
-   * 
+   *
    * @param roleId
    *          the role id
    * @return the all projects names
@@ -1227,15 +1236,15 @@ public class ProjectController {
   List<String> getAllProjectNames(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       final HttpServletResponse response) throws WifInvalidConfigException,
-      WifInvalidInputException, NoSuchAuthorityCodeException, FactoryException,
-      TransformException, ParseException, CQLException {
+  WifInvalidInputException, NoSuchAuthorityCodeException, FactoryException,
+  TransformException, ParseException, CQLException {
 
     response.setHeader("Access-Control-Allow-Origin", "*");
     response.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
     response.setHeader("Access-Control-Allow-Headers", HEADER_USER_ID_KEY);
     response
-        .setHeader("Access-Control-Allow-Headers",
-            "Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+    .setHeader("Access-Control-Allow-Headers",
+        "Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
 
     LOGGER.info("*******>> getAllProject names");
     final List<String> lst = new ArrayList<String>();
@@ -1250,5 +1259,74 @@ public class ProjectController {
       throw new WifInvalidInputException("find a project failed {}");
     }
   }
+
+
+  @RequestMapping(method = RequestMethod.GET, value = "/{id}/MakeLUsforUnionAttributes/{attr}/makeLU", produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  public @ResponseBody
+  List<AllocationLU>  MakeLUsforUnionAttributes(
+      @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
+      @PathVariable("id") final String id,
+      @PathVariable("attr") final String attr) throws WifInvalidInputException {
+
+    LOGGER
+    .info(
+        "*******>> MakeLUsforUnionAttributes on Project id ={} and attr ={}",
+        id, attr);
+    try {
+      final WifProject project = projectService.getProjectNoMapping(id);
+      final SuitabilityConfig suitabilityConfig = project
+          .getSuitabilityConfig();
+
+      ////////////////
+
+
+      if (suitabilityConfig != null) {
+        final String uazTbl = suitabilityConfig.getUnifiedAreaZone();
+
+        final List<String> lst= geodataFinder.getDistinctEntriesForUAZAttribute(uazTbl, attr);
+        for (final String str: lst)
+        {
+          final AllocationLU allocationLU = new AllocationLU();
+          allocationLU.setProjectId(project.getId());
+          allocationLU.setLabel(str);
+          allocationLU.setFeatureFieldName(str);
+          allocationLUService.createAllocationLU(allocationLU,
+              project.getId());
+        }
+
+
+        return allocationLUService.getAllocationLUs(id);
+      } else {
+        LOGGER
+        .error(
+            "No analysisConfig set, getDistinctEntriesForUAZAttribute project failed for {}",
+            id);
+        throw new WifInvalidInputException(
+            "No analysisConfig set, getDistinctEntriesForUAZAttribute project failed for "
+                + id);
+      }
+    } catch (final Exception e) {
+      if (e instanceof InvalidEntityIdException) {
+        LOGGER.error("MakeLUsforUnionAttributes failed for {}", id);
+        throw new InvalidEntityIdException(
+            "MakeLUsforUnionAttributes project failed " + e.toString());
+      } else if (e instanceof NumberFormatException) {
+        LOGGER
+        .error(
+            "NumberFormatException MakeLUsforUnionAttributes a project failed for {}",
+            id);
+        throw new WifInvalidInputException(
+            "NumberFormatException MakeLUsforUnionAttributes project failed "
+                + e.toString());
+      } else {
+        LOGGER.error(
+            "MakeLUsforUnionAttributes a project failed for {}", id);
+        throw new WifInvalidInputException(
+            "MakeLUsforUnionAttributes a project failed " + id);
+      }
+    }
+  }
+
 
 }

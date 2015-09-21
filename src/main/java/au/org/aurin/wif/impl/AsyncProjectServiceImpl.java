@@ -1,7 +1,5 @@
 package au.org.aurin.wif.impl;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.concurrent.Future;
@@ -26,11 +24,14 @@ import org.springframework.stereotype.Service;
 
 import au.org.aurin.wif.config.GeoServerConfig;
 import au.org.aurin.wif.config.WifConfig;
+import au.org.aurin.wif.exception.config.WifInvalidConfigException;
 import au.org.aurin.wif.exception.io.DataStoreCreationException;
 import au.org.aurin.wif.exception.io.DataStoreUnavailableException;
 import au.org.aurin.wif.exception.io.MiddlewarePersistentException;
 import au.org.aurin.wif.exception.io.ShapeFile2PostGISCreationException;
 import au.org.aurin.wif.exception.io.WifIOException;
+import au.org.aurin.wif.exception.validate.InvalidFFNameException;
+import au.org.aurin.wif.exception.validate.InvalidLabelException;
 import au.org.aurin.wif.exception.validate.WifInvalidInputException;
 import au.org.aurin.wif.io.DataStoreToPostgisExporter;
 import au.org.aurin.wif.io.GeodataFinder;
@@ -38,8 +39,10 @@ import au.org.aurin.wif.io.PostgisToDataStoreExporter;
 import au.org.aurin.wif.model.WifProject;
 import au.org.aurin.wif.model.suitability.SuitabilityConfig;
 import au.org.aurin.wif.repo.impl.CouchWifProjectDao;
+import au.org.aurin.wif.svc.AllocationLUService;
 import au.org.aurin.wif.svc.AsyncProjectService;
 import au.org.aurin.wif.svc.WifKeys;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 
 /**
  * The Class AsyncProjectServiceImpl.
@@ -90,6 +93,9 @@ public class AsyncProjectServiceImpl implements AsyncProjectService {
   @Resource
   private ValidatorUAZ validatorUAZ;
 
+  @Resource
+  private AllocationLUService allocationLUService;
+
   /**
    * Inits the.
    */
@@ -114,16 +120,17 @@ public class AsyncProjectServiceImpl implements AsyncProjectService {
    * au.org.aurin.wif.svc.AsyncProjectService#setupProjectAsync(au.org.aurin
    * .wif.model.WifProject, java.lang.String)
    */
+  @Override
   @Async
   public Future<String> setupProjectAsync(final WifProject project,
       final String username) throws WifInvalidInputException,
-      DataStoreUnavailableException, DataStoreCreationException {
+  DataStoreUnavailableException, DataStoreCreationException, WifInvalidConfigException, InvalidLabelException, InvalidFFNameException {
     return new AsyncResult<String>(setupProject(project, username));
   }
 
   /**
    * Setup project.
-   * 
+   *
    * @param project
    *          the project
    * @param username
@@ -135,10 +142,13 @@ public class AsyncProjectServiceImpl implements AsyncProjectService {
    *           the data store unavailable exception
    * @throws DataStoreCreationException
    *           the data store creation exception
+   * @throws InvalidFFNameException
+   * @throws InvalidLabelException
+   * @throws WifInvalidConfigException
    */
   public String setupProject(WifProject project, final String username)
       throws WifInvalidInputException, DataStoreUnavailableException,
-      DataStoreCreationException {
+      DataStoreCreationException, WifInvalidConfigException, InvalidLabelException, InvalidFFNameException {
 
     String tableName = "";
     CoordinateReferenceSystem crs = null;
@@ -148,9 +158,9 @@ public class AsyncProjectServiceImpl implements AsyncProjectService {
         + tableName + " failed";
     tableName = "wif_"
         + project.getId().toString().replaceAll(" ", "_").replaceAll("-", "_")
-            .toLowerCase();
+        .toLowerCase();
     LOGGER
-        .info("Creating postGIS spatial store with table name {} ", tableName);
+    .info("Creating postGIS spatial store with table name {} ", tableName);
     if (project.getOwnGeoDatastoreName() != null) {
       project = this.reuseDBTable(tableName, project);
     } else {
@@ -197,6 +207,25 @@ public class AsyncProjectServiceImpl implements AsyncProjectService {
     // }
     // ali- also call postgisToDataStoreExporter.exportUAZ
 
+
+    //    ////////////////
+    //    LOGGER.info(
+    //        "Creating AllocationLUs!");
+    //    final String uazTbl = suitabilityConfig.getUnifiedAreaZone();
+    //    final String attr = null;
+    //    final List<String> lst= geodataFinder.getDistinctEntriesForUAZAttribute(uazTbl, attr);
+    //    for (final String str: lst)
+    //    {
+    //      final AllocationLU allocationLU = new AllocationLU();
+    //      allocationLU.setProjectId(project.getId());
+    //      allocationLU.setLabel(str);
+    //      allocationLU.setFeatureFieldName(str);
+    //      allocationLUService.createAllocationLU(allocationLU,
+    //          project.getId());
+    //    }
+
+    /////////////////////////////
+
     LOGGER.info(
         "setup process for project {},with id= {} has completed successfully!",
         project.getName(), project.getId());
@@ -205,7 +234,7 @@ public class AsyncProjectServiceImpl implements AsyncProjectService {
 
   /**
    * Reuse db table.
-   * 
+   *
    * @param tableName
    *          the table name
    * @param project
@@ -219,9 +248,9 @@ public class AsyncProjectServiceImpl implements AsyncProjectService {
   private WifProject reuseDBTable(final String tableName,
       final WifProject project) throws DataStoreCreationException {
     LOGGER
-        .info(
-            "Creating feature collection from table already present in the database! tablename is={}",
-            tableName);
+    .info(
+        "Creating feature collection from table already present in the database! tablename is={}",
+        tableName);
 
     FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = null;
     featureCollection = exporter.getFeatures(project.getOwnGeoDatastoreName());
@@ -248,7 +277,7 @@ public class AsyncProjectServiceImpl implements AsyncProjectService {
 
   /**
    * Creates the datastore.
-   * 
+   *
    * @param project
    *          the project
    * @param username
@@ -267,8 +296,8 @@ public class AsyncProjectServiceImpl implements AsyncProjectService {
    */
   public WifProject createDatastore(WifProject project, final String username,
       final String tableName) throws WifInvalidInputException,
-      DataStoreUnavailableException, DataStoreCreationException,
-      ShapeFile2PostGISCreationException {
+  DataStoreUnavailableException, DataStoreCreationException,
+  ShapeFile2PostGISCreationException {
     // handle the datastore to postgis export process here...
 
     try {
@@ -291,7 +320,7 @@ public class AsyncProjectServiceImpl implements AsyncProjectService {
 
   /**
    * Creates the suitability config.
-   * 
+   *
    * @param tableName
    *          the table name
    * @return the suitability config
@@ -317,17 +346,18 @@ public class AsyncProjectServiceImpl implements AsyncProjectService {
    * au.org.aurin.wif.svc.AsyncProjectService#uploadUAZAsync(au.org.aurin.wif
    * .model.WifProject, java.lang.String)
    */
+  @Override
   @Async
   public Future<String> uploadUAZAsync(final WifProject project,
       final String roleId) throws WifIOException, IOException,
-      DataStoreCreationException, MiddlewarePersistentException {
+  DataStoreCreationException, MiddlewarePersistentException {
 
     return new AsyncResult<String>(uploadUAZ(project, roleId));
   }
 
   /**
    * Upload uaz of the project into AURIN middleware persistence services.
-   * 
+   *
    * @param project
    *          the project
    * @param roleId

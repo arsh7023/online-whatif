@@ -379,7 +379,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+				
 		<dependency>
 			<groupId>org.eclipse.birt.runtime</groupId>
 			<artifactId>com.ibm.icu</artifactId>
@@ -401,19 +401,25 @@
     </dependency>
     
 		<!-- httpclient -->
- <dependency>
-	<groupId>org.apache.httpcomponents</groupId>
-	<artifactId>httpclient</artifactId>
-	<version>4.4</version>
-</dependency>
-
-<dependency>
-	<groupId>org.apache.httpcomponents</groupId>
-	<artifactId>httpcore</artifactId>
-	<version>4.4</version>
-</dependency> 
-
-
+		 <dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.4</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>4.4</version>
+		</dependency> 
+		
+		<!-- apache poi for excel -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.12</version>
+		</dependency>
+	
 	</dependencies>
 	
 	

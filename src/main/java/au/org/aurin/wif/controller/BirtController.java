@@ -19,7 +19,9 @@ import org.eclipse.birt.report.engine.api.EXCELRenderOption;
 import org.eclipse.birt.report.engine.api.EngineConfig;
 import org.eclipse.birt.report.engine.api.EngineConstants;
 import org.eclipse.birt.report.engine.api.HTMLRenderOption;
+import org.eclipse.birt.report.engine.api.IExcelRenderOption;
 import org.eclipse.birt.report.engine.api.IPDFRenderOption;
+import org.eclipse.birt.report.engine.api.IRenderOption;
 import org.eclipse.birt.report.engine.api.IReportEngine;
 import org.eclipse.birt.report.engine.api.IReportEngineFactory;
 import org.eclipse.birt.report.engine.api.IReportRunnable;
@@ -81,7 +83,7 @@ public class BirtController {
 
   /**
    * Generates suitability scenario html report
-   * 
+   *
    * @param locale
    * @param model
    * @param id
@@ -95,7 +97,7 @@ public class BirtController {
   public @ResponseBody
   String home(final Locale locale, final Model model,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException, IOException {
+  WifInvalidConfigException, ParsingException, IOException {
 
     LOGGER.info("Welcome Birt Report!");
     LOGGER.info(
@@ -479,7 +481,7 @@ public class BirtController {
 
   /**
    * Generates suitability scenario pdf report
-   * 
+   *
    * @param response
    * @param id
    * @return
@@ -492,7 +494,7 @@ public class BirtController {
   @ResponseBody
   public byte[] getPDF(final HttpServletResponse response,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException, IOException {
+  WifInvalidConfigException, ParsingException, IOException {
 
     byte[] bytem = null;
     LOGGER.info(
@@ -824,9 +826,9 @@ public class BirtController {
 
       file.delete();
       LOGGER
-          .info(
-              "*******>> Completed Birt Report pdf for Suitability Scenario  id ={}",
-              id);
+      .info(
+          "*******>> Completed Birt Report pdf for Suitability Scenario  id ={}",
+          id);
 
     } catch (final Exception e) {
       LOGGER.debug("getBirt pdf Report error : ={}", e.toString());
@@ -840,7 +842,7 @@ public class BirtController {
 
   /**
    * Generates suitability scenario xls report
-   * 
+   *
    * @param response
    * @param id
    * @return
@@ -853,7 +855,7 @@ public class BirtController {
   @ResponseBody
   public byte[] getXLS(final HttpServletResponse response,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException, IOException {
+  WifInvalidConfigException, ParsingException, IOException {
 
     byte[] bytem = null;
 
@@ -1183,9 +1185,9 @@ public class BirtController {
 
       file.delete();
       LOGGER
-          .info(
-              "*******>> Completed Birt Report xls for Suitability Scenario  id ={}",
-              id);
+      .info(
+          "*******>> Completed Birt Report xls for Suitability Scenario  id ={}",
+          id);
 
     } catch (final Exception e) {
       LOGGER.debug("getBirt xls Report error : ={}", e.toString());
@@ -1199,7 +1201,7 @@ public class BirtController {
 
   /**
    * Generates suitability scenario csv report
-   * 
+   *
    * @param response
    * @param id
    * @return
@@ -1212,7 +1214,7 @@ public class BirtController {
   @ResponseBody
   public byte[] getCSV(final HttpServletResponse response,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException, IOException {
+  WifInvalidConfigException, ParsingException, IOException {
 
     byte[] bytem = null;
 
@@ -1244,7 +1246,7 @@ public class BirtController {
       //lfname = lfname.replaceAll("/", "");
       lfname = lfname.replaceAll(">", "Greater ");
       lfname = lfname.replaceAll("<", "Lower ");
-      
+
       str.append("<list>");
       str.append("<value>");
       str.append(lname);
@@ -1335,9 +1337,15 @@ public class BirtController {
       }
 
       final EXCELRenderOption xlsOptions = new EXCELRenderOption();
+
       xlsOptions.setOutputFormat("xls");
       xlsOptions.setOutputFileName(tempDir + "/xfact.xls");
-      
+
+      xlsOptions.setOption(IExcelRenderOption.OFFICE_VERSION, "office2007");
+      //xlsOptions.setOption(IExcelRenderOption.EMITTER_ID, "org.eclipse.birt.report.engine.emitter.prototype.excel");
+      xlsOptions.setOption(IRenderOption.EMITTER_ID, "org.eclipse.birt.report.engine.emitter.prototype.excel");
+      //xlsOptions.setOption(IRenderOption.EMITTER_ID, "org.uguess.birt.report.engine.emitter.xls");
+      // xlsOptions.setOption(IRenderOption.EMITTER_ID,"org.eclipse.birt.report.engine.emitter.nativexls");
 
       xlsOptions.setOption(IPDFRenderOption.PAGE_OVERFLOW,
           IPDFRenderOption.FIT_TO_PAGE_SIZE);
@@ -1357,9 +1365,9 @@ public class BirtController {
 
       file.delete();
       LOGGER
-          .info(
-              "*******>> Completed Birt Report csv for Suitability Scenario  id ={}",
-              id);
+      .info(
+          "*******>> Completed Birt Report csv for Suitability Scenario  id ={}",
+          id);
 
     } catch (final Exception e) {
       LOGGER.debug("getBirt factor csv Report error : ={}", e.toString());
@@ -1375,14 +1383,14 @@ public class BirtController {
   @ResponseBody
   public byte[] getConvert(final HttpServletResponse response,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException, IOException {
+  WifInvalidConfigException, ParsingException, IOException {
 
     byte[] bytem = null;
 
     LOGGER
-        .info(
-            "*******>> getBirt Report convert for Suitability Scenario  id ={}",
-            id);
+    .info(
+        "*******>> getBirt Report convert for Suitability Scenario  id ={}",
+        id);
 
     final SuitabilityScenario suitabilityScenario = suitabilityScenarioService
         .getSuitabilityScenario(id);
@@ -1514,9 +1522,9 @@ public class BirtController {
 
       file.delete();
       LOGGER
-          .info(
-              "*******>> Completed Birt Report convert for Suitability Scenario  id ={}",
-              id);
+      .info(
+          "*******>> Completed Birt Report convert for Suitability Scenario  id ={}",
+          id);
 
     } catch (final Exception e) {
       LOGGER.debug("getBirt convert Report error : ={}", e.toString());
