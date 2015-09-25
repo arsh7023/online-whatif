@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +39,6 @@ import au.org.aurin.wif.io.WifFileUtils;
 import au.org.aurin.wif.model.WifProject;
 import au.org.aurin.wif.model.allocation.AllocationLU;
 import au.org.aurin.wif.model.suitability.Factor;
-import au.org.aurin.wif.model.suitability.FactorImportance;
 import au.org.aurin.wif.model.suitability.FactorImportance;
 import au.org.aurin.wif.model.suitability.FactorType;
 import au.org.aurin.wif.model.suitability.FactorTypeRating;
@@ -283,12 +283,12 @@ AbstractTestNGSpringContextTests {
       }
 
 
-      @Test(enabled = false)
+      @Test(enabled = true)
       public void importSuitabilityScenariofactorTest() throws Exception {
 
 
         final String projectid= "DemonstrationTestID";
-
+        //final String projectid= "d2ee05b32886f857ef1dd727220ffcfe";
 
 
         try
@@ -327,6 +327,9 @@ AbstractTestNGSpringContextTests {
 
           logger.info("hii");
 
+          final Map<String, Double> map = new HashMap<String, Double>();
+
+
           int rows; // No of rows
           rows = sheet.getPhysicalNumberOfRows();
 
@@ -343,11 +346,10 @@ AbstractTestNGSpringContextTests {
             }
           }
 
-          final SuitabilityScenario oldSuitabilityScenario = suitabilityScenarioService
-              .getSuitabilityScenario(WifKeys.TEST_SUITABILITY_SCENARIO_ID);
-
 
           for(int c = 1; c < cols; c++) {
+
+
             row6 = sheet.getRow(6);
             cell = row6.getCell(c);
 
@@ -376,7 +378,7 @@ AbstractTestNGSpringContextTests {
                   if (lbl.equals(""))
                   {
                     lbl =  factorName.getStringCellValue();
-                    lbluse= "Header: " + lbl;
+                    lbluse= "Header:" + lbl;
                     lswHeader= true;
                   }
                   else
@@ -384,7 +386,7 @@ AbstractTestNGSpringContextTests {
                     if (factorName.getStringCellValue().length() <= lbl.length())
                     {
                       lbl =  factorName.getStringCellValue();
-                      lbluse= "Header: " + lbl;
+                      lbluse= "Header:" + lbl;
                       lswHeader= true;
                     }
                     else
@@ -396,100 +398,17 @@ AbstractTestNGSpringContextTests {
                         if (str.substring(k, k+1).equals("_"))
                         {
                           k = factorName.getStringCellValue().length();
-                          lbluse= "Child:  " +str.substring(lbl.length()+1,k);
+
+                          String lname=str.substring(lbl.length()+1,k);
+                          lname = lname.replaceAll(",", "");
+                          lname = lname.replaceAll("Greater ", ">");
+                          lname = lname.replaceAll("Lower ", "<");
+
+                          //lbluse= "Header:" + lbl + ":Child:" +str.substring(lbl.length()+1,k);
+                          lbluse= "Header:" + lbl + ":Child:" +lname;
                           lswHeader= false;
-                          for (final SuitabilityRule sRule: oldSuitabilityScenario.getSuitabilityRules())
-                          {
-                            if (sRule.getSuitabilityLU().getLabel().equals(headerLU))
-                            {
 
-                              final Set<FactorImportance> setfImp = new HashSet<FactorImportance>();
-                              for ( final FactorImportance   fImp :sRule.getFactorImportances())
-                              {
-
-                                if (fImp.getFactor().getLabel().equals(lbl)) {
-
-                                  final Set<FactorTypeRating> setfRate = new HashSet<FactorTypeRating>();
-                                  for (final FactorTypeRating ftr : fImp.getFactorTypeRatings())
-                                  {
-                                    if (ftr.getFactorType().getLabel().equals(str.substring(lbl.length()+1,k)))
-                                    {
-
-                                      ftr.setScore(Double.parseDouble(cell.getStringCellValue()));
-                                      logger.info("CCCCC" + ftr.getFactorType().getLabel());
-                                    }
-                                    setfRate.add(ftr);
-                                  }
-                                  fImp.setFactorTypeRatings(setfRate);
-                                  setfImp.add(fImp);
-                                }
-
-
-                                sRule.setFactorImportances(setfImp);
-                                //                                sRule.setRevision(suitabilityRuleDao.findSuitabilityRuleById(
-                                //                                    sRule.getId()).getRevision());
-                                //suitabilityRuleDao.updateSuitabilityRule(sRule);
-
-
-                              }
-                            }
-                          }
-
-                        }
-                        else
-                        {
-                          lbl =  factorName.getStringCellValue();
-                          lbluse= "Header: " + lbl;
-                          lswHeader= true;
-                        }
-                      }
-                      else
-                      {
-                        lbl =  factorName.getStringCellValue();
-                        lbluse= "Header: " + lbl;
-                        lswHeader= true;
-                      }
-                    }
-                  }
-                }//end for
-
-                if (lswHeader== true)
-                {
-
-                  //////////////////////
-
-                  project = projectService
-                      .getProjectConfiguration(oldSuitabilityScenario.getProjectId());
-
-                  final Set<SuitabilityRule> setRules =  new HashSet<SuitabilityRule>();
-                  final Set<SuitabilityRule> suitabilityRules = oldSuitabilityScenario
-                      .getSuitabilityRules();
-                  for (final SuitabilityRule oldRule : suitabilityRules) {
-
-                    final SuitabilityRule newRule = new SuitabilityRule();
-                    newRule.setId(oldRule.getId());
-                    final String suitabilityLULabel = oldRule.getSuitabilityLUMap().values()
-                        .iterator().next();
-                    // LOGGER.debug("Restoring {} suitabilityLU...", suitabilityLULabel);
-                    final SuitabilityLU suitabilityLU = project
-                        .getSuitabilityLUByName(suitabilityLULabel);
-                    newRule.getSuitabilityLUMap().put(suitabilityLU.getId(),
-                        suitabilityLU.getLabel());
-                    final Collection<String> convertibleLUsLabels = oldRule.getConvertibleLUsMap()
-                        .values();
-                    for (final String luLabel : convertibleLUsLabels) {
-                      //LOGGER.debug("Restoring {} convertibleLU...", luLabel);
-                      final AllocationLU allocationLU = project
-                          .getExistingLandUseByLabel(luLabel);
-                      newRule.getConvertibleLUsMap().put(allocationLU.getId(),
-                          allocationLU.getLabel());
-                    }
-                    final Set<FactorImportance> factorImportances = oldRule.getFactorImportances();
-                    for (final FactorImportance oldImportance : factorImportances) {
-                      Double newvalue=oldImportance.getImportance();
-                      if (oldRule.getSuitabilityLU().getLabel().equals(headerLU))
-                      {
-                        if (oldImportance.getFactor().getLabel().equals(lbluse.substring(8, lbluse.length()))) {
+                          Double newvalue=0.0;
                           if (cell.getCellType() == 1)
                           {
 
@@ -500,103 +419,29 @@ AbstractTestNGSpringContextTests {
 
                             newvalue= cell.getNumericCellValue();
                           }
-                        }
-                        final FactorImportance importance = new FactorImportance();
-                        importance.setImportance(newvalue);
-                        final String factorLabel = oldImportance.getFactorMap().values().iterator()
-                            .next();
-                        LOGGER.debug("Restoring factorImportance for {}...", factorLabel);
-                        final Factor factor = project.getFactorByLabel(factorLabel);
-                        importance.getFactorMap().put(factor.getId(), factor.getLabel());
 
-                        final Set<FactorTypeRating> factorTypeRatings = oldImportance
-                            .getFactorTypeRatings();
-                        for (final FactorTypeRating oldRating : factorTypeRatings) {
-                          final FactorTypeRating rating = new FactorTypeRating();
-                          final String ftLabel = oldRating.getFactorTypeMap().values().iterator()
-                              .next();
-                          rating.setScore(oldRating.getScore());
-                          LOGGER.debug(
-                              "Restoring factor type importance for {} with score {}...",
-                              ftLabel, rating.getScore());
-                          final FactorType factorType = factor.getFactorTypeByLabel(ftLabel);
-                          rating.getFactorTypeMap().put(factorType.getId(),
-                              factorType.getLabel());
-                          importance.getFactorTypeRatings().add(rating);
-                        }
-                        newRule.getFactorImportances().add(importance);
 
+                        }
+                        else
+                        {
+                          lbl =  factorName.getStringCellValue();
+                          lbluse= "Header:" + lbl;
+                          lswHeader= true;
+                        }
+                      }
+                      else
+                      {
+                        lbl =  factorName.getStringCellValue();
+                        lbluse= "Header:" + lbl;
+                        lswHeader= true;
                       }
                     }
-                    setRules.add(newRule);
-                  }//end for
-                  ////////////////////////////////////////////////////////////////////////////////////
-                  final SuitabilityScenario restoreSuitabilityScenario = new SuitabilityScenario();
-                  restoreSuitabilityScenario.setLabel(oldSuitabilityScenario.getLabel());
-                  restoreSuitabilityScenario.setFeatureFieldName(oldSuitabilityScenario
-                      .getFeatureFieldName());
-                  restoreSuitabilityScenario.setProjectId(project.getId());
-                  restoreSuitabilityScenario.setId(oldSuitabilityScenario.getId());
-                  restoreSuitabilityScenario.setSuitabilityRules(setRules);
-                  suitabilityScenarioService.updateSuitabilityScenario(restoreSuitabilityScenario,
-                      projectId);
+                  }
+                }//end for
 
+                if (lswHeader== true)
+                {
 
-
-                  for (final SuitabilityRule oldsRule: oldSuitabilityScenario.getSuitabilityRules())
-                  {
-                    final SuitabilityRule sRuleNew = new SuitabilityRule();
-                    sRuleNew.setSuitabilityLU(oldsRule.getSuitabilityLU());
-                    if (oldsRule.getSuitabilityLU().getLabel().equals(headerLU))
-                    {
-                      final Set<FactorImportance> setfImp = new HashSet<FactorImportance>();
-                      //logger.info("YES");
-
-                      for ( final FactorImportance   oldImp :oldsRule.getFactorImportances())
-                      {
-                        //logger.info("HHHHH" + lbluse.substring(8, lbluse.length()));
-                        final FactorImportance newImp = new FactorImportance();
-                        newImp.setFactor(oldImp.getFactor());
-                        newImp.setImportance(oldImp.getImportance());
-                        newImp.setFactorTypeRatings(oldImp.getFactorTypeRatings());
-                        newImp.setFactorMap(oldImp.getFactorMap());
-                        if (oldImp.getFactor().getLabel().equals(lbluse.substring(8, lbluse.length()))) {
-
-                          if (cell.getCellType() == 1)
-                          {
-
-
-                            logger.info("HHHHHH" + oldImp.getFactor().getLabel() + "==" + Double.parseDouble(cell.getStringCellValue()));
-                            oldImp.setImportance(Double.parseDouble(cell.getStringCellValue()));
-                            newImp.setImportance(Double.parseDouble(cell.getStringCellValue()));
-                          }
-                          else if (cell.getCellType() == 0)
-                          {
-
-                            logger.info("HHHHHH" + oldImp.getFactor().getLabel() + "==" + cell.getNumericCellValue());
-                            oldImp.setImportance(cell.getNumericCellValue());
-                            newImp.setImportance(cell.getNumericCellValue());
-                          }
-
-                        }
-                        setfImp.add(newImp);
-
-                      }
-                      oldsRule.setFactorImportances(setfImp);
-                      //                      sRule.setRevision(suitabilityRuleDao.findSuitabilityRuleById(
-                      //                          sRule.getId()).getRevision());
-                      //                      suitabilityRuleDao.updateSuitabilityRule(sRule);
-
-                      for ( final FactorImportance   fImp :oldsRule.getFactorImportances())
-                      {
-                        //logger.info("GGGGGG" + fImp.getFactor().getLabel() + "==" +fImp.getImportance());
-                      }
-
-                    }
-
-                  }//end for
-
-                  // oldSuitabilityScenario.setSuitabilityRules(setRules);
                 }
                 else
                 {
@@ -606,62 +451,175 @@ AbstractTestNGSpringContextTests {
 
                 if(cell != null) {
                   // Your code here
-                  logger.info(lbluse + " : "+cell.getCellType());
+                  //logger.info(lbluse + " : "+cell.getCellType());
                   if (cell.getCellType() == 1)
                   {
 
-                    logger.info(lbluse + " : "+cell.getStringCellValue());
+                    logger.info(headerLU+":"+lbluse + ":"+cell.getStringCellValue());
+                    map.put(headerLU+":"+lbluse, Double.valueOf(cell.getStringCellValue()));
                   }
                   else
                   {
-                    logger.info(lbluse + " : "+cell.getNumericCellValue());
+                    logger.info(headerLU+":"+lbluse + ":"+cell.getNumericCellValue());
+                    map.put(headerLU+":"+lbluse, cell.getNumericCellValue());
                   }
                 }
 
               }
             }
+          }//end for c
+
+
+          for (final Map.Entry<String, Double> entry : map.entrySet()) {
+            LOGGER.info("Key : " + entry.getKey() + " Value : " + entry.getValue());
+            //LOGGER.info("Key : " + entry.getKey().split(":").length);
           }
 
-          //SuitabilityScenario newSuit = suitabilityScenario;
+          //////////////////////////////////////////////////////////////////////////////
 
-          //          suitabilityScenario.setRevision(suitabilityScenarioDao
-          //              .findSuitabilityScenarioById(suitabilityScenario.getId())
-          //              .getRevision());
-          //          suitabilityScenarioDao.updateSuitabilityScenario(suitabilityScenario);
-          //
-          //          suitabilityScenarioService.updateSuitabilityScenario(oldSuitabilityScenario,
-          //              projectId);
+          final SuitabilityScenario oldSuitabilityScenario = suitabilityScenarioService
+              .getSuitabilityScenario(WifKeys.TEST_SUITABILITY_SCENARIO_ID);
+          //          final SuitabilityScenario oldSuitabilityScenario = suitabilityScenarioService
+          //              .getSuitabilityScenario("d2ee05b32886f857ef1dd7272211b38d");
 
 
+          project = projectService
+              .getProjectConfiguration(oldSuitabilityScenario.getProjectId());
+
+          final Set<SuitabilityRule> setRules =  new HashSet<SuitabilityRule>();
+          final Set<SuitabilityRule> suitabilityRules = oldSuitabilityScenario
+              .getSuitabilityRules();
+          for (final SuitabilityRule oldRule : suitabilityRules) {
+
+            final SuitabilityRule newRule = new SuitabilityRule();
+
+            newRule.setId(oldRule.getId());
+            final String suitabilityLULabel = oldRule.getSuitabilityLUMap().values()
+                .iterator().next();
+            // LOGGER.debug("Restoring {} suitabilityLU...", suitabilityLULabel);
+            final SuitabilityLU suitabilityLU = project
+                .getSuitabilityLUByName(suitabilityLULabel);
+            newRule.getSuitabilityLUMap().put(suitabilityLU.getId(),
+                suitabilityLU.getLabel());
+            final Collection<String> convertibleLUsLabels = oldRule.getConvertibleLUsMap()
+                .values();
+            for (final String luLabel : convertibleLUsLabels) {
+              //LOGGER.debug("Restoring {} convertibleLU...", luLabel);
+              final AllocationLU allocationLU = project
+                  .getExistingLandUseByLabel(luLabel);
+              newRule.getConvertibleLUsMap().put(allocationLU.getId(),
+                  allocationLU.getLabel());
+            }
+            final Set<FactorImportance> factorImportances = oldRule.getFactorImportances();
+            for (final FactorImportance oldImportance : factorImportances) {
+              final Double newvalue=oldImportance.getImportance();
+
+              final FactorImportance importance = new FactorImportance();
+
+              final String factorLabel = oldImportance.getFactorMap().values().iterator()
+                  .next();
+              //LOGGER.debug("Restoring factorImportance for {}...", factorLabel);
+              final Factor factor = project.getFactorByLabel(factorLabel);
+              importance.getFactorMap().put(factor.getId(), factor.getLabel());
+
+              for (final Map.Entry<String, Double> entry : map.entrySet()) {
+                //
+                //System.out.println("Key : " + entry.getKey().split(":").length);
+                if (entry.getKey().split(":").length==3)
+                {
+                  final String[] str = entry.getKey().split(":");
+                  if (str[0].equals(suitabilityLULabel))
+                  {
+                    if (str[2].equals(factorLabel))
+                    {
+                      //importance.setImportance(2.0);
+                      importance.setImportance(entry.getValue());
+                      //LOGGER.info("Key : " + entry.getKey() + " Value : " + entry.getValue());
+                    }
+                  }
+                }
+              }
+
+              final Set<FactorTypeRating> factorTypeRatings = oldImportance
+                  .getFactorTypeRatings();
+              for (final FactorTypeRating oldRating : factorTypeRatings) {
+                final FactorTypeRating rating = new FactorTypeRating();
+                final String ftLabel = oldRating.getFactorTypeMap().values().iterator()
+                    .next();
+
+                for (final Map.Entry<String, Double> entry : map.entrySet()) {
+                  if (entry.getKey().split(":").length==5)
+                  {
+                    final String[] str = entry.getKey().split(":");
+                    if (str[0].equals(suitabilityLULabel))
+                    {
+                      if (str[2].equals(factorLabel))
+                      {
+
+                        if (str[4].equals(ftLabel))
+                        {
+                          //rating.setScore(2.0);
+                          rating.setScore(entry.getValue());
+                          //LOGGER.info("Key : " + entry.getKey() + " Value : " + entry.getValue());
+                          if (suitabilityLULabel.equals("Retail"))
+                          {
+                            if (factorLabel.equals("streams"))
+                            {
+                              int cc=0;
+                              cc=2;
+                              if (ftLabel.equals("Outside buffers"))
+                              {
+
+                              }
+                            }
+                          }
+
+                          if (suitabilityLULabel.equals("Retail") && factorLabel.equals("streams") && ftLabel.equals("Outside buffers"))
+                          {
+                            logger.info("YYEEEEESSSS: " + entry.getValue());
+                            //Retail:Header:streams:Child:Outside buffers Value : 100.0
+                          }
 
 
+                        }
+
+                      }
+                    }
+                  }
+                }
+
+                final FactorType factorType = factor.getFactorTypeByLabel(ftLabel);
+                rating.getFactorTypeMap().put(factorType.getId(),
+                    factorType.getLabel());
+                importance.getFactorTypeRatings().add(rating);
+              }
+              newRule.getFactorImportances().add(importance);
 
 
-          //Iterate through each rows one by one
-          //          final Iterator<Row> rowIterator = sheet.iterator();
-          //          while (rowIterator.hasNext())
-          //          {
-          //            final Row row = rowIterator.next();
-          //            //For each row, iterate through all the columns
-          //            final Iterator<Cell> cellIterator = row.cellIterator();
-          //
-          //            while (cellIterator.hasNext())
-          //            {
-          //              final Cell cell = cellIterator.next();
-          //              //Check the cell type and format accordingly
-          //              switch (cell.getCellType())
-          //              {
-          //                case Cell.CELL_TYPE_NUMERIC:
-          //                  System.out.print(cell.getNumericCellValue() + "nu");
-          //                  break;
-          //                case Cell.CELL_TYPE_STRING:
-          //                  System.out.print(cell.getStringCellValue() + "st");
-          //                  break;
-          //              }
-          //            }
-          //            System.out.println("");
+              newRule.setRevision(suitabilityRuleDao.findSuitabilityRuleById(
+                  oldRule.getId()).getRevision());
+              LOGGER.info("updating the newrule with Rev={}", newRule.getRevision());
+              suitabilityRuleDao.updateSuitabilityRule(newRule);
 
-          //}
+              newRule.setRevision(suitabilityRuleDao.findSuitabilityRuleById(
+                  oldRule.getId()).getRevision());
+              setRules.add(newRule);
+
+            }
+
+          }
+
+          oldSuitabilityScenario.setSuitabilityRules(setRules);
+          oldSuitabilityScenario.setRevision(suitabilityScenarioDao
+              .findSuitabilityScenarioById(oldSuitabilityScenario.getId())
+              .getRevision());
+          LOGGER.info("updating the suitabilityScenario with Rev={}",
+              oldSuitabilityScenario.getRevision());
+          suitabilityScenarioService.updateSuitabilityScenario(oldSuitabilityScenario,
+              projectId);
+
+          //////////////////////////////////////////////////////////////////////////////
+
           file.close();
         }
         catch (final Exception e)
@@ -671,27 +629,5 @@ AbstractTestNGSpringContextTests {
 
 
 
-
-        //        final SuitabilityScenario suitabilityScenario = suitabilityScenarioService
-        //            .getSuitabilityScenario(WifKeys.TEST_SUITABILITY_SCENARIO_ID);
-        //        suitabilityScenario.setLabel(suitabilityScenario.getLabel()+"new");
-        //
-        //        project = projectService
-        //            .getProjectConfiguration(suitabilityScenario.getProjectId());
-        //
-        //
-        //        final SuitabilityScenario restoredSuitabilityScenario = suitabilityScenarioService
-        //            .restoreSuitabilityScenario(suitabilityScenario, project);
-        //        project.getSuitabilityScenariosMap().put(
-        //            restoredSuitabilityScenario.getId(),
-        //            restoredSuitabilityScenario.getLabel());
-        //
-        //
-        //        wifProjectDao.updateProject(project);
-        //
-        //        Assert.assertNotNull(suitabilityScenario.getId());
-        //        Assert.assertTrue(suitabilityScenario.getReady());
-      }//
-
-
+      }
 }

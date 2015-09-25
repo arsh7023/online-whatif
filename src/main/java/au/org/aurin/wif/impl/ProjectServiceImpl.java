@@ -1,9 +1,5 @@
 package au.org.aurin.wif.impl;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
-import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
-import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -100,6 +96,9 @@ import au.org.aurin.wif.svc.WifKeys;
 import au.org.aurin.wif.svc.suitability.DemandConfigService;
 import au.org.aurin.wif.svc.suitability.SuitabilityLUService;
 import au.org.aurin.wif.svc.suitability.SuitabilityScenarioService;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
+import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
+import it.geosolutions.geoserver.rest.encoder.feature.GSFeatureTypeEncoder;
 
 /**
  * The Class ProjectServiceImpl.
@@ -256,6 +255,7 @@ public class ProjectServiceImpl implements ProjectService {
    * au.org.aurin.wif.svc.ProjectService#getProjectConfiguration(java.lang.String
    * )
    */
+  @Override
   public WifProject getProjectConfiguration(final String id)
       throws WifInvalidInputException, WifInvalidConfigException {
     WifProject project = wifProjectDao.findProjectById(id);
@@ -266,11 +266,11 @@ public class ProjectServiceImpl implements ProjectService {
     final Set<SuitabilityLU> suitabilityLUsConfigured = new HashSet<SuitabilityLU>();
     LOGGER.debug("Loading {} Suitablity Land Uses...", suitabilityLUs.size());
     for (SuitabilityLU suitabilityLU : suitabilityLUs) {
-      LOGGER.debug("Suitability LU label: {}", suitabilityLU.getLabel());
+      //LOGGER.debug("Suitability LU label: {}", suitabilityLU.getLabel());
       suitabilityLU = suitabilityLUDao.findSuitabilityLUById(suitabilityLU
           .getId());
-      LOGGER.debug("AssociatedLUsMap size: "
-          + suitabilityLU.getAssociatedALUsMap().size());
+      //      LOGGER.debug("AssociatedLUsMap size: "
+      //          + suitabilityLU.getAssociatedALUsMap().size());
       suitabilityLU = suitabilityParser.parse(suitabilityLU);
       suitabilityLUsConfigured.add(suitabilityLU);
     }
@@ -303,6 +303,7 @@ public class ProjectServiceImpl implements ProjectService {
    * (non-Javadoc)
    * @see au.org.aurin.wif.svc.ProjectService#getProjectZipUAZ(java.lang.String)
    */
+  @Override
   public File getProjectZipUAZ(final String id)
       throws WifInvalidInputException, WifInvalidConfigException, IOException,
       DatabaseFailedException {
@@ -311,10 +312,11 @@ public class ProjectServiceImpl implements ProjectService {
         .getSuitabilityConfig().getUnifiedAreaZone());
     return resultFile;
   } /*
-     * (non-Javadoc)
-     * @see au.org.aurin.wif.svc.OWIProjectService#getProject(java.lang.Integer)
-     */
+   * (non-Javadoc)
+   * @see au.org.aurin.wif.svc.OWIProjectService#getProject(java.lang.Integer)
+   */
 
+  @Override
   public WifProject getProject(final String id)
       throws WifInvalidInputException, WifInvalidConfigException {
 
@@ -326,7 +328,7 @@ public class ProjectServiceImpl implements ProjectService {
             + " supplied was not found ");
         throw new InvalidEntityIdException(
             "illegal argument, the project with the ID " + id
-                + " supplied was not found ");
+            + " supplied was not found ");
       }
       if (project.getSuitabilityConfig() != null) {
         if (project.getSuitabilityConfig().getUnifiedAreaZone() != null) {
@@ -341,7 +343,7 @@ public class ProjectServiceImpl implements ProjectService {
     } catch (final IllegalArgumentException e) {
 
       LOGGER
-          .error("illegal argument, the ID supplied doesn't identify a valid project ");
+      .error("illegal argument, the ID supplied doesn't identify a valid project ");
       throw new WifInvalidInputException(
           "illegal argument, the ID supplied doesn't identify a valid project ",
           e);
@@ -353,6 +355,7 @@ public class ProjectServiceImpl implements ProjectService {
    * @see
    * au.org.aurin.wif.svc.ProjectService#getProjectNoMapping(java.lang.Integer )
    */
+  @Override
   public WifProject getProjectNoMapping(final String id)
       throws WifInvalidInputException, WifInvalidConfigException {
 
@@ -378,6 +381,7 @@ public class ProjectServiceImpl implements ProjectService {
    * @see au.org.aurin.wif.svc.ProjectService#getProject(java.lang.String,
    * java.lang.String)
    */
+  @Override
   public WifProject getProject(final String role, final String id)
       throws WifInvalidInputException, WifInvalidConfigException {
     final WifProject project = getProject(id);
@@ -398,6 +402,7 @@ public class ProjectServiceImpl implements ProjectService {
    * @see
    * au.org.aurin.wif.svc.OWIProjectService#getAllProjects(java.lang.String)
    */
+  @Override
   public List<WifProject> getAllProjects(final String role)
       throws WifInvalidInputException {
     LOGGER.info("getting all projects for role {} ", role);
@@ -411,9 +416,10 @@ public class ProjectServiceImpl implements ProjectService {
    * au.org.aurin.wif.svc.ProjectService#createProject(au.org.aurin.wif.model
    * .WifProject, java.lang.String)
    */
+  @Override
   public WifProject createProject(final WifProject project,
       final String username) throws WifInvalidInputException,
-      DataStoreUnavailableException, WifInvalidConfigException {
+  DataStoreUnavailableException, WifInvalidConfigException {
     if (project == null) { // TODO do a proper validation
       LOGGER.error("createProject failed: project is null or invalid");
       throw new WifInvalidInputException(
@@ -431,6 +437,7 @@ public class ProjectServiceImpl implements ProjectService {
    * (non-Javadoc)
    * @see au.org.aurin.wif.svc.ProjectService#purgeProject(java.lang.String)
    */
+  @Override
   public void purgeProject(final String id) throws InvalidEntityIdException {
     LOGGER.info("purging the wif project with ID={}", id);
 
@@ -440,7 +447,7 @@ public class ProjectServiceImpl implements ProjectService {
           + " supplied was not found ");
       throw new InvalidEntityIdException(
           "illegal argument, the project with the ID " + id
-              + " supplied was not found ");
+          + " supplied was not found ");
     }
 
     if (project.getLocalShpFile() != null) {
@@ -452,9 +459,9 @@ public class ProjectServiceImpl implements ProjectService {
               project.getLocalShpFile());
         } else {
           LOGGER
-              .warn(
-                  "{} delete operation failed. in the future the disc can  possibly run out of space",
-                  shpFile.getAbsolutePath());
+          .warn(
+              "{} delete operation failed. in the future the disc can  possibly run out of space",
+              shpFile.getAbsolutePath());
         }
       }
     }
@@ -468,6 +475,7 @@ public class ProjectServiceImpl implements ProjectService {
   // TODO Create an exception for each delete to see which one fails, the layer
   // removal, or the UAz or the project itself.also create deletes outside this
   // method,this one is too big
+  @Override
   public void deleteProject(final String id, final Boolean deleteUAZ)
       throws WifInvalidInputException, WifInvalidConfigException {
     LOGGER.info("deleting the wif project with ID={}, deleteUAZ? = {}", id,
@@ -479,7 +487,7 @@ public class ProjectServiceImpl implements ProjectService {
             + " supplied was not found ");
         throw new InvalidEntityIdException(
             "illegal argument, the project with the ID " + id
-                + " supplied was not found ");
+            + " supplied was not found ");
       }
       final String tableName = project.getSuitabilityConfig()
           .getUnifiedAreaZone();
@@ -583,7 +591,7 @@ public class ProjectServiceImpl implements ProjectService {
         final AllocationScenario allocationScenario = allocationScenarioDao
             .findAllocationScenarioById(scnId);
         LOGGER
-            .info("Deleting scenario with id: {}", allocationScenario.getId());
+        .info("Deleting scenario with id: {}", allocationScenario.getId());
         allocationScenarioDao.deleteAllocationScenario(allocationScenario);
       }
       LOGGER.info("Deleting project {} ...", project.getLabel());
@@ -608,6 +616,7 @@ public class ProjectServiceImpl implements ProjectService {
    * @see au.org.aurin.wif.svc.OWIProjectService#updateProject(au.org.aurin.wif
    * .model.WifProject)
    */
+  @Override
   public void updateProject(WifProject project)
       throws WifInvalidInputException, WifInvalidConfigException {
     LOGGER.info("updating project ={}, with id: {}", project.getLabel(),
@@ -619,13 +628,13 @@ public class ProjectServiceImpl implements ProjectService {
       // if (project.getAllocationConfig() != null) {
       if (project.getAllocationConfig().getAllocationColumnsMap().size() > 0) {
         LOGGER
-            .debug("allocation config is set for: {} ...", project.getLabel());
+        .debug("allocation config is set for: {} ...", project.getLabel());
       }
       wifProjectDao.updateProject(project);
     } catch (final IllegalArgumentException e) {
 
       LOGGER
-          .error("illegal argument, the ID supplied doesn't identify a valid project ");
+      .error("illegal argument, the ID supplied doesn't identify a valid project ");
       throw new WifInvalidInputException(
           "illegal argument, the ID supplied doesn't identify a valid project ",
           e);
@@ -638,6 +647,7 @@ public class ProjectServiceImpl implements ProjectService {
    * au.org.aurin.wif.svc.ProjectService#setupAllocationConfig(au.org.aurin.
    * wif.model.WifProject)
    */
+  @Override
   public boolean setupAllocationConfig(WifProject project)
       throws WifInvalidInputException, WifInvalidConfigException,
       ParsingException {
@@ -700,6 +710,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   }
 
+  @Override
   public WifProject setupManualAllocationConfig(WifProject project)
       throws WifInvalidInputException, WifInvalidConfigException,
       ParsingException, IllegalArgumentException, MalformedURLException,
@@ -775,12 +786,13 @@ public class ProjectServiceImpl implements ProjectService {
    * au.org.aurin.wif.svc.ProjectService#convertUnionToUAZ(java.lang.String,
    * java.util.List)
    */
+  @Override
   public Boolean convertUnionToUAZ(final String id,
       List<String> optionalColumns, final String roleId)
-      throws WifInvalidInputException, UAZAlreadyCreatedException,
-      WifInvalidConfigException, IncompleteSuitabilityLUConfigException,
-      NoSuchAuthorityCodeException, DataStoreUnavailableException,
-      FactoryException, GeoServerConfigException, DataStoreCreationException {
+          throws WifInvalidInputException, UAZAlreadyCreatedException,
+          WifInvalidConfigException, IncompleteSuitabilityLUConfigException,
+          NoSuchAuthorityCodeException, DataStoreUnavailableException,
+          FactoryException, GeoServerConfigException, DataStoreCreationException {
     String msg = "Expanding union to UAZ failed";
     LOGGER.info("converting the  project Union table to UAZ with projectID={}",
         id);
@@ -790,7 +802,7 @@ public class ProjectServiceImpl implements ProjectService {
           + " project has already created an uaz");
       throw new UAZAlreadyCreatedException(
           "cannot execute the request, the project with the ID " + id
-              + " project has already created an uaz");
+          + " project has already created an uaz");
     }
     // TODO better not supported yet
     // LOGGER.debug("Using {} optional columns ", optionalColumns.size());
@@ -799,7 +811,7 @@ public class ProjectServiceImpl implements ProjectService {
     // }
     optionalColumns = null;
     LOGGER
-        .debug("setting up suitability configuration,having the specified columns to the union table");
+    .debug("setting up suitability configuration,having the specified columns to the union table");
     final SuitabilityConfig suitabilityConfig = project.getSuitabilityConfig();
     if (suitabilityConfig == null) {
       msg = msg + " SuitabilityConfig is not valid!";
@@ -863,7 +875,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   /**
    * Creates the wms layer.
-   * 
+   *
    * @param project
    *          the project
    * @param username
@@ -882,7 +894,7 @@ public class ProjectServiceImpl implements ProjectService {
   public WifProject createWMSLayer(final WifProject project,
       final String username, final String tableName,
       final CoordinateReferenceSystem crs) throws WifInvalidInputException,
-      DataStoreUnavailableException, GeoServerConfigException {
+  DataStoreUnavailableException, GeoServerConfigException {
     final GSFeatureTypeEncoder ftEnc = new GSFeatureTypeEncoder();
     LOGGER.info("creating new Geoserver layer ={}", tableName);
     ftEnc.setName(tableName);
@@ -911,11 +923,11 @@ public class ProjectServiceImpl implements ProjectService {
     final long endTime = System.nanoTime();
     final long duration = endTime - startTime;
     LOGGER
-        .info(">>>>>>>>>>>>>>*************** GeoServer publishing took in ms "
-            + duration / 1000000);
+    .info(">>>>>>>>>>>>>>*************** GeoServer publishing took in ms "
+        + duration / 1000000);
     if (!publishResult) {
       LOGGER
-          .error("createProject failed: geoserver layer could not be created, wmsOutcome will not work!");
+      .error("createProject failed: geoserver layer could not be created, wmsOutcome will not work!");
       throw new GeoServerConfigException(
           "createProject failed: geoserver layer could not be created, wmsOutcome will not work!");
     }
@@ -938,9 +950,10 @@ public class ProjectServiceImpl implements ProjectService {
    * au.org.aurin.wif.svc.ProjectService#restoreProjectConfiguration(au.org.
    * aurin.wif.model.WifProject)
    */
+  @Override
   public WifProject restoreProjectConfiguration(
       final ProjectReport projectReport) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
     final WifProject oldProject = projectReport.getProject();
     LOGGER.debug("...Serializing project full configuration: {}",
         oldProject.getLabel());
@@ -1013,9 +1026,9 @@ public class ProjectServiceImpl implements ProjectService {
         final AllocationLU associatedLU = restoreProject
             .getExistingLandUseByLabel(entryLU.getValue());
         LOGGER
-            .debug(
-                "++++++ suitability LU label: {} has {} associated ALU's,  restoring them…",
-                restoreSLU.getLabel(), associatedALUs.size());
+        .debug(
+            "++++++ suitability LU label: {} has {} associated ALU's,  restoring them…",
+            restoreSLU.getLabel(), associatedALUs.size());
         restoreSLU.getAssociatedALUsMap().put(associatedLU.getId(),
             associatedLU.getLabel());
       }
@@ -1075,7 +1088,7 @@ public class ProjectServiceImpl implements ProjectService {
         .getDemandOutcomes();
 
     LOGGER
-        .debug("Restoring {} manualdemandScenarios", setdemandOutcomes.size());
+    .debug("Restoring {} manualdemandScenarios", setdemandOutcomes.size());
 
     for (final DemandOutcome oldDemandOutcome : setdemandOutcomes) {
 
@@ -1186,29 +1199,29 @@ public class ProjectServiceImpl implements ProjectService {
           .persistAllocationControlScenario(restoreallocationControlScenario);
 
       restoreallocationControlScenario
-          .setInfrastructureUses(oldallocationControlScenario
-              .getInfrastructureUses());
+      .setInfrastructureUses(oldallocationControlScenario
+          .getInfrastructureUses());
       restoreallocationControlScenario
-          .setGrowthPatternControl(oldallocationControlScenario
-              .getGrowthPatternControl());
+      .setGrowthPatternControl(oldallocationControlScenario
+          .getGrowthPatternControl());
       restoreallocationControlScenario
-          .setGrowthPatternControlLabels(oldallocationControlScenario
-              .getGrowthPatternControlLabels());
+      .setGrowthPatternControlLabels(oldallocationControlScenario
+          .getGrowthPatternControlLabels());
 
       restoreallocationControlScenario
-          .setPlannedlandUseControl(oldallocationControlScenario
-              .getPlannedlandUseControl());
+      .setPlannedlandUseControl(oldallocationControlScenario
+          .getPlannedlandUseControl());
 
       restoreallocationControlScenario
-          .setInfrastructureControl(oldallocationControlScenario
-              .getInfrastructureControl());
+      .setInfrastructureControl(oldallocationControlScenario
+          .getInfrastructureControl());
 
       restoreallocationControlScenario
-          .setInfrastructureControlLabels(oldallocationControlScenario
-              .getInfrastructureControlLabels());
+      .setInfrastructureControlLabels(oldallocationControlScenario
+          .getInfrastructureControlLabels());
 
       allocationControlScenarioDao
-          .updateAllocationControlScenario(restoreallocationControlScenario);
+      .updateAllocationControlScenario(restoreallocationControlScenario);
       restoreProject.getAllocationControlScenariosMap().put(
           restoreallocationControlScenario.getId(),
           restoreallocationControlScenario.getLabel());
@@ -1229,7 +1242,7 @@ public class ProjectServiceImpl implements ProjectService {
       restoredemandScenario.setProjectId(restoreProject.getId());
 
       restoredemandScenario
-          .setDemandConfig(olddemandScenario.getDemandConfig());
+      .setDemandConfig(olddemandScenario.getDemandConfig());
 
       final Set<DemandInfo> oldDemandInfos = olddemandScenario.getDemandInfos();
       final Set<DemandInfo> newDemandInfos = new HashSet<DemandInfo>();
@@ -1259,8 +1272,8 @@ public class ProjectServiceImpl implements ProjectService {
           rdemandInfo.setCurrentDensity(((ResidentialDemandInfo) demandinfo)
               .getCurrentDensity());
           rdemandInfo
-              .setFutureBreakdownByHType(((ResidentialDemandInfo) demandinfo)
-                  .getFutureBreakdownByHType());
+          .setFutureBreakdownByHType(((ResidentialDemandInfo) demandinfo)
+              .getFutureBreakdownByHType());
           rdemandInfo.setFutureDensity(((ResidentialDemandInfo) demandinfo)
               .getFutureDensity());
           rdemandInfo.setInfillRate(((ResidentialDemandInfo) demandinfo)
@@ -1312,8 +1325,8 @@ public class ProjectServiceImpl implements ProjectService {
       demandConfig.setLabel(demandConfigold.getLabel());
       demandConfig.setBaseYear(demandConfigold.getBaseYear());
       demandConfig
-          .setClippedEnumerationDistrictAreaFeatureFieldName(demandConfigold
-              .getClippedEnumerationDistrictAreaFeatureFieldName());
+      .setClippedEnumerationDistrictAreaFeatureFieldName(demandConfigold
+          .getClippedEnumerationDistrictAreaFeatureFieldName());
 
       final CurrentDemographic newCurrentDemographic = new CurrentDemographic();
       final CurrentDemographic oldCurrentDemographic = demandConfigold
@@ -1325,13 +1338,13 @@ public class ProjectServiceImpl implements ProjectService {
       newCurrentDemographic.setgQPopulation(oldCurrentDemographic
           .getgQPopulation());
       newCurrentDemographic
-          .setHouseholds(oldCurrentDemographic.getHouseholds());
+      .setHouseholds(oldCurrentDemographic.getHouseholds());
       newCurrentDemographic.setHousingUnits(oldCurrentDemographic
           .getHousingUnits());
       newCurrentDemographic.setVacancyRate(oldCurrentDemographic
           .getVacancyRate());
       newCurrentDemographic
-          .setVacantLand(oldCurrentDemographic.getVacantLand());
+      .setVacantLand(oldCurrentDemographic.getVacantLand());
 
       final Set<ResidentialCurrentData> setNewRes = new HashSet<ResidentialCurrentData>();
       for (final ResidentialCurrentData oldRescur : oldCurrentDemographic
@@ -1461,7 +1474,7 @@ public class ProjectServiceImpl implements ProjectService {
     final Set<AllocationScenario> allocationScenarios = projectReport
         .getAllocationScenarios();
     LOGGER
-        .debug("Restoring {} allocationScenarios", allocationScenarios.size());
+    .debug("Restoring {} allocationScenarios", allocationScenarios.size());
 
     for (final AllocationScenario oldallocationScenario : allocationScenarios) {
 
@@ -1598,8 +1611,9 @@ public class ProjectServiceImpl implements ProjectService {
    * (non-Javadoc)
    * @see au.org.aurin.wif.svc.ProjectService#deleteProject(java.lang.String)
    */
+  @Override
   public void deleteProject(final String id) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
     deleteProject(id, true);
   }
 
