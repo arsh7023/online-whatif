@@ -1,6 +1,7 @@
 package au.org.aurin.wif.svc.suitability;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -9,6 +10,8 @@ import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.operation.TransformException;
+
+import com.vividsolutions.jts.io.ParseException;
 
 import au.org.aurin.wif.exception.config.ParsingException;
 import au.org.aurin.wif.exception.config.WifInvalidConfigException;
@@ -19,8 +22,6 @@ import au.org.aurin.wif.impl.suitability.WMSOutcome;
 import au.org.aurin.wif.model.WifProject;
 import au.org.aurin.wif.model.suitability.SuitabilityScenario;
 
-import com.vividsolutions.jts.io.ParseException;
-
 /**
  * The Interface SuitabilityScenarioService.
  */
@@ -28,7 +29,7 @@ public interface SuitabilityScenarioService {
 
   /**
    * Creates the suitability scenario.
-   * 
+   *
    * @param suitabilityScenario
    *          the suitability scenario
    * @param projectId
@@ -43,12 +44,12 @@ public interface SuitabilityScenarioService {
    */
   SuitabilityScenario createSuitabilityScenario(
       SuitabilityScenario suitabilityScenario, String projectId)
-      throws WifInvalidInputException, WifInvalidConfigException,
-      ParsingException;
+          throws WifInvalidInputException, WifInvalidConfigException,
+          ParsingException;
 
   /**
    * Gets the suitability scenario.
-   * 
+   *
    * @param id
    *          the id
    * @return the suitability scenario
@@ -65,7 +66,7 @@ public interface SuitabilityScenarioService {
 
   /**
    * Gets the suitability scenario no mapping.
-   * 
+   *
    * @param id
    *          the id
    * @return the suitability scenario no mapping
@@ -79,7 +80,7 @@ public interface SuitabilityScenarioService {
 
   /**
    * Gets the suitability scenario.
-   * 
+   *
    * @param id
    *          the id
    * @param projectId
@@ -98,7 +99,7 @@ public interface SuitabilityScenarioService {
 
   /**
    * Update suitability scenario.
-   * 
+   *
    * @param suitabilityScenario
    *          the suitability scenario
    * @param projectId
@@ -110,11 +111,11 @@ public interface SuitabilityScenarioService {
    */
   void updateSuitabilityScenario(SuitabilityScenario suitabilityScenario,
       String projectId) throws WifInvalidInputException,
-      WifInvalidConfigException;
+  WifInvalidConfigException;
 
   /**
    * Delete suitability scenario.
-   * 
+   *
    * @param id
    *          the id
    * @param projectId
@@ -129,7 +130,7 @@ public interface SuitabilityScenarioService {
 
   /**
    * Gets the suitability scenarios.
-   * 
+   *
    * @param projectId
    *          the project id
    * @return the suitability scenarios
@@ -141,7 +142,7 @@ public interface SuitabilityScenarioService {
 
   /**
    * Gets the wMS outcome.
-   * 
+   *
    * @param id
    *          the id
    * @param areaAnalyzed
@@ -180,7 +181,7 @@ public interface SuitabilityScenarioService {
 
   /**
    * Gets the outcome.
-   * 
+   *
    * @param id
    *          the id
    * @param areaAnalyzed
@@ -210,14 +211,14 @@ public interface SuitabilityScenarioService {
    */
   SimpleFeatureCollection getOutcome(String id, String areaAnalyzed,
       String crsArea) throws WifInvalidInputException,
-      WifInvalidConfigException, MismatchedDimensionException,
-      NoSuchAuthorityCodeException, CQLException, FactoryException,
-      TransformException, ParseException, ParsingException,
-      DatabaseFailedException;
+  WifInvalidConfigException, MismatchedDimensionException,
+  NoSuchAuthorityCodeException, CQLException, FactoryException,
+  TransformException, ParseException, ParsingException,
+  DatabaseFailedException;
 
   /**
    * Gets the wms.
-   * 
+   *
    * @param id
    *          the id
    * @return the wms
@@ -229,11 +230,11 @@ public interface SuitabilityScenarioService {
    *           the parsing exception
    */
   WMSOutcome getWMS(String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException;
+  WifInvalidConfigException, ParsingException;
 
   /**
    * Restore suitability scenario from a configuration in json format
-   * 
+   *
    * @param suitabilityScenario
    *          the suitability scenario json
    * @param restoreProject
@@ -242,19 +243,34 @@ public interface SuitabilityScenarioService {
    */
   SuitabilityScenario restoreSuitabilityScenario(
       SuitabilityScenario suitabilityScenario, WifProject restoreProject)
-      throws WifInvalidInputException;
- 
+          throws WifInvalidInputException;
+
   /**
    * duplicate suitability scenario
-   * 
+   *
    * @param projectID
    * @param scenarioID
    * @return String
    * @throws WifInvalidInputException
-   * @throws WifInvalidConfigException 
-   * @throws ParsingException 
+   * @throws WifInvalidConfigException
+   * @throws ParsingException
    */
   public String duplicateSuitabiliyScenario(final String projectID, final String scenarioID, final String name)
-		  throws WifInvalidInputException, WifInvalidConfigException, ParsingException;
+      throws WifInvalidInputException, WifInvalidConfigException, ParsingException;
+
+  /**
+   * duplicate uploadXlsFactors
+   *
+   * @param projectID
+   * @param scenarioID
+   * @param inputStream
+   * @return String
+   * @throws WifInvalidInputException
+   * @throws WifInvalidConfigException
+   * @throws ParsingException
+   * @throws IOException
+   */
+  public String uploadXlsFactors(final String projectID, final String scenarioID, final InputStream inputStream)
+      throws WifInvalidInputException, WifInvalidConfigException, ParsingException, IOException;
 
 }

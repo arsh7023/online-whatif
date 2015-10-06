@@ -34,6 +34,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.vividsolutions.jts.io.ParseException;
 
 import au.org.aurin.wif.controller.OWIURLs;
 import au.org.aurin.wif.exception.config.InvalidEntityIdException;
@@ -49,8 +52,6 @@ import au.org.aurin.wif.model.suitability.SuitabilityScenario;
 import au.org.aurin.wif.svc.WifKeys;
 import au.org.aurin.wif.svc.report.ReportService;
 import au.org.aurin.wif.svc.suitability.SuitabilityScenarioService;
-
-import com.vividsolutions.jts.io.ParseException;
 
 /**
  * The Class SuitabilityScenarioController.
@@ -80,7 +81,7 @@ public class SuitabilityScenarioController {
 
   /**
    * Sets the suitability scenario service.
-   * 
+   *
    * @param suitabilityScenarioService
    *          the new suitability scenario service
    */
@@ -91,7 +92,7 @@ public class SuitabilityScenarioController {
 
   /**
    * Gets the suitability scenarios for project.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -106,18 +107,18 @@ public class SuitabilityScenarioController {
   List<SuitabilityScenario> getSuitabilityScenariosForProject(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId)
-      throws WifInvalidInputException {
+          throws WifInvalidInputException {
     LOGGER
-        .info(
-            "*******>> getSuitabilityScenariosForProject request for project  id ={}",
-            projectId);
+    .info(
+        "*******>> getSuitabilityScenariosForProject request for project  id ={}",
+        projectId);
 
     return suitabilityScenarioService.getSuitabilityScenarios(projectId);
   }
 
   /**
    * Gets the suitability scenario.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -139,7 +140,7 @@ public class SuitabilityScenarioController {
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException {
+  WifInvalidConfigException, ParsingException {
     LOGGER.info("*******>> getSuitabilityScenario request for project  id ={}",
         projectId);
 
@@ -148,7 +149,7 @@ public class SuitabilityScenarioController {
 
   /**
    * Creates the suitability scenario.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -175,7 +176,7 @@ public class SuitabilityScenarioController {
       @PathVariable("projectId") final String projectId,
       @RequestBody final SuitabilityScenario suitabilityScenario,
       final HttpServletResponse response) throws WifInvalidInputException,
-      BindException, WifInvalidConfigException, ParsingException {
+  BindException, WifInvalidConfigException, ParsingException {
     LOGGER.info(
         "*******>> createSuitabilityScenario request for project  id ={}",
         projectId);
@@ -186,7 +187,7 @@ public class SuitabilityScenarioController {
 
   /**
    * Update suitability scenario.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -209,7 +210,7 @@ public class SuitabilityScenarioController {
       @PathVariable("projectId") final String projectId,
       @PathVariable("id") final String id,
       @RequestBody final SuitabilityScenario suitabilityScenario)
-      throws WifInvalidInputException, BindException, WifInvalidConfigException {
+          throws WifInvalidInputException, BindException, WifInvalidConfigException {
     LOGGER.info(
         "*******>> updateSuitabilityScenario request for project  id ={}",
         projectId);
@@ -220,7 +221,7 @@ public class SuitabilityScenarioController {
 
   /**
    * Delete suitability scenario.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -238,7 +239,7 @@ public class SuitabilityScenarioController {
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
     LOGGER.info(
         "*******>> deleteSuitabilityScenario request for project  id ={}",
         projectId);
@@ -248,7 +249,7 @@ public class SuitabilityScenarioController {
 
   /**
    * Gets the wMS outcome.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -288,10 +289,10 @@ public class SuitabilityScenarioController {
       @PathVariable("projectId") final String projectId,
       @PathVariable("id") final String id,
       @RequestBody final Map<String, String> getWmsOutcomeParams)
-      throws WifInvalidInputException, WifInvalidConfigException,
-      MismatchedDimensionException, NoSuchAuthorityCodeException,
-      FactoryException, TransformException, ParseException, IOException,
-      SuitabilityAnalysisFailedException, CQLException, ParsingException {
+          throws WifInvalidInputException, WifInvalidConfigException,
+          MismatchedDimensionException, NoSuchAuthorityCodeException,
+          FactoryException, TransformException, ParseException, IOException,
+          SuitabilityAnalysisFailedException, CQLException, ParsingException {
     LOGGER.info("*******>> getWMSOutcome request for project  id ={}",
         projectId);
 
@@ -316,7 +317,7 @@ public class SuitabilityScenarioController {
 
   /**
    * Gets the wMS outcome async.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -360,11 +361,11 @@ public class SuitabilityScenarioController {
       @PathVariable("projectId") final String projectId,
       @PathVariable("id") final String id,
       @RequestBody final Map<String, String> getWmsOutcomeParams)
-      throws WifInvalidInputException, WifInvalidConfigException,
-      MismatchedDimensionException, NoSuchAuthorityCodeException,
-      FactoryException, TransformException, ParseException, IOException,
-      SuitabilityAnalysisFailedException, CQLException, InterruptedException,
-      ExecutionException, ParsingException {
+          throws WifInvalidInputException, WifInvalidConfigException,
+          MismatchedDimensionException, NoSuchAuthorityCodeException,
+          FactoryException, TransformException, ParseException, IOException,
+          SuitabilityAnalysisFailedException, CQLException, InterruptedException,
+          ExecutionException, ParsingException {
     LOGGER.info("*******>> getWMSOutcomeAsync request for project  id ={}",
         projectId);
 
@@ -393,7 +394,7 @@ public class SuitabilityScenarioController {
 
   /**
    * Gets the outcome.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -436,11 +437,11 @@ public class SuitabilityScenarioController {
       @PathVariable("projectId") final String projectId,
       @PathVariable("id") final String id,
       @RequestBody final Map<String, String> getOutcomeParams)
-      throws WifInvalidInputException, WifInvalidConfigException,
-      MismatchedDimensionException, NoSuchAuthorityCodeException,
-      FactoryException, TransformException, ParseException, IOException,
-      SuitabilityAnalysisFailedException, CQLException, ParsingException,
-      DatabaseFailedException {
+          throws WifInvalidInputException, WifInvalidConfigException,
+          MismatchedDimensionException, NoSuchAuthorityCodeException,
+          FactoryException, TransformException, ParseException, IOException,
+          SuitabilityAnalysisFailedException, CQLException, ParsingException,
+          DatabaseFailedException {
     LOGGER.info("*******>> getOutcome request for project  id ={}", projectId);
 
     try {
@@ -465,7 +466,7 @@ public class SuitabilityScenarioController {
 
   /**
    * Gets the status.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -485,7 +486,7 @@ public class SuitabilityScenarioController {
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, SuitabilityAnalysisFailedException {
+  WifInvalidConfigException, SuitabilityAnalysisFailedException {
     LOGGER.debug("*******>> getScenarioStatus request for scenario id ={}", id);
     final HashMap<String, String> answer = new HashMap<String, String>(2);
     answer.put(WifKeys.SETUP_PROCESS_KEY,
@@ -534,7 +535,7 @@ public class SuitabilityScenarioController {
 
   /**
    * Gets the wms.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -555,7 +556,7 @@ public class SuitabilityScenarioController {
   WMSOutcome getWMS(@RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException {
+  WifInvalidConfigException, ParsingException {
     LOGGER.info("*******>> getWMS request for suitabilityScenario  id ={}", id);
     try {
       return suitabilityScenarioService.getWMS(id);
@@ -574,7 +575,7 @@ public class SuitabilityScenarioController {
   /**
    * Gets the suitability scenario report based on the latest analysis
    * configuration.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -596,7 +597,7 @@ public class SuitabilityScenarioController {
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException {
+  WifInvalidConfigException, ParsingException {
     LOGGER.info(
         "*******>> getSuitabilityScenarioReport request for scenario id ={}",
         id);
@@ -608,7 +609,7 @@ public class SuitabilityScenarioController {
 
   /**
    * Gets the suitabilityLUsScores
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -624,19 +625,19 @@ public class SuitabilityScenarioController {
   List<String> getSuitabilityLUsScoresForProject(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId)
-      throws WifInvalidInputException, WifInvalidConfigException {
+          throws WifInvalidInputException, WifInvalidConfigException {
     LOGGER
-        .info(
-            "*******>> getSuitabilityLUsScoresForProject request for project  id ={}",
-            projectId);
+    .info(
+        "*******>> getSuitabilityLUsScoresForProject request for project  id ={}",
+        projectId);
 
     return reportService.getSuitabilityLUsScores(projectId);
   }
-  
-  
+
+
   /**
    * duplicates suitability scenario.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -655,40 +656,91 @@ public class SuitabilityScenarioController {
       @PathVariable("projectId") final String projectID,
       @PathVariable("id") final String scenarioID,
       @RequestBody final Map<String, String> params)
-   {
-        LOGGER.info("*******>> duplicate request for scenario  id ={}, with a new name: {}",
-    		scenarioID, params.get("name"));
-	    List<String>  out= new ArrayList<String>();
-	    try
-	    {
-	    	
-	    	List<SuitabilityScenario> listScenario= suitabilityScenarioService.getSuitabilityScenarios(projectID);
-	    	Boolean lsw= true;
-	    	for (SuitabilityScenario st: listScenario)
-	    	{
-	    		if (st.getLabel().equals(params.get("name")))
-	    		{
-	    			lsw = false;	    			
-	    		}
-	    	}
-	    	if (lsw == true)
-	    	{
-	    		out.add(suitabilityScenarioService.duplicateSuitabiliyScenario(projectID, scenarioID, params.get("name")));
-	    	}
-	    	else
-	    	{
-	    		out.add("Name already exists!");
-	    	}
-	    		
-	        
-	      } catch (final Exception e) {
-	          LOGGER.error("duplicateScenario failed: {}", e.getMessage());
-	          out.add("Error!" + e.getMessage());
-	      }
-	     
+  {
+    LOGGER.info("*******>> duplicate request for scenario  id ={}, with a new name: {}",
+        scenarioID, params.get("name"));
+    final List<String>  out= new ArrayList<String>();
+    try
+    {
+
+      final List<SuitabilityScenario> listScenario= suitabilityScenarioService.getSuitabilityScenarios(projectID);
+      Boolean lsw= true;
+      for (final SuitabilityScenario st: listScenario)
+      {
+        if (st.getLabel().equals(params.get("name")))
+        {
+          lsw = false;
+        }
+      }
+      if (lsw == true)
+      {
+        out.add(suitabilityScenarioService.duplicateSuitabiliyScenario(projectID, scenarioID, params.get("name")));
+      }
+      else
+      {
+        out.add("Name already exists!");
+      }
+
+
+    } catch (final Exception e) {
+      LOGGER.error("duplicateScenario failed: {}", e.getMessage());
+      out.add("Error!" + e.getMessage());
+    }
+
     return out;
   }
-  
-  
+
+
+  /**
+   * duplicates suitability scenario.
+   *
+   * @param roleId
+   *          the role id
+   * @param projectId
+   *          the project id
+   * @param id
+   *          the id
+   * @param inparams
+   *          the input name
+   * @return List<String>
+   * @throws Exception
+   */
+  @RequestMapping(method = RequestMethod.POST, value = "/{projectId}/suitabilityScenarios/{id}/uploadXlsFactors", produces = "text/html")
+  @ResponseStatus(HttpStatus.OK)
+  public @ResponseBody String uploadFactorXLS(
+      @PathVariable("projectId") final String projectID,
+      @PathVariable("id") final String scenarioID,
+      @RequestBody final MultipartFile file )
+  {
+    final String filename= file.getOriginalFilename();
+    LOGGER.info("*******>> uploadXlsFactors request for scenario  id ={}, with file name: {}",
+        scenarioID, filename);
+    String  out="";
+    try
+    {
+
+      if (!file.isEmpty()) {
+        out = suitabilityScenarioService.uploadXlsFactors(projectID, scenarioID, file.getInputStream());
+
+      }
+      else
+      {
+        out = "{\"result\" : \"" +"File is not correct." +"\"}";
+      }
+
+
+
+    } catch (final Exception e) {
+      LOGGER.error("uploadXlsFactors failed: {}", e.getMessage());
+      out ="Error: " + e.getMessage();
+      //out="success";
+      out = "{\"result\" : \"" + out +"\"}";
+    }
+
+    return out;
+  }
+
+
+
 
 }

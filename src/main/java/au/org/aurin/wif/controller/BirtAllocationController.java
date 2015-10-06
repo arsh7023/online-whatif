@@ -85,7 +85,7 @@ public class BirtAllocationController {
   /** The suitability scenario service. */
   @Resource
   private SuitabilityScenarioService suitabilityScenarioService;
-  
+
   /** The demand scenario service. */
   @Resource
   private DemandScenarioService demandScenarioService;
@@ -93,14 +93,15 @@ public class BirtAllocationController {
   /** The demand outcome service. */
   @Resource
   private DemandOutcomeService manualdemandScenarioService;
-  
+
   /** The Constant LOGGER. */
   private static final Logger LOGGER = LoggerFactory
       .getLogger(BirtAllocationController.class);
 
+
   /**
    * Generated allocation scenario html report
-   * 
+   *
    * @param locale
    * @param model
    * @param id
@@ -114,7 +115,7 @@ public class BirtAllocationController {
   public @ResponseBody
   String htmlAllocation(final Locale locale, final Model model,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException, IOException {
+  WifInvalidConfigException, ParsingException, IOException {
 
     LOGGER.info("Welcome Birt Report!");
     LOGGER.info(
@@ -274,9 +275,9 @@ public class BirtAllocationController {
       filexml.delete();
 
       LOGGER
-          .info(
-              "*******>> Completed Birt Report for Allocation Scenario  id ={}",
-              id);
+      .info(
+          "*******>> Completed Birt Report for Allocation Scenario  id ={}",
+          id);
     } catch (final Exception e) {
       LOGGER.debug("getBirt Report error : ={}", e.toString());
     } finally {
@@ -292,7 +293,7 @@ public class BirtAllocationController {
 
   /**
    * * Generated allocation scenario pdf report
-   * 
+   *
    * @param response
    * @param id
    * @return
@@ -305,7 +306,7 @@ public class BirtAllocationController {
   @ResponseBody
   public byte[] getPDFAllocation(final HttpServletResponse response,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException, IOException {
+  WifInvalidConfigException, ParsingException, IOException {
 
     byte[] bytem = null;
     LOGGER.info("*******>> getBirt Report pdf for Allocation Scenario  id ={}",
@@ -438,9 +439,9 @@ public class BirtAllocationController {
 
       file.delete();
       LOGGER
-          .info(
-              "*******>> Completed Birt Report pdf for Allocation Scenario  id ={}",
-              id);
+      .info(
+          "*******>> Completed Birt Report pdf for Allocation Scenario  id ={}",
+          id);
 
     } catch (final Exception e) {
       LOGGER.debug("getBirt pdf Report error : ={}", e.toString());
@@ -454,7 +455,7 @@ public class BirtAllocationController {
 
   /**
    * Generated allocation scenario xls report
-   * 
+   *
    * @param response
    * @param id
    * @return
@@ -467,7 +468,7 @@ public class BirtAllocationController {
   @ResponseBody
   public byte[] getXLSAllocation(final HttpServletResponse response,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException, IOException {
+  WifInvalidConfigException, ParsingException, IOException {
 
     byte[] bytem = null;
 
@@ -602,9 +603,9 @@ public class BirtAllocationController {
 
       file.delete();
       LOGGER
-          .info(
-              "*******>> Completed Birt Report xls for Allocation Scenario  id ={}",
-              id);
+      .info(
+          "*******>> Completed Birt Report xls for Allocation Scenario  id ={}",
+          id);
 
     } catch (final Exception e) {
       LOGGER.debug("getBirt xls Report error : ={}", e.toString());
@@ -615,12 +616,12 @@ public class BirtAllocationController {
     return bytem;
 
   }
-  
+
   /////////////////////////////////////////////////////////////////////
-  
+
   /**
    * Generated allocation scenario pdf new report
-   * 
+   *
    * @param response
    * @param id
    * @return
@@ -628,13 +629,13 @@ public class BirtAllocationController {
    * @throws WifInvalidConfigException
    * @throws ParsingException
    * @throws IOException
- * @throws IncompleteDemandScenarioException 
+   * @throws IncompleteDemandScenarioException
    */
   @RequestMapping(method = RequestMethod.GET, value = "/{projectId}/allocationScenarios/{id}/pdfnew")
   @ResponseBody
   public byte[] getPDFAllocationNew(final HttpServletResponse response,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException, IOException, IncompleteDemandScenarioException {
+  WifInvalidConfigException, ParsingException, IOException, IncompleteDemandScenarioException {
 
     byte[] bytem = null;
 
@@ -652,58 +653,63 @@ public class BirtAllocationController {
     BirtReport.setScenarioName(allocationScenario.getLabel());
     final Set<AllocationSimpleItemReport> it = allocationSimpleAnalysisReport
         .getAllocationSimpleItemReport();
-    
-    ///////////////////////////////////////////
-        
-        DemandOutcome manualdemandScn;
-        final WifProject project = allocationScenario.getWifProject();
-        
-        final String suitabilityScenarioId = allocationScenario
-                .getSuitabilityScenarioId();
-            final SuitabilityScenario suitabilityScenario = suitabilityScenarioService
-                .getSuitabilityScenario(suitabilityScenarioId);
 
-            allocationScenario.setSuitabilityScenario(suitabilityScenario);
-            final String projectId = suitabilityScenario.getWifProject().getId();
-        
-        Set<AreaRequirement> outcome = new HashSet<AreaRequirement>();
-        if (allocationScenario.isManual()) {
-          final String scenarioID = allocationScenario.getManualdemandScenarioId();
-
-          final List<DemandScenario> listDemand = demandScenarioService
-              .getDemandScenarios(projectId);
-          Boolean lsw = false;
-          for (final DemandScenario dsn : listDemand) {
-            if (dsn.getId().equals(scenarioID)) {
-              lsw = true;
-            }
-          }
-          if (lsw == false) {
-            manualdemandScn = allocationScenario.getManualdemandScenario();
-            LOGGER.info("Manual Demand Scenario label: {}",
-                manualdemandScn.getLabel());
-            outcome = allocationScenario.getManualdemandScenario()
-                .getAreaRequirements();
-          } else {
-            final List<AreaRequirement> outAreas = demandScenarioService
-                .getOutcome(scenarioID);
-            for (final AreaRequirement areaRequirement : outAreas) {
-              areaRequirement.setProjectionLabel(areaRequirement.getProjection()
-                  .getLabel());
-              outcome.add(areaRequirement);
-            }
-          }
-        }  
-          
-        
-        
-    
     ///////////////////////////////////////////
-    
-    
+
+    DemandOutcome manualdemandScn;
+    final WifProject project = allocationScenario.getWifProject();
+
+    final String suitabilityScenarioId = allocationScenario
+        .getSuitabilityScenarioId();
+    final SuitabilityScenario suitabilityScenario = suitabilityScenarioService
+        .getSuitabilityScenario(suitabilityScenarioId);
+
+    allocationScenario.setSuitabilityScenario(suitabilityScenario);
+    final String projectId = suitabilityScenario.getWifProject().getId();
+
+    Set<AreaRequirement> outcome = new HashSet<AreaRequirement>();
+    if (allocationScenario.isManual()) {
+      final String scenarioID = allocationScenario.getManualdemandScenarioId();
+
+      final List<DemandScenario> listDemand = demandScenarioService
+          .getDemandScenarios(projectId);
+      Boolean lsw = false;
+      for (final DemandScenario dsn : listDemand) {
+        if (dsn.getId().equals(scenarioID)) {
+          lsw = true;
+        }
+      }
+      if (lsw == false) {
+        manualdemandScn = allocationScenario.getManualdemandScenario();
+        LOGGER.info("Manual Demand Scenario label: {}",
+            manualdemandScn.getLabel());
+        outcome = allocationScenario.getManualdemandScenario()
+            .getAreaRequirements();
+      } else {
+        final List<AreaRequirement> outAreas = demandScenarioService
+            .getOutcome(scenarioID);
+        for (final AreaRequirement areaRequirement : outAreas) {
+          areaRequirement.setProjectionLabel(areaRequirement.getProjection()
+              .getLabel());
+          outcome.add(areaRequirement);
+        }
+      }
+    }
+
+
+
+
+    ///////////////////////////////////////////
+
+
     StringBuilder str = new StringBuilder("<property name='data'><list>");
 
     for (final AllocationSimpleItemReport s : it) {
+
+      Double alloc_value = 0.0;
+      alloc_value = (double)Math.round(s.getSumofArea() * 100);
+      alloc_value = alloc_value/100;
+
 
       str.append("<list>");
       str.append("<value>");
@@ -713,41 +719,51 @@ public class BirtAllocationController {
       str.append(s.getYear());
       str.append("</value>");
       str.append("<value>");
-      str.append((double) Math.round(s.getSumofArea() * 100000) / 100000);
+      //str.append((double) Math.round(s.getSumofArea() * 100000) / 100000);
+      str.append(alloc_value);
       str.append("</value>");
-      
+
       Double demand_value = 0.0;
-      for (AreaRequirement area: outcome)
+
+      for (final AreaRequirement area: outcome)
       {
-    	  if (area.getAllocationLULabel().equals(s.getLanduseName()))
-    	  {
-    		  if (Integer.valueOf(area.getProjectionLabel()) == s.getYear())
-    		  {
-    			  //demand_value = area.getRequiredArea();
-    			  demand_value = (double) (Math.round(area.getRequiredArea() * 100000) / 100000);
-    		  }
-    	  }
+        if (area.getAllocationLULabel().equals(s.getLanduseName()))
+        {
+          if (Integer.valueOf(area.getProjectionLabel()) == s.getYear())
+          {
+            //demand_value = (double) Math.round(area.getRequiredArea() * 100000 / 100000);
+            demand_value = area.getRequiredArea();
+            demand_value = (double)Math.round(demand_value * 100);
+            demand_value = demand_value/100;
+
+
+          }
+        }
       }
-      
+
       Double percentage=0.0;
       if (demand_value != 0.0)
       {
-    	  if (s.getSumofArea() != 0.0)
-    	  {	  
-	    	  percentage = ( demand_value/ ((double) Math.round(s.getSumofArea() * 100000) / 100000)) * 100.0;
-	    	  percentage = Math.round(percentage * 100.0) / 100.0;
-    	  }
+        if (s.getSumofArea() != 0.0)
+        {
+
+          //percentage =  (double) Math.round(s.getSumofArea() * 100000) / 100000 * 100.0 / demand_value;
+          //percentage = Math.round(percentage * 100.0) / 100.0;
+          percentage = alloc_value/ demand_value * 100;
+          percentage = (double)Math.round(percentage * 100);
+          percentage = percentage/100;
+        }
       }
-      
-      
+
+
       str.append("<value>");
       str.append(demand_value);
       str.append("</value>");
-      
+
       str.append("<value>");
       str.append(percentage);
       str.append("</value>");
-      
+
       str.append("</list>");
 
     }
@@ -822,7 +838,7 @@ public class BirtAllocationController {
       runnable = birtEngine.openReportDesign(peopleresource.getFile());
       final IRunAndRenderTask runAndRenderTask = birtEngine
           .createRunAndRenderTask(runnable);
-      
+
       final File file = new File(tempDir + "/palloc.pdf");
       if (!file.exists()) {
         file.createNewFile();
@@ -832,13 +848,13 @@ public class BirtAllocationController {
       pdfOptions.setOutputFormat("pdf");
       pdfOptions.setOutputFileName(tempDir + "/palloc.pdf");
 
-      //pdfOptions.setOutputFormat(IPDFRenderOption.OUTPUT_EMITTERID_PDF); 
-      
+      //pdfOptions.setOutputFormat(IPDFRenderOption.OUTPUT_EMITTERID_PDF);
+
       pdfOptions.setOption(IPDFRenderOption.PAGE_OVERFLOW,
           IPDFRenderOption.FIT_TO_PAGE_SIZE);
       pdfOptions.setOption(IPDFRenderOption.PDF_HYPHENATION, true);
       pdfOptions.setOption(IPDFRenderOption.PDF_TEXT_WRAPPING, true);
-      
+
 
       runAndRenderTask.setRenderOption(pdfOptions);
 
@@ -855,9 +871,9 @@ public class BirtAllocationController {
 
       file.delete();
       LOGGER
-          .info(
-              "*******>> Completed Birt Report pdf new for Allocation Scenario  id ={}",
-              id);
+      .info(
+          "*******>> Completed Birt Report pdf new for Allocation Scenario  id ={}",
+          id);
 
     } catch (final Exception e) {
       LOGGER.debug("getBirt pdf Report error : ={}", e.toString());
@@ -869,11 +885,11 @@ public class BirtAllocationController {
 
   }
 
-  
-  
+
+
   /**
    * Generated allocation scenario xls report
-   * 
+   *
    * @param response
    * @param id
    * @return
@@ -881,13 +897,13 @@ public class BirtAllocationController {
    * @throws WifInvalidConfigException
    * @throws ParsingException
    * @throws IOException
- * @throws IncompleteDemandScenarioException 
+   * @throws IncompleteDemandScenarioException
    */
   @RequestMapping(method = RequestMethod.GET, value = "/{projectId}/allocationScenarios/{id}/xlsnew")
   @ResponseBody
   public byte[] getXLSAllocationNew(final HttpServletResponse response,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException, ParsingException, IOException, IncompleteDemandScenarioException {
+  WifInvalidConfigException, ParsingException, IOException, IncompleteDemandScenarioException {
 
     byte[] bytem = null;
 
@@ -905,58 +921,62 @@ public class BirtAllocationController {
     BirtReport.setScenarioName(allocationScenario.getLabel());
     final Set<AllocationSimpleItemReport> it = allocationSimpleAnalysisReport
         .getAllocationSimpleItemReport();
-    
-    ///////////////////////////////////////////
-        
-        DemandOutcome manualdemandScn;
-        final WifProject project = allocationScenario.getWifProject();
-        
-        final String suitabilityScenarioId = allocationScenario
-                .getSuitabilityScenarioId();
-            final SuitabilityScenario suitabilityScenario = suitabilityScenarioService
-                .getSuitabilityScenario(suitabilityScenarioId);
 
-            allocationScenario.setSuitabilityScenario(suitabilityScenario);
-            final String projectId = suitabilityScenario.getWifProject().getId();
-        
-        Set<AreaRequirement> outcome = new HashSet<AreaRequirement>();
-        if (allocationScenario.isManual()) {
-          final String scenarioID = allocationScenario.getManualdemandScenarioId();
-
-          final List<DemandScenario> listDemand = demandScenarioService
-              .getDemandScenarios(projectId);
-          Boolean lsw = false;
-          for (final DemandScenario dsn : listDemand) {
-            if (dsn.getId().equals(scenarioID)) {
-              lsw = true;
-            }
-          }
-          if (lsw == false) {
-            manualdemandScn = allocationScenario.getManualdemandScenario();
-            LOGGER.info("Manual Demand Scenario label: {}",
-                manualdemandScn.getLabel());
-            outcome = allocationScenario.getManualdemandScenario()
-                .getAreaRequirements();
-          } else {
-            final List<AreaRequirement> outAreas = demandScenarioService
-                .getOutcome(scenarioID);
-            for (final AreaRequirement areaRequirement : outAreas) {
-              areaRequirement.setProjectionLabel(areaRequirement.getProjection()
-                  .getLabel());
-              outcome.add(areaRequirement);
-            }
-          }
-        }  
-          
-        
-        
-    
     ///////////////////////////////////////////
-    
-    
+
+    DemandOutcome manualdemandScn;
+    final WifProject project = allocationScenario.getWifProject();
+
+    final String suitabilityScenarioId = allocationScenario
+        .getSuitabilityScenarioId();
+    final SuitabilityScenario suitabilityScenario = suitabilityScenarioService
+        .getSuitabilityScenario(suitabilityScenarioId);
+
+    allocationScenario.setSuitabilityScenario(suitabilityScenario);
+    final String projectId = suitabilityScenario.getWifProject().getId();
+
+    Set<AreaRequirement> outcome = new HashSet<AreaRequirement>();
+    if (allocationScenario.isManual()) {
+      final String scenarioID = allocationScenario.getManualdemandScenarioId();
+
+      final List<DemandScenario> listDemand = demandScenarioService
+          .getDemandScenarios(projectId);
+      Boolean lsw = false;
+      for (final DemandScenario dsn : listDemand) {
+        if (dsn.getId().equals(scenarioID)) {
+          lsw = true;
+        }
+      }
+      if (lsw == false) {
+        manualdemandScn = allocationScenario.getManualdemandScenario();
+        LOGGER.info("Manual Demand Scenario label: {}",
+            manualdemandScn.getLabel());
+        outcome = allocationScenario.getManualdemandScenario()
+            .getAreaRequirements();
+      } else {
+        final List<AreaRequirement> outAreas = demandScenarioService
+            .getOutcome(scenarioID);
+        for (final AreaRequirement areaRequirement : outAreas) {
+          areaRequirement.setProjectionLabel(areaRequirement.getProjection()
+              .getLabel());
+          outcome.add(areaRequirement);
+        }
+      }
+    }
+
+
+
+
+    ///////////////////////////////////////////
+
+
     StringBuilder str = new StringBuilder("<property name='data'><list>");
 
     for (final AllocationSimpleItemReport s : it) {
+
+      Double alloc_value = 0.0;
+      alloc_value = (double)Math.round(s.getSumofArea() * 100);
+      alloc_value = alloc_value/100;
 
       str.append("<list>");
       str.append("<value>");
@@ -966,41 +986,48 @@ public class BirtAllocationController {
       str.append(s.getYear());
       str.append("</value>");
       str.append("<value>");
-      str.append((double) Math.round(s.getSumofArea() * 100000) / 100000);
+      //str.append((double) Math.round(s.getSumofArea() * 100000) / 100000);
+      str.append(alloc_value);
       str.append("</value>");
-      
+
       Double demand_value = 0.0;
-      for (AreaRequirement area: outcome)
+      for (final AreaRequirement area: outcome)
       {
-    	  if (area.getAllocationLULabel().equals(s.getLanduseName()))
-    	  {
-    		  if (Integer.valueOf(area.getProjectionLabel()) == s.getYear())
-    		  {
-    			  //demand_value = area.getRequiredArea();
-    			  demand_value = (double) (Math.round(area.getRequiredArea() * 100000) / 100000);
-    		  }
-    	  }
+        if (area.getAllocationLULabel().equals(s.getLanduseName()))
+        {
+          if (Integer.valueOf(area.getProjectionLabel()) == s.getYear())
+          {
+
+            //demand_value = (double) (Math.round(area.getRequiredArea() * 100000) / 100000);
+            demand_value = area.getRequiredArea();
+            demand_value = (double)Math.round(demand_value * 100);
+            demand_value = demand_value/100;
+          }
+        }
       }
-      
+
       Double percentage=0.0;
       if (demand_value != 0.0)
       {
-    	  if (s.getSumofArea() != 0.0)
-    	  {	  
-	    	  percentage = ( demand_value/ ((double) Math.round(s.getSumofArea() * 100000) / 100000)) * 100.0;
-	    	  percentage = Math.round(percentage * 100.0) / 100.0;
-    	  }
+        if (s.getSumofArea() != 0.0)
+        {
+          //percentage = (double) Math.round(s.getSumofArea() * 100000) / 100000 * 100.0 / demand_value;
+          //percentage = Math.round(percentage * 100.0) / 100.0;
+          percentage = alloc_value/ demand_value * 100;
+          percentage = (double)Math.round(percentage * 100);
+          percentage = percentage/100;
+        }
       }
-      
-      
+
+
       str.append("<value>");
       str.append(demand_value);
       str.append("</value>");
-      
+
       str.append("<value>");
       str.append(percentage);
       str.append("</value>");
-      
+
       str.append("</list>");
 
     }
@@ -1085,10 +1112,10 @@ public class BirtAllocationController {
       xlsOptions.setOutputFormat("xls");
       xlsOptions.setOutputFileName(tempDir + "/xalloc.xls");
 
-     
+
       xlsOptions.setOption(IPDFRenderOption.PAGE_OVERFLOW,
-         IPDFRenderOption.FIT_TO_PAGE_SIZE);
-      
+          IPDFRenderOption.FIT_TO_PAGE_SIZE);
+
       // pdfOptions.setOutputStream(response.getOutputStream());
       runAndRenderTask.setRenderOption(xlsOptions);
 
@@ -1105,9 +1132,9 @@ public class BirtAllocationController {
 
       file.delete();
       LOGGER
-          .info(
-              "*******>> Completed Birt Report xls for Allocation Scenario  id ={}",
-              id);
+      .info(
+          "*******>> Completed Birt Report xls for Allocation Scenario  id ={}",
+          id);
 
     } catch (final Exception e) {
       LOGGER.debug("getBirt xls Report error : ={}", e.toString());
@@ -1118,9 +1145,9 @@ public class BirtAllocationController {
     return bytem;
 
   }
-  
-  
 
-  
+
+
+
 
 }

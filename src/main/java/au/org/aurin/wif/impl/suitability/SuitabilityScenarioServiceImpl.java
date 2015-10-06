@@ -1,14 +1,22 @@
 package au.org.aurin.wif.impl.suitability;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.geometry.MismatchedDimensionException;
@@ -565,6 +573,342 @@ SuitabilityScenarioService {
 
     return out;
 
+  }
+
+  @Override
+  public String uploadXlsFactors(final String projectID, final String scenarioID, final InputStream inputStream)
+      throws WifInvalidInputException, WifInvalidConfigException, ParsingException, IOException {
+    LOGGER.info("uploadXlsFactors");
+    String out="";
+    try
+    {
+
+      final HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+      final HSSFSheet sheet = workbook.getSheetAt(0);
+      HSSFRow row6;
+      HSSFRow row;
+      HSSFCell cell;
+      HSSFCell factorName;
+
+
+      LOGGER.info("hii");
+
+      final Map<String, Double> map = new HashMap<String, Double>();
+
+
+      int rows; // No of rows
+      rows = sheet.getPhysicalNumberOfRows();
+
+
+      final SuitabilityScenario rawSuitabilityScenario =
+          getSuitabilityScenario(scenarioID);
+      if (!rawSuitabilityScenario.getLabel().equals(sheet.getRow(2).getCell(0).getStringCellValue()))
+      {
+        out = "{\"result\" : \"" +"The scenario name is not match!" +"\"}";
+        return out;
+      }
+      final WifProject rawProject = projectService
+          .getProjectConfiguration(rawSuitabilityScenario.getProjectId());
+      if (!rawProject.getLabel().equals(sheet.getRow(4).getCell(0).getStringCellValue()))
+      {
+        out = "{\"result\" : \"" +"The project name is not match!" +"\"}";
+        return out;
+      }
+
+      int cols = 0; // No of columns
+      int tmp = 0;
+      // This trick ensures that we get the data properly even if it doesn't start from first few rows
+      for(int i = 6;  i < rows; i++) {
+        row = sheet.getRow(i);
+        if(row != null) {
+          tmp = sheet.getRow(i).getPhysicalNumberOfCells();
+          if(tmp > cols) {
+            cols = tmp;
+          }
+        }
+      }
+
+
+      for(int c = 1; c < cols; c++) {
+
+
+        row6 = sheet.getRow(6);
+        cell = row6.getCell(c);
+
+        final String headerLU = cell.getStringCellValue();
+        LOGGER.info(headerLU);
+
+
+
+        LOGGER.info("********");
+
+        String lbl="";
+        String lbluse="";
+        for(int r = 8; r < rows; r++) {
+
+          Boolean lswHeader = false;
+
+          row = sheet.getRow(r);
+          if(row != null)
+          {
+
+            cell = row.getCell((short)c);
+            factorName = row.getCell(0);
+            lbluse= factorName.getStringCellValue();
+            if (!factorName.getStringCellValue().equals(lbl))
+            {
+              if (lbl.equals(""))
+              {
+                lbl =  factorName.getStringCellValue();
+                lbluse= "Header:" + lbl;
+                lswHeader= true;
+              }
+              else
+              {
+                if (factorName.getStringCellValue().length() <= lbl.length())
+                {
+                  lbl =  factorName.getStringCellValue();
+                  lbluse= "Header:" + lbl;
+                  lswHeader= true;
+                }
+                else
+                {
+                  if (factorName.getStringCellValue().substring(0, lbl.length()).equals(lbl))
+                  {
+                    int k = lbl.length();
+                    final String str = factorName.getStringCellValue();
+                    if (str.substring(k, k+1).equals("_"))
+                    {
+                      k = factorName.getStringCellValue().length();
+
+                      String lname=str.substring(lbl.length()+1,k);
+                      lname = lname.replaceAll(",", "");
+                      lname = lname.replaceAll("Greater ", ">");
+                      lname = lname.replaceAll("Lower ", "<");
+
+                      //lbluse= "Header:" + lbl + ":Child:" +str.substring(lbl.length()+1,k);
+                      lbluse= "Header:" + lbl + ":Child:" +lname;
+                      lswHeader= false;
+
+                      Double newvalue=0.0;
+                      if (cell.getCellType() == 1)
+                      {
+
+                        newvalue= Double.parseDouble(cell.getStringCellValue());
+                      }
+                      else if (cell.getCellType() == 0)
+                      {
+
+                        newvalue= cell.getNumericCellValue();
+                      }
+
+
+                    }
+                    else
+                    {
+                      lbl =  factorName.getStringCellValue();
+                      lbluse= "Header:" + lbl;
+                      lswHeader= true;
+                    }
+                  }
+                  else
+                  {
+                    lbl =  factorName.getStringCellValue();
+                    lbluse= "Header:" + lbl;
+                    lswHeader= true;
+                  }
+                }
+              }
+            }//end for
+
+            if (lswHeader== true)
+            {
+
+            }
+            else
+            {
+
+            }
+
+
+            if(cell != null) {
+              // Your code here
+              //LOGGER.info(lbluse + " : "+cell.getCellType());
+              if (cell.getCellType() == 1)
+              {
+
+                LOGGER.info(headerLU+":"+lbluse + ":"+cell.getStringCellValue());
+                map.put(headerLU+":"+lbluse, Double.valueOf(cell.getStringCellValue()));
+              }
+              else
+              {
+                LOGGER.info(headerLU+":"+lbluse + ":"+cell.getNumericCellValue());
+                map.put(headerLU+":"+lbluse, cell.getNumericCellValue());
+              }
+            }
+
+          }
+        }
+      }//end for c
+
+
+      for (final Map.Entry<String, Double> entry : map.entrySet()) {
+        LOGGER.info("Key : " + entry.getKey() + " Value : " + entry.getValue());
+        //LOGGER.info("Key : " + entry.getKey().split(":").length);
+      }
+
+      //////////////////////////////////////////////////////////////////////////////
+
+      final SuitabilityScenario oldSuitabilityScenario =
+          getSuitabilityScenario(scenarioID);
+      //          final SuitabilityScenario oldSuitabilityScenario = suitabilityScenarioService
+      //              .getSuitabilityScenario("d2ee05b32886f857ef1dd7272211b38d");
+
+
+      final WifProject project = projectService
+          .getProjectConfiguration(oldSuitabilityScenario.getProjectId());
+
+      final Set<SuitabilityRule> setRules =  new HashSet<SuitabilityRule>();
+      final Set<SuitabilityRule> suitabilityRules = oldSuitabilityScenario
+          .getSuitabilityRules();
+      for (final SuitabilityRule oldRule : suitabilityRules) {
+
+        final SuitabilityRule newRule = new SuitabilityRule();
+
+        newRule.setId(oldRule.getId());
+        final String suitabilityLULabel = oldRule.getSuitabilityLUMap().values()
+            .iterator().next();
+        // LOGGER.debug("Restoring {} suitabilityLU...", suitabilityLULabel);
+        final SuitabilityLU suitabilityLU = project
+            .getSuitabilityLUByName(suitabilityLULabel);
+        newRule.getSuitabilityLUMap().put(suitabilityLU.getId(),
+            suitabilityLU.getLabel());
+        final Collection<String> convertibleLUsLabels = oldRule.getConvertibleLUsMap()
+            .values();
+        for (final String luLabel : convertibleLUsLabels) {
+          //LOGGER.debug("Restoring {} convertibleLU...", luLabel);
+          final AllocationLU allocationLU = project
+              .getExistingLandUseByLabel(luLabel);
+          newRule.getConvertibleLUsMap().put(allocationLU.getId(),
+              allocationLU.getLabel());
+        }
+        final Set<FactorImportance> factorImportances = oldRule.getFactorImportances();
+        for (final FactorImportance oldImportance : factorImportances) {
+          final Double newvalue=oldImportance.getImportance();
+
+          final FactorImportance importance = new FactorImportance();
+
+          final String factorLabel = oldImportance.getFactorMap().values().iterator()
+              .next();
+          //LOGGER.debug("Restoring factorImportance for {}...", factorLabel);
+          final Factor factor = project.getFactorByLabel(factorLabel);
+          importance.getFactorMap().put(factor.getId(), factor.getLabel());
+
+          for (final Map.Entry<String, Double> entry : map.entrySet()) {
+            //
+            //System.out.println("Key : " + entry.getKey().split(":").length);
+            if (entry.getKey().split(":").length==3)
+            {
+              final String[] str = entry.getKey().split(":");
+              if (str[0].equals(suitabilityLULabel))
+              {
+                if (str[2].equals(factorLabel))
+                {
+                  //importance.setImportance(2.0);
+                  importance.setImportance(entry.getValue());
+                  //LOGGER.info("Key : " + entry.getKey() + " Value : " + entry.getValue());
+                }
+              }
+            }
+          }
+
+          final Set<FactorTypeRating> factorTypeRatings = oldImportance
+              .getFactorTypeRatings();
+          for (final FactorTypeRating oldRating : factorTypeRatings) {
+            final FactorTypeRating rating = new FactorTypeRating();
+            final String ftLabel = oldRating.getFactorTypeMap().values().iterator()
+                .next();
+
+            for (final Map.Entry<String, Double> entry : map.entrySet()) {
+              if (entry.getKey().split(":").length==5)
+              {
+                final String[] str = entry.getKey().split(":");
+                if (str[0].equals(suitabilityLULabel))
+                {
+                  if (str[2].equals(factorLabel))
+                  {
+
+                    if (str[4].equals(ftLabel))
+                    {
+                      //rating.setScore(2.0);
+                      rating.setScore(entry.getValue());
+                      //LOGGER.info("Key : " + entry.getKey() + " Value : " + entry.getValue());
+                      if (suitabilityLULabel.equals("Retail"))
+                      {
+                        if (factorLabel.equals("streams"))
+                        {
+                          int cc=0;
+                          cc=2;
+                          if (ftLabel.equals("Outside buffers"))
+                          {
+
+                          }
+                        }
+                      }
+
+                    }
+
+                  }
+                }
+              }
+            }
+
+            final FactorType factorType = factor.getFactorTypeByLabel(ftLabel);
+            rating.getFactorTypeMap().put(factorType.getId(),
+                factorType.getLabel());
+            importance.getFactorTypeRatings().add(rating);
+          }
+          newRule.getFactorImportances().add(importance);
+
+
+          newRule.setRevision(suitabilityRuleDao.findSuitabilityRuleById(
+              oldRule.getId()).getRevision());
+          LOGGER.info("updating the newrule with Rev={}", newRule.getRevision());
+          suitabilityRuleDao.updateSuitabilityRule(newRule);
+
+          newRule.setRevision(suitabilityRuleDao.findSuitabilityRuleById(
+              oldRule.getId()).getRevision());
+          setRules.add(newRule);
+
+        }
+
+      }
+
+      oldSuitabilityScenario.setSuitabilityRules(setRules);
+      oldSuitabilityScenario.setRevision(suitabilityScenarioDao
+          .findSuitabilityScenarioById(oldSuitabilityScenario.getId())
+          .getRevision());
+      LOGGER.info("updating the suitabilityScenario with Rev={}",
+          oldSuitabilityScenario.getRevision());
+      updateSuitabilityScenario(oldSuitabilityScenario,
+          project.getId());
+
+      //////////////////////////////////////////////////////////////////////////////
+
+      inputStream.close();
+
+      out = "{\"result\" : \"" +"success" +"\"}";
+
+
+
+    } catch (final IllegalArgumentException e) {
+
+      LOGGER.error("illegal argument, the suitabilityScenario supplied is invalid ");
+      out ="Error: " + e.getMessage();
+      out = "{\"result\" : \"" + out +"\"}";
+    }
+
+    return out;
   }
 
 }
