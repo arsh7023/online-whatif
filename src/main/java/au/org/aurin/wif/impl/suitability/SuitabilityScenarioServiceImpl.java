@@ -683,8 +683,8 @@ SuitabilityScenarioService {
 
                       String lname=str.substring(lbl.length()+1,k);
                       lname = lname.replaceAll(",", "");
-                      lname = lname.replaceAll("Greater ", ">");
-                      lname = lname.replaceAll("Lower ", "<");
+                      lname = lname.replaceAll("'Greater ", ">");
+                      lname = lname.replaceAll("'Lower ", "<");
 
                       //lbluse= "Header:" + lbl + ":Child:" +str.substring(lbl.length()+1,k);
                       lbluse= "Header:" + lbl + ":Child:" +lname;

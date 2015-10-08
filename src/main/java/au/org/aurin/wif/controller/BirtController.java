@@ -1239,13 +1239,13 @@ public class BirtController {
       String lname = sr.getLUName();
       lname = lname.replaceAll(",", "");
       //lname = lname.replaceAll("/", "");
-      lname = lname.replaceAll(">", "Greater");
-      lname = lname.replaceAll("<", "Lower");
+      lname = lname.replaceAll(">", "'Greater");
+      lname = lname.replaceAll("<", "'Lower");
       String lfname = sr.getFactorName();
       lfname = lfname.replaceAll(",", "");
       //lfname = lfname.replaceAll("/", "");
-      lfname = lfname.replaceAll(">", "Greater ");
-      lfname = lfname.replaceAll("<", "Lower ");
+      lfname = lfname.replaceAll(">", "'Greater ");
+      lfname = lfname.replaceAll("<", "'Lower ");
 
       str.append("<list>");
       str.append("<value>");
