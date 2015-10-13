@@ -4,6 +4,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import au.org.aurin.wif.exception.config.WifInvalidConfigException;
 import au.org.aurin.wif.exception.validate.WifInvalidInputException;
 import au.org.aurin.wif.model.AbstractLandUse;
@@ -17,14 +21,10 @@ import au.org.aurin.wif.model.demand.info.EmploymentDemandInfo;
 import au.org.aurin.wif.model.suitability.SuitabilityLU;
 import au.org.aurin.wif.model.suitability.SuitabilityRule;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 /**
  * <b>AllocationLU.java</b> See Section 4.6: These land uses are the ones that
  * currently exist and are used to map and describe the study area.
- * 
+ *
  * A major issue facing the use of different data sources for a particular study
  * area is the fact that different names may be used to classify the current,
  * projected, and planned land uses. In addition, the number of land use
@@ -38,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * uses, including only a single “residential” category. As a result, the first
  * task is defining the different categories of land uses and how they relate to
  * each other.
- * 
+ *
  * @author <a href="mailto:marcosnr@unimelb.edu.au"> Marcos Nino-Ruiz
  *         marcosnr@unimelb.edu.au</a> - 2012
  */
@@ -46,7 +46,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class AllocationLU extends AbstractLandUse {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1891779438491310702L;
 
@@ -148,7 +148,7 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Checks if is group quarters.
-   * 
+   *
    * @return the groupQuarters
    */
   public Boolean isGroupQuarters() {
@@ -157,17 +157,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the group quarters.
-   * 
+   *
    * @param groupQuarters
    *          the groupQuarters to set
    */
-  public void setGroupQuarters(Boolean groupQuarters) {
+  public void setGroupQuarters(final Boolean groupQuarters) {
     this.groupQuarters = groupQuarters;
   }
 
   /**
    * Gets the new lu.
-   * 
+   *
    * @return the newLU
    */
   public Boolean getNewLU() {
@@ -176,17 +176,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the new lu.
-   * 
+   *
    * @param newLU
    *          the newLU to set
    */
-  public void setNewLU(Boolean newLU) {
+  public void setNewLU(final Boolean newLU) {
     this.newLU = newLU;
   }
 
   /**
    * Checks if is local.
-   * 
+   *
    * @return the local
    */
   public Boolean isLocal() {
@@ -195,17 +195,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the local.
-   * 
+   *
    * @param local
    *          the local to set
    */
-  public void setLocal(Boolean local) {
+  public void setLocal(final Boolean local) {
     this.local = local;
   }
 
   /**
    * Checks if is built up.
-   * 
+   *
    * @return the builtUp
    */
   public Boolean isBuiltUp() {
@@ -214,17 +214,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the built up.
-   * 
+   *
    * @param builtUp
    *          the builtUp to set
    */
-  public void setBuiltUp(Boolean builtUp) {
+  public void setBuiltUp(final Boolean builtUp) {
     this.builtUp = builtUp;
   }
 
   /**
    * Checks if is not developable.
-   * 
+   *
    * @return the notDevelopable
    */
   public Boolean isNotDevelopable() {
@@ -233,17 +233,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the not developable.
-   * 
+   *
    * @param notDevelopable
    *          the notDevelopable to set
    */
-  public void setNotDevelopable(Boolean notDevelopable) {
+  public void setNotDevelopable(final Boolean notDevelopable) {
     this.notDevelopable = notDevelopable;
   }
 
   /**
    * Gets the not defined.
-   * 
+   *
    * @return the notDefined
    */
   public Boolean getNotDefined() {
@@ -252,17 +252,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the not defined.
-   * 
+   *
    * @param notDefined
    *          the notDefined to set
    */
-  public void setNotDefined(Boolean notDefined) {
+  public void setNotDefined(final Boolean notDefined) {
     this.notDefined = notDefined;
   }
 
   /**
    * Checks if is new preservation.
-   * 
+   *
    * @return the newPreservation
    */
   public Boolean isNewPreservation() {
@@ -271,37 +271,37 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the new preservation.
-   * 
+   *
    * @param newPreservation
    *          the newPreservation to set
    */
-  public void setNewPreservation(Boolean newPreservation) {
+  public void setNewPreservation(final Boolean newPreservation) {
     this.newPreservation = newPreservation;
   }
 
   /**
    * Sets the demand infos.
-   * 
+   *
    * @param demandInfos
    *          the new demand infos
    */
-  public void setDemandInfos(Set<DemandInfo> demandInfos) {
+  public void setDemandInfos(final Set<DemandInfo> demandInfos) {
     this.demandInfos = demandInfos;
   }
 
   /**
    * Adds the demand info.
-   * 
+   *
    * @param demandInfos
    *          the demand infos
    */
-  public void addDemandInfo(DemandInfo demandInfos) {
+  public void addDemandInfo(final DemandInfo demandInfos) {
     this.demandInfos.add(demandInfos);
   }
 
   /**
    * Gets the demand infos.
-   * 
+   *
    * @return the demand infos
    */
   public Set<DemandInfo> getDemandInfos() {
@@ -310,7 +310,7 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Gets the demand info by scenario name.
-   * 
+   *
    * @param demandScn
    *          the new scenario name
    * @return the demand info by scenario name
@@ -319,9 +319,9 @@ public class AllocationLU extends AbstractLandUse {
    * @throws WifInvalidConfigException
    *           the wif invalid config exception
    */
-  public DemandInfo getDemandInfoByScenario(DemandScenario demandScn)
+  public DemandInfo getDemandInfoByScenario(final DemandScenario demandScn)
       throws WifInvalidInputException {
-    for (DemandInfo demandInfo : this.getDemandInfos()) {
+    for (final DemandInfo demandInfo : this.getDemandInfos()) {
       if (demandInfo.getDemandScenario().equals(demandScn)) {
         return demandInfo;
 
@@ -331,18 +331,51 @@ public class AllocationLU extends AbstractLandUse {
         + this.getLabel() + " in scenario: " + demandScn);
   }
 
+
+  /**
+   * Gets the set of demand info by scenario name.
+   *
+   * @param demandScn
+   *          the new scenario name
+   * @return the demand info by scenario name
+   * @throws WifInvalidInputException
+   *           the wif invalid input exception
+   * @throws WifInvalidConfigException
+   *           the wif invalid config exception
+   */
+  public Set<DemandInfo> getDemandInfosByScenario(final DemandScenario demandScn)
+      throws WifInvalidInputException {
+    final Set<DemandInfo> setInfo =  new HashSet<DemandInfo>();
+    for (final DemandInfo demandInfo : this.getDemandInfos()) {
+      if (demandInfo.getDemandScenario().equals(demandScn)) {
+        setInfo.add(demandInfo);
+
+      }
+    }
+    if (setInfo.size()>0)
+    {
+    }
+    else
+    {
+      throw new WifInvalidInputException("there's no demand information from  : "
+          + this.getLabel() + " in scenario: " + demandScn);
+    }
+    return setInfo;
+  }
+
+
   /**
    * Checks for demand info in scenario.
-   * 
+   *
    * @param newScenario
    *          the new scenario name
    * @return true, if successful
    * @throws WifInvalidInputException
    *           the wif invalid input exception
    */
-  public boolean hasDemandInfoInScenario(DemandScenario newScenario)
+  public boolean hasDemandInfoInScenario(final DemandScenario newScenario)
       throws WifInvalidInputException {
-    for (DemandInfo demandInfo : this.getDemandInfos()) {
+    for (final DemandInfo demandInfo : this.getDemandInfos()) {
       if (demandInfo.getDemandScenario().getLabel()
           .equals(newScenario.getLabel())) {
         return true;
@@ -353,17 +386,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the associated lu.
-   * 
+   *
    * @param associatedLU
    *          the new associated lu
    */
-  public void setAssociatedLU(SuitabilityLU associatedLU) {
+  public void setAssociatedLU(final SuitabilityLU associatedLU) {
     this.associatedLU = associatedLU;
   }
 
   /**
    * Gets the associated lu.
-   * 
+   *
    * @return the associated lu
    */
   public SuitabilityLU getAssociatedLU() {
@@ -372,17 +405,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the conversions.
-   * 
+   *
    * @param conversions
    *          the new conversions
    */
-  public void setConversions(Set<SuitabilityRule> conversions) {
+  public void setConversions(final Set<SuitabilityRule> conversions) {
     this.conversions = conversions;
   }
 
   /**
    * Gets the conversions.
-   * 
+   *
    * @return the conversions
    */
   public Set<SuitabilityRule> getConversions() {
@@ -391,17 +424,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the employment sectors.
-   * 
+   *
    * @param employmentSectors
    *          the employmentSectors to set
    */
-  public void setEmploymentSectors(Set<EmploymentSector> employmentSectors) {
+  public void setEmploymentSectors(final Set<EmploymentSector> employmentSectors) {
     this.employmentSectors = employmentSectors;
   }
 
   /**
    * Gets the employment sectors.
-   * 
+   *
    * @return the employmentSectors
    */
   public Set<EmploymentSector> getEmploymentSectors() {
@@ -410,27 +443,27 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Adds the employment sector.
-   * 
+   *
    * @param sector
    *          the sector
    */
-  public void addEmploymentSector(EmploymentSector sector) {
+  public void addEmploymentSector(final EmploymentSector sector) {
     this.employmentSectors.add(sector);
   }
 
   /**
    * Sets the area requirements.
-   * 
+   *
    * @param areaRequirements
    *          the areaRequirements to set
    */
-  public void setAreaRequirements(Set<AreaRequirement> areaRequirements) {
+  public void setAreaRequirements(final Set<AreaRequirement> areaRequirements) {
     this.areaRequirements = areaRequirements;
   }
 
   /**
    * Gets the area requirements.
-   * 
+   *
    * @return the areaRequirements
    */
   public Set<AreaRequirement> getAreaRequirements() {
@@ -439,27 +472,27 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Adds the area requirement.
-   * 
+   *
    * @param areq
    *          the areq
    */
-  public void addAreaRequirement(AreaRequirement areq) {
+  public void addAreaRequirement(final AreaRequirement areq) {
     this.areaRequirements.add(areq);
   }
 
   /**
    * Adds the forecast.
-   * 
+   *
    * @param f
    *          the f
    */
-  public void addForecast(Forecast f) {
+  public void addForecast(final Forecast f) {
     this.forecasts.add(f);
   }
 
   /**
    * Gets the forecast.
-   * 
+   *
    * @param projection
    *          the projection
    * @param demandScn
@@ -468,28 +501,28 @@ public class AllocationLU extends AbstractLandUse {
    * @throws WifInvalidConfigException
    *           the wif invalid config exception
    */
-  public Forecast getForecast(Projection projection, DemandScenario demandScn)
+  public Forecast getForecast(final Projection projection, final DemandScenario demandScn)
       throws WifInvalidConfigException {
-    for (Forecast f : this.forecasts) {
-      if ((f.getDemandScenario() == demandScn)
-          && (f.getProjection() == projection)) {
+    for (final Forecast f : this.forecasts) {
+      if (f.getDemandScenario() == demandScn
+          && f.getProjection() == projection) {
         return f;
       }
     }
     throw new WifInvalidConfigException(
         "there's no forecast information from  : " + this.getLabel()
-            + " in scenario: " + demandScn.getLabel() + " Four projection:"
-            + projection.getLabel());
+        + " in scenario: " + demandScn.getLabel() + " Four projection:"
+        + projection.getLabel());
   }
 
   /**
    * Checks if is associated.
-   * 
+   *
    * @param edinfo
    *          the edinfo
    * @return true, if is associated
    */
-  public boolean isAssociated(EmploymentDemandInfo edinfo) {
+  public boolean isAssociated(final EmploymentDemandInfo edinfo) {
     if (this.employmentSectors.size() == 0) {
       if (this.sectorsLabel.contains(edinfo.getSector().getLabel())) {
         return true;
@@ -505,7 +538,7 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Gets the area requirement.
-   * 
+   *
    * @param projection
    *          the projection
    * @param demandScn
@@ -514,11 +547,11 @@ public class AllocationLU extends AbstractLandUse {
    * @throws WifInvalidConfigException
    *           the wif invalid config exception
    */
-  public AreaRequirement getAreaRequirement(Projection projection,
-      DemandScenario demandScn) throws WifInvalidConfigException {
-    for (AreaRequirement ar : this.areaRequirements) {
-      if ((ar.getDemandScenario().getId().equals(demandScn.getId()))
-          && (ar.getProjection().getLabel().equals(projection.getLabel()))) {
+  public AreaRequirement getAreaRequirement(final Projection projection,
+      final DemandScenario demandScn) throws WifInvalidConfigException {
+    for (final AreaRequirement ar : this.areaRequirements) {
+      if (ar.getDemandScenario().getId().equals(demandScn.getId())
+          && ar.getProjection().getLabel().equals(projection.getLabel())) {
         if (ar instanceof LocalAreaRequirement) {
           if (this.isLocal()) {
             return ar;
@@ -530,15 +563,15 @@ public class AllocationLU extends AbstractLandUse {
     }
     throw new WifInvalidConfigException(
         "there's no area requirement information from  : " + this.getLabel()
-            + " id " + this.getId() + " in scenario: " + demandScn.getLabel()
-            + " Four projection:" + projection.getLabel());
+        + " id " + this.getId() + " in scenario: " + demandScn.getLabel()
+        + " Four projection:" + projection.getLabel());
   }
 
-  public AreaRequirement getAreaRequirementIfExists(Projection projection,
-      DemandScenario demandScn) {
-    for (AreaRequirement ar : this.areaRequirements) {
-      if ((ar.getDemandScenario() == demandScn)
-          && (ar.getProjection() == projection)) {
+  public AreaRequirement getAreaRequirementIfExists(final Projection projection,
+      final DemandScenario demandScn) {
+    for (final AreaRequirement ar : this.areaRequirements) {
+      if (ar.getDemandScenario() == demandScn
+          && ar.getProjection() == projection) {
         return ar;
       }
     }
@@ -547,17 +580,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the forecasts.
-   * 
+   *
    * @param forecasts
    *          the forecasts to set
    */
-  public void setForecasts(Set<Forecast> forecasts) {
+  public void setForecasts(final Set<Forecast> forecasts) {
     this.forecasts = forecasts;
   }
 
   /**
    * Gets the forecasts.
-   * 
+   *
    * @return the forecasts
    */
   public Set<Forecast> getForecasts() {
@@ -566,17 +599,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the order.
-   * 
+   *
    * @param order
    *          the order to set
    */
-  public void setPriority(Integer order) {
+  public void setPriority(final Integer order) {
     this.priority = order;
   }
 
   /**
    * Gets the order.
-   * 
+   *
    * @return the order
    */
   public Integer getPriority() {
@@ -585,17 +618,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the allocation label.
-   * 
+   *
    * @param allocationLabel
    *          the allocationLabel to set
    */
-  public void setAllocationFeatureFieldName(String allocationLabel) {
+  public void setAllocationFeatureFieldName(final String allocationLabel) {
     this.allocationFeatureFieldName = allocationLabel;
   }
 
   /**
    * Gets the allocation label.
-   * 
+   *
    * @return the allocationLabel
    */
   public String getAllocationFeatureFieldName() {
@@ -604,17 +637,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the total area.
-   * 
+   *
    * @param totalArea
    *          the totalArea to set
    */
-  public void setTotalArea(Double totalArea) {
+  public void setTotalArea(final Double totalArea) {
     this.totalArea = totalArea;
   }
 
   /**
    * Gets the total area.
-   * 
+   *
    * @return the totalArea
    */
   public Double getTotalArea() {
@@ -623,17 +656,17 @@ public class AllocationLU extends AbstractLandUse {
 
   /**
    * Sets the land use function.
-   * 
+   *
    * @param landUseFunction
    *          the landUseFunction to set
    */
-  public void setLandUseFunction(LandUseFunction landUseFunction) {
+  public void setLandUseFunction(final LandUseFunction landUseFunction) {
     this.landUseFunction = landUseFunction;
   }
 
   /**
    * Gets the land use function.
-   * 
+   *
    * @return the landUseFunction
    */
   public LandUseFunction getLandUseFunction() {
@@ -651,12 +684,12 @@ public class AllocationLU extends AbstractLandUse {
    * @param plannedLU
    *          the plannedLU to set
    */
-  public void setPlannedLU(PlannedLU plannedLU) {
+  public void setPlannedLU(final PlannedLU plannedLU) {
     this.plannedLU = plannedLU;
   }
 
   /**
-   * 
+   *
    */
   public AllocationLU() {
     super();
@@ -702,7 +735,7 @@ public class AllocationLU extends AbstractLandUse {
             + getFeatureFieldName() + ", " : "")
         + (getLabel() != null ? "getLabel()=" + getLabel() + ", " : "")
         + (getWifProject() != null ? "getWifProject()=" + getWifProject()
-            + ", " : "")
+        + ", " : "")
         + (getProjectId() != null ? "getProjectId()=" + getProjectId() + ", "
             : "")
         + (getDocType() != null ? "getDocType()=" + getDocType() + ", " : "")
@@ -724,7 +757,7 @@ public class AllocationLU extends AbstractLandUse {
    *          the associatedALUMap to set
    */
   @JsonProperty(value = "associatedALU")
-  public void setAssociatedALUMap(Map<String, String> associatedALUMap) {
+  public void setAssociatedALUMap(final Map<String, String> associatedALUMap) {
     this.associatedALUMap = associatedALUMap;
   }
 
@@ -741,17 +774,17 @@ public class AllocationLU extends AbstractLandUse {
    *          the sectorsLabel to set
    */
   @JsonProperty(value = "sectors")
-  public void setSectorsLabel(Set<String> sectorsSet) {
+  public void setSectorsLabel(final Set<String> sectorsSet) {
     this.sectorsLabel = sectorsSet;
   }
 
-  public void addSectorLabel(String label) {
+  public void addSectorLabel(final String label) {
     this.sectorsLabel.add(label);
   }
 
   /**
    * Checks if is residential lu.
-   * 
+   *
    * @return true, if is residential lu
    */
   @JsonIgnore
@@ -767,7 +800,7 @@ public class AllocationLU extends AbstractLandUse {
   public boolean isEmploymentLU() {
 
     if (!this.getLandUseFunction().equals(LandUseFunction.LBCS_1XXX)
-        && (!this.isLocal()) && !this.isNewPreservation()) {
+        && !this.isLocal() && !this.isNewPreservation()) {
       return true;
     }
     return false;

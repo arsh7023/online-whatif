@@ -1,5 +1,5 @@
 /*
- * 
+ *
  */
 package au.org.aurin.wif.impl.demand;
 
@@ -44,8 +44,8 @@ import au.org.aurin.wif.svc.WifKeys;
 
 /**
  * <b>RequiredAreaAnalyzer.java</b>
- * 
- * 
+ *
+ *
  * @author <a href="mailto:marcosnr@unimelb.edu.au"> Marcos Nino-Ruiz
  *         marcosnr@unimelb.edu.au</a> - 2012
  */
@@ -89,7 +89,7 @@ public class RequiredAreaAnalyzer {
 
   /**
    * Analyse allocation lu demand.
-   * 
+   *
    * @param allocationLU
    *          the allocation lu
    * @param demandScn
@@ -110,20 +110,27 @@ public class RequiredAreaAnalyzer {
       final TreeSet<Projection> projections,
       final NavigableSet<Projection> projectedSet,
       final Set<LocalJurisdiction> localJurisdictions)
-      throws WifInvalidInputException, WifInvalidConfigException {
+          throws WifInvalidInputException, WifInvalidConfigException {
 
     LOGGER.info("@@@@@@@@@@@ Analyze the demand information for {}",
         allocationLU.getLabel());
     // ///////////////
 
+
+
     // //////////////////////
-    DemandInfo demandInfo;
+    DemandInfo singledemandInfo;
+
+    final Set<DemandInfo> demandInfos;
+
     if (allocationLU.isLocal()) {
       // To avoid substantial repetition of code, because we need analysis per
       // projection
-      demandInfo = new DemandInfo();
+      singledemandInfo = new DemandInfo();
+      demandInfos = new HashSet<DemandInfo>();
     } else {
-      demandInfo = allocationLU.getDemandInfoByScenario(demandScn);
+      singledemandInfo = allocationLU.getDemandInfoByScenario(demandScn);
+      demandInfos = allocationLU.getDemandInfosByScenario(demandScn);
     }
     for (final Projection projection : projectedSet) {
       LOGGER.debug("calculating the demand for projection year: {}",
@@ -137,39 +144,109 @@ public class RequiredAreaAnalyzer {
           .getDemographicTrend().getResidentialDemographicData(projection);
       Double requiredArea = 0.0;
 
-      if (demandInfo instanceof ResidentialDemandInfo) {
-        requiredArea = analyseResidentialInfo(allocationLU,
-            (ResidentialDemandInfo) demandInfo, currentDemographic,
-            nextDemographic);
-
-      } else if (demandInfo instanceof ProjectedDemandInfo) {
-        if (demandInfo instanceof EmploymentDemandInfo) {
-          // requiredArea = analyseEmploymentInfo(allocationLU,
-          // (EmploymentDemandInfo) demandInfo, demandScn, projections,
-          // projection);
-          final EmploymentDemandInfo einf = (EmploymentDemandInfo) demandInfo;
-          final EmploymentDemographicData currentEmployment = demandScn
-              .getDemographicTrend().getEmploymentDemographicData(
-                  projections.lower(projection), einf.getSectorLabel());
-          LOGGER.info("%%% Current Employment demographic projection ={}",
-              projections.lower(projection).getLabel());
-          final EmploymentDemographicData nextEmployment = demandScn
-              .getDemographicTrend().getEmploymentDemographicData(projection,
-                  einf.getSectorLabel());
-
-          requiredArea = analyseEmploymentInfoNew(allocationLU,
-              (EmploymentDemandInfo) demandInfo, demandScn, projections,
-              projection, currentEmployment, nextEmployment);
-        } else // PreservationDemandInfo
-        {
-          LOGGER.debug("Information for Preservation demand analysis: {}",
-              allocationLU.getLabel());
-          final PreservationDemandInfo pdinfo = (PreservationDemandInfo) demandInfo;
-          requiredArea = pdinfo.getProjectedDataByProjection(projection)
-              .getReservedArea();
-          LOGGER.debug("projected preserved area is: {}", requiredArea);
+      //new for because of land uses like MixedUse which have residential and employmeny demand info at same time.
+      //previously it just considered the employment. for Mixed Use we consider the larger value.
+      Boolean lsw = false;
+      Double newrequiredArea = 0.0;
+      int cnt = 0;
+      for (final DemandInfo demandInfo : demandInfos)
+      {
+        if (demandInfo instanceof ResidentialDemandInfo) {
+          lsw = true;
         }
       }
+
+      if (allocationLU.getLabel().equals("Mixed Use"))
+      {
+        LOGGER.info("%%% Current Residential demographic projection ={}",
+            projections.lower(projection).getLabel());
+        int ii=0;
+        ii =1;
+        LOGGER.info("Hello Mixed Use");
+      }
+      LOGGER.info("Demand Info size ={} , and ResidentialDemandInfo is:{} ",demandInfos.size(),lsw);
+
+      for (final DemandInfo demandInfo : demandInfos)
+      {
+        if (demandInfo instanceof ResidentialDemandInfo) {
+          requiredArea = analyseResidentialInfo(allocationLU,
+              (ResidentialDemandInfo) demandInfo, currentDemographic,
+              nextDemographic);
+          if (lsw == true)
+          {
+            if (newrequiredArea == 0)
+            {
+              newrequiredArea = requiredArea;
+            }
+            else
+            {
+              if ( requiredArea > newrequiredArea)
+              {
+                newrequiredArea = requiredArea;
+              }
+            }
+          }
+          else
+          {
+            newrequiredArea = requiredArea;
+          }
+        } else if (demandInfo instanceof ProjectedDemandInfo) {
+          if (demandInfo instanceof EmploymentDemandInfo) {
+            // requiredArea = analyseEmploymentInfo(allocationLU,
+            // (EmploymentDemandInfo) demandInfo, demandScn, projections,
+            // projection);
+            final EmploymentDemandInfo einf = (EmploymentDemandInfo) demandInfo;
+            final EmploymentDemographicData currentEmployment = demandScn
+                .getDemographicTrend().getEmploymentDemographicData(
+                    projections.lower(projection), einf.getSectorLabel());
+
+            final EmploymentDemographicData nextEmployment = demandScn
+                .getDemographicTrend().getEmploymentDemographicData(projection,
+                    einf.getSectorLabel());
+
+            if ( cnt ==0) //new check to make sure it just runs only once for employment related.
+            {
+              LOGGER.info("%%% Current Employment demographic projection ={}",
+                  projections.lower(projection).getLabel());
+              requiredArea = analyseEmploymentInfoNew(allocationLU,
+                  (EmploymentDemandInfo) demandInfo, demandScn, projections,
+                  projection, currentEmployment, nextEmployment);
+
+              cnt =1;
+            }
+
+            if (lsw == true)
+            {
+              if (newrequiredArea == 0)
+              {
+                newrequiredArea = requiredArea;
+              }
+              else
+              {
+                if ( requiredArea > newrequiredArea)
+                {
+                  newrequiredArea = requiredArea;
+                }
+              }
+            }
+            else
+            {
+              newrequiredArea = requiredArea;
+            }
+
+
+          } else // PreservationDemandInfo
+          {
+            LOGGER.debug("Information for Preservation demand analysis: {}",
+                allocationLU.getLabel());
+            final PreservationDemandInfo pdinfo = (PreservationDemandInfo) demandInfo;
+            requiredArea = pdinfo.getProjectedDataByProjection(projection)
+                .getReservedArea();
+            LOGGER.debug("projected preserved area is: {}", requiredArea);
+          }
+        }
+      }
+
       if (allocationLU.isLocal()) {
         LOGGER.debug("Information for local info demand analysis: {}",
             allocationLU.getLabel());
@@ -184,12 +261,12 @@ public class RequiredAreaAnalyzer {
               "==*==* Total required area for land use  {} for local jurisdiction  "
                   + localAreaRequirement.getLocalJurisdiction().getLabel()
                   + "  in projection " + projection.getLabel() + " is : {}",
-              allocationLU.getLabel(), localAreaRequirement.getRequiredArea());
+                  allocationLU.getLabel(), localAreaRequirement.getRequiredArea());
         }
       }
 
       else { // because local jurisdiction creates more than one area
-             // requirement, otherwise:
+        // requirement, otherwise:
         AreaRequirement areaRequirement = allocationLU
             .getAreaRequirementIfExists(projection, demandScn);
         if (areaRequirement == null) {
@@ -201,6 +278,7 @@ public class RequiredAreaAnalyzer {
           allocationLU.addAreaRequirement(areaRequirement);
           areaRequirement.setAllocationLU(allocationLU);
         }
+        requiredArea = newrequiredArea; //new change.
         areaRequirement.setRequiredArea(requiredArea);
         LOGGER.info("===== Total required area for land use  {} in projection "
             + projection.getLabel() + " is : {}", allocationLU.getLabel(),
@@ -216,7 +294,7 @@ public class RequiredAreaAnalyzer {
    * global demand config, but the algorithm expects a local demand info to know
    * that it must analyse local jurisdictions TODO It can be done easier * @param
    * allocationLU the allocation lu
-   * 
+   *
    * @param allocationLU
    *          the allocation lu
    * @param localJurisdictions
@@ -239,7 +317,7 @@ public class RequiredAreaAnalyzer {
       final ResidentialDemographicData currentDemographic,
       final ResidentialDemographicData nextDemographic,
       final Projection projection, final DemandScenario demandScn)
-      throws WifInvalidInputException {
+          throws WifInvalidInputException {
     LOGGER.debug("Information for a Local demand analysis: {}",
         allocationLU.getLabel());
 
@@ -251,9 +329,9 @@ public class RequiredAreaAnalyzer {
       if (localJurisdiction.getLocalDatas().size() != 0) {
         final LocalData localData = localJurisdiction.getLocalData(projection);
         LOGGER
-            .debug(
-                "for local jurisdiction: {} the required density (per 1k habitants): {}",
-                localJurisdiction.getLabel(), localData.getRequiredDensity());
+        .debug(
+            "for local jurisdiction: {} the required density (per 1k habitants): {}",
+            localJurisdiction.getLabel(), localData.getRequiredDensity());
 
         final Long newResidents = nextDemographic.getTotalPopulation()
             - currentDemographic.getTotalPopulation();
@@ -277,7 +355,7 @@ public class RequiredAreaAnalyzer {
 
   /**
    * Analyse employment info.
-   * 
+   *
    * @param allocationLU
    *          the allocation lu
    * @param demandInfo
@@ -295,7 +373,7 @@ public class RequiredAreaAnalyzer {
   public Double analyseEmploymentInfo(final AllocationLU allocationLU,
       final EmploymentDemandInfo demandInfo, final DemandScenario demandScn,
       final TreeSet<Projection> projections, final Projection projection)
-      throws WifInvalidInputException {
+          throws WifInvalidInputException {
     final ProjectedData currentData = demandInfo.getProjectedData(projections
         .lower(projection));
     final ProjectedData projectedData = demandInfo.getProjectedData(projection);
@@ -328,9 +406,9 @@ public class RequiredAreaAnalyzer {
       }
       requiredArea = requiredArea / employmentDemandInfos.size();
       LOGGER
-          .debug(
-              "------>... total required area is {}, adjusted for {} associated sectors",
-              requiredArea, employmentDemandInfos.size());
+      .debug(
+          "------>... total required area is {}, adjusted for {} associated sectors",
+          requiredArea, employmentDemandInfos.size());
     }
     return requiredArea;
   }
@@ -340,7 +418,7 @@ public class RequiredAreaAnalyzer {
       final TreeSet<Projection> projections, final Projection projection,
       final EmploymentDemographicData currentEmployment,
       final EmploymentDemographicData nextEmployment)
-      throws WifInvalidInputException, WifInvalidConfigException {
+          throws WifInvalidInputException, WifInvalidConfigException {
 
     Double requiredArea = 0.0;
     LOGGER.debug("{} is associated with {} sector(s),",
@@ -427,16 +505,16 @@ public class RequiredAreaAnalyzer {
       // // commented below since new formula
       // requiredArea = requiredArea / employmentDemandInfos.size();
       LOGGER
-          .debug(
-              "------>... total required area is {}, adjusted for {} associated sectors",
-              requiredArea, employmentDemandInfos.size());
+      .debug(
+          "------>... total required area is {}, adjusted for {} associated sectors",
+          requiredArea, employmentDemandInfos.size());
     }
     return requiredArea;
   }
 
   /**
    * Analyse residential info.
-   * 
+   *
    * @param allocationLU
    *          the allocation lu
    * @param demandInfo
@@ -462,7 +540,7 @@ public class RequiredAreaAnalyzer {
 
   /**
    * Gets the area requirement per sector.
-   * 
+   *
    * @param edi
    *          the edi
    * @param currentData
@@ -502,7 +580,7 @@ public class RequiredAreaAnalyzer {
 
   /**
    * Gets the area requirement per sector multiple.
-   * 
+   *
    * @param edi
    *          the edi
    * @param currentData
@@ -524,8 +602,8 @@ public class RequiredAreaAnalyzer {
 
     return DemandProjector.projectEmploymentDensityDemandBySector(
         currentEmployment.getEmployees().longValue(), projectedEmployment
-            .getEmployees().longValue(), edi.getInfillRate(), edi
-            .getFutureDensity(), landUseArea, dPercentage, futureDensityLU);
+        .getEmployees().longValue(), edi.getInfillRate(), edi
+        .getFutureDensity(), landUseArea, dPercentage, futureDensityLU);
   }
 
   public Double getAreaRequirementPerSectorMultipleNew(
@@ -539,7 +617,7 @@ public class RequiredAreaAnalyzer {
 
     return DemandProjector.projectEmploymentDensityDemandBySector(
         currentEmployment.getEmployees().longValue(), projectedEmployment
-            .getEmployees().longValue(), edi.getInfillRate(), edi
-            .getFutureDensity(), landUseArea, dPercentage, futureDensityLU);
+        .getEmployees().longValue(), edi.getInfillRate(), edi
+        .getFutureDensity(), landUseArea, dPercentage, futureDensityLU);
   }
 }
