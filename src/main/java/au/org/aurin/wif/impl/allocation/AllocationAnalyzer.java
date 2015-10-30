@@ -40,6 +40,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.vividsolutions.jts.io.ParseException;
+
 import au.org.aurin.wif.exception.config.ParsingException;
 import au.org.aurin.wif.exception.config.WifInvalidConfigException;
 import au.org.aurin.wif.exception.validate.IncompleteDemandScenarioException;
@@ -76,8 +78,6 @@ import au.org.aurin.wif.repo.demand.DemandScenarioDao;
 import au.org.aurin.wif.svc.AllocationLUService;
 import au.org.aurin.wif.svc.WifKeys;
 import au.org.aurin.wif.svc.demand.DemandScenarioService;
-
-import com.vividsolutions.jts.io.ParseException;
 
 /**
  * The Class AllocationAnalyzer.
@@ -158,7 +158,7 @@ public class AllocationAnalyzer {
 
   /**
    * Do allocation analysis.
-   * 
+   *
    * @param allocationScenario
    *          the allocation scenario
    * @return the boolean
@@ -303,9 +303,9 @@ public class AllocationAnalyzer {
     allocationScenario.setLandUseOrder(setAlu);
     final Set<AllocationLU> landUseOrder = allocationScenario.getLandUseOrder();
     LOGGER
-        .info(
-            "About to perform allocation analysis of {} land uses for the following projections: ",
-            landUseOrder.size());
+    .info(
+        "About to perform allocation analysis of {} land uses for the following projections: ",
+        landUseOrder.size());
 
     // for (AllocationLU allocationLU : landUseOrder) {
     for (final AllocationLU allocationLU : setAlu) {
@@ -390,10 +390,11 @@ public class AllocationAnalyzer {
           allocationScenario, futureLU);
       mapLanduseSize.put(futureLU.getLabel(), dfirstYear);
       LOGGER.info("The Area size for " + futureLU.getLabel()
-          + " in first year is: " + dfirstYear.toString());
+      + " in first year is: " + dfirstYear.toString());
 
       mapLanduseExtra.put(futureLU.getLabel(), 0.0);
     }
+
 
     // 1. Allocate within each projection and for each land-use
     for (final Projection projection : projectedSet) {
@@ -418,183 +419,9 @@ public class AllocationAnalyzer {
               String InfrastructureSQL = "";
 
               if (!allocationScenario.getControlScenarioId().equals("None")) {
-                final AllocationControlScenario controlScenario = AllocationControlScenarioDao
-                    .findAllocationControlScenarioById(allocationScenario
-                        .getControlScenarioId());
 
-                // Growth Pattern : Added to Order By section
-
-                // String GrowthPatternSQL = "";
-                if (controlScenario.getGrowthPatternControl() == true) {
-
-                  final Set<GrowthPatternALU> gFields = allocationConfig
-                      .getGrowthPatternALUs();
-
-                  for (final String item : controlScenario
-                      .getGrowthPatternControlLabels()) {
-                    for (final GrowthPatternALU growthPattern : gFields) {
-                      if (growthPattern.getLabel().equals(item)) {
-                        GrowthPatternFields.add(growthPattern.getFieldName());
-                      }
-                    }
-
-                  }
-
-                }
-
-                // planned land use; gaining query filter
-                final String plannedALUsFieldName = allocationConfig
-                    .getPlannedALUsFieldName();
-
-                if (controlScenario.getPlannedlandUseControl() == true) {
-                  Boolean lswPlanned = false;
-                  PlannedSQL = "(";
-                  final Set<PlannedALU> pFields = allocationConfig
-                      .getPlannedALUs();
-                  int cnt = 0;
-                  for (final PlannedALU plannedALU : pFields) {
-                    final String plabel = plannedALU.getLabel();
-                    final Map<String, String> spLU = plannedALU
-                        .getAssociatedALUsMap();
-                    final Iterator spMap = spLU.entrySet().iterator();
-                    while (spMap.hasNext()) {
-                      final Map.Entry mapEntry = (Map.Entry) spMap.next();
-                      // LOGGER.info("The planned land use key is: "
-                      // + mapEntry.getKey() + ",value is :"
-                      // + mapEntry.getValue());
-                      if (mapEntry.getValue().toString()
-                          .equals(futureLU.getLabel())) {
-                        lswPlanned = true;
-                        if (cnt == 0) {
-                          PlannedSQL = PlannedSQL + "\"" + plannedALUsFieldName
-                              + "\"" + "='" + plabel + "'";
-                        } else {
-                          PlannedSQL = PlannedSQL + " OR " + "\""
-                              + plannedALUsFieldName + "\"" + "='" + plabel
-                              + "'";
-                        }
-                        cnt = cnt + 1;
-                      }
-                    }
-                  }
-                  PlannedSQL = PlannedSQL + ")";
-                  if (lswPlanned == false) {
-                    PlannedSQL = "";
-                  }
-                }
-
-                LOGGER.info("The PlannedSQL is: " + PlannedSQL);
-
-                // Infrastructure; gaining query filter
-
-                String InfrastructureSQLMaster = "";
-
-                if (controlScenario.getInfrastructureControl() == true) {
-
-                  final Set<InfrastructureUses> infUses = controlScenario
-                      .getInfrastructureUses();
-
-                  int cntInfraItem = 0;
-                  for (final String item : controlScenario
-                      .getInfrastructureControlLabels()) {
-
-                    Boolean lswInf = false;
-                    for (final InfrastructureUses infUse : infUses) {
-                      if (infUse.getLanduseName().equals(futureLU.getLabel())) {
-
-                        int cntInfra = 0;
-                        Map<String, String> map = new HashMap<String, String>();
-                        map = infUse.getInfrastructureMap();
-                        final Iterator itMap = map.entrySet().iterator();
-                        while (itMap.hasNext()) {
-
-                          final Map.Entry mapEntry = (Map.Entry) itMap.next();
-
-                          // new
-                          if (item.equals(mapEntry.getKey())) {
-
-                            if (!mapEntry.getValue().equals("N/A")) {
-                              lswInf = true;
-                              // InfrastructureSQL = InfrastructureSQL + "(";
-                              // if (cntInfra == 0) {
-                              // if (!InfrastructureSQL.equals("")) {
-                              // InfrastructureSQL = InfrastructureSQL
-                              // + " AND (";
-                              // } else {
-                              // InfrastructureSQL = InfrastructureSQL + "(";
-                              // }
-                              // } else {
-                              if (!InfrastructureSQL.equals("")) {
-                                InfrastructureSQL = InfrastructureSQL
-                                    + " AND (";
-                              } else {
-                                InfrastructureSQL = InfrastructureSQL + "(";
-                              }
-                              // }
-
-                              for (final InfrastructureALU infField : allocationConfig
-                                  .getInfrastructureALUs()) {
-                                if (infField.getLabel().equals(
-                                    mapEntry.getKey())) {
-                                  if (mapEntry.getValue().equals("Required")) {
-                                    InfrastructureSQL = InfrastructureSQL
-                                        + "\"" + infField.getFieldName() + "\""
-                                        + "<=" + projection.getLabel();
-                                  } else if (mapEntry.getValue().equals(
-                                      "Excluded")) {
-                                    InfrastructureSQL = InfrastructureSQL + "("
-                                        + "\"" + infField.getFieldName() + "\""
-                                        + ">" + projection.getLabel() + ")";
-                                  }
-                                  InfrastructureSQL = InfrastructureSQL + ")";
-                                }
-                              }
-                            }
-                          }
-
-                          // LOGGER.info("The Infrastructure key is: "
-                          // + mapEntry.getKey() + ",value is :"
-                          // + mapEntry.getValue());
-
-                          cntInfra = cntInfra + 1;
-
-                        }
-                      }
-                    }
-                    // InfrastructureSQL = InfrastructureSQL + ")";
-                    if (lswInf == false) {
-                      if (InfrastructureSQL.length() < 2) {
-                        InfrastructureSQL = "";
-                      }
-                    }
-
-                    if (!InfrastructureSQL.equals("")) {
-
-                      if (cntInfraItem == 0) {
-                        InfrastructureSQLMaster = InfrastructureSQLMaster
-                            + InfrastructureSQL;
-                      } else {
-
-                        if (!InfrastructureSQLMaster.equals("")) {
-                          InfrastructureSQLMaster = InfrastructureSQLMaster
-                              + " AND (" + InfrastructureSQL + ")";
-                        } else {
-                          InfrastructureSQLMaster = InfrastructureSQLMaster
-                              + InfrastructureSQL;
-                        }
-                      }
-
-                    }
-
-                    cntInfraItem = cntInfraItem + 1;
-                  }// end for new (string item)
-
-                }// end if
-
-                // InfrastructureSQL = InfrastructureSQLMaster;
-                LOGGER.info(
-                    "For the projection year {}, the InfrastructureSQL is: {}",
-                    projection.getLabel(), InfrastructureSQL);
+                PlannedSQL  = FindPlannedSQL(allocationScenario,  allocationConfig,  futureLU);
+                InfrastructureSQL = FindInfraSQL( allocationScenario, allocationConfig,  futureLU,  projection);
               }
 
               // ///////
@@ -678,138 +505,22 @@ public class AllocationAnalyzer {
 
                 geodataFinder.updateALlocationColumnNew(sql);
                 LOGGER
-                    .info(
-                        "allocation sucessfully done for : {} in Projection year {} ",
-                        futureLU.getLabel(), projection.getLabel());
+                .info(
+                    "allocation sucessfully done for : {} in Projection year {} ",
+                    futureLU.getLabel(), projection.getLabel());
                 // mapLanduseExtra.put(futureLU.getLabel(), 0.0);
                 LOGGER.info("putting 0.0 as Extra for land use "
                     + futureLU.getLabel()
                     + " after allocation, in projection year:"
                     + projection.getLabel());
               } else {
-                // comment. it can be done in controls section
-                // final Double offValue = mapLanduseExtra
-                // .get(futureLU.getLabel()) - remainingArea;
-                // mapLanduseExtra.put(futureLU.getLabel(),
-                // mapLanduseExtra.get(futureLU.getLabel()) - remainingArea);
 
-                // LOGGER
-                // .info("putting "
-                // + offValue.toString()
-                // + " as Extra for land use "
-                // + futureLU.getLabel()
-                // +
-                // " since we had extra and allcocation didnt happen in projection year:"
-                // + projection.getLabel());
               }
-
-              // Class.forName("org.postgresql.Driver");
-              // Connection connection = null;
-
-              // final String connStr = "jdbc:postgresql://"
-              // + myjdbcDataStoreConfig.getHost() + ":"
-              // + myjdbcDataStoreConfig.getPort() + "/"
-              // + myjdbcDataStoreConfig.getDatabaseName();
-              // // connection = DriverManager.getConnection(
-              // // "jdbc:postgresql://localhost:5432/whatifdb", "whatif", "");
-
-              // connection = DriverManager.getConnection(connStr,
-              // myjdbcDataStoreConfig.getUser(),
-              // myjdbcDataStoreConfig.getPassword());
-
-              // PreparedStatement pst = null;
-              // ResultSet rs = null;
-
-              // pst = connection.prepareStatement(sql);
-              // rs = pst.executeQuery();
-
-              // if (allocateLandUseNew(projection, futureLU,
-              // allocationScenario,
-              // remainingArea, scoreLabel, rs,
-              // myjdbcDataStoreConfig.getSchema(), uazDBTable) == true) {
-
-              // } else {
-              // LOGGER.info(
-              // "no more area available for allocation!! {} unallocated!",
-              // futureLU.getLabel());
-              // }
-
-              // connection.close();
-
-              // ///////////
-
-              // //////////////// ////end claudia
-
-              // /old code
-              // final ALURule rule =
-              // geodataFilterer.getAllocationRule(futureLU,
-              // allocationScenario, scoreLabel, existingLULabel, PlannedSQL,
-              // InfrastructureSQL, GrowthPatternFields, remainingArea);
-              // LOGGER
-              // .debug("About to retrieve the features from the store with the given rule query.... ");
-              //
-              // final Transaction transaction = new
-              // DefaultTransaction("update");
-              // try {// TODO perhaps there is a better way to make sure that
-              // // transactions always close!
-              // // resetUAZForAllocation
-              //
-              // // instead of using autowired bean; declare a new one, since
-              // // auto wired bean it is not updated.
-              // GeospatialDataSource wifDataSource;
-              // wifDataSource = dataSourceFactory
-              // .createGeospatialDataSource(postgisDataStoreConfig
-              // .getDataStoreParams());
-              //
-              // DataStore wifDataStore = null;
-              // SimpleFeatureStore featureStore = null;
-              // wifDataSource = dataSourceFactory
-              // .createGeospatialDataSource(postgisDataStoreConfig
-              // .getDataStoreParams());
-              // wifDataStore = wifDataSource.getDataStore();
-              // featureStore = (SimpleFeatureStore) wifDataStore
-              // .getFeatureSource(uazDBTable);
-              //
-              // final SimpleFeatureCollection sortedUazCollection =
-              // featureStore
-              // .getFeatures(rule.getRuleQuery());
-              // // if (sortedUazCollection.equals(null)) {
-              // if (sortedUazCollection == null) {
-              // LOGGER
-              // .warn("no features retrieved for this filter, not allocating this land use!");
-              // continue;
-              // }
-              // if (sortedUazCollection.size() == 0) {
-              // LOGGER
-              // .warn("no features retrieved for this filter, not allocating this land use!");
-              // continue;
-              // }
-              //
-              // // 2. Perform the proper allocation for this land use
-              // allocateLandUse(projection, futureLU, allocationScenario,
-              // sortedUazCollection, featureStore, rule, transaction,
-              // scoreLabel, outcome);
-              //
-              // } catch (final Exception e) {
-              // LOGGER
-              // .error(
-              // "doAllocationAnalysis rolling back to the last known modification, commit transaction failed: {}",
-              // e.getMessage());
-              // transaction.rollback();
-              // throw new WifInvalidInputException(
-              // "doAllocationAnalysis failed", e);
-              // } finally {
-              // transaction.close();
-              // LOGGER
-              // .trace(
-              // "Closing any open transaction, Finished analyzing for Allocation Scenario label: {}",
-              // allocationScenario.getLabel());
-              // }
 
             }// end if
           }// end if (futureLU.getPriority() == i + 1) {
         }
-      }
+      }//end for (int i = 0; i < setAlu.size(); i++) {
 
       // ////////////////////////////////////////////////////
       // ////////internal control loop
@@ -847,183 +558,9 @@ public class AllocationAnalyzer {
                     String PlannedSQL = "";
                     String InfrastructureSQL = "";
 
-                    if (!allocationScenario.getControlScenarioId().equals(
-                        "None")) {
-                      final AllocationControlScenario controlScenario = AllocationControlScenarioDao
-                          .findAllocationControlScenarioById(allocationScenario
-                              .getControlScenarioId());
-
-                      // Growth Pattern : Added to Order By section
-
-                      // String GrowthPatternSQL = "";
-                      if (controlScenario.getGrowthPatternControl() == true) {
-
-                        final Set<GrowthPatternALU> gFields = allocationConfig
-                            .getGrowthPatternALUs();
-
-                        for (final String item : controlScenario
-                            .getGrowthPatternControlLabels()) {
-                          for (final GrowthPatternALU growthPattern : gFields) {
-                            if (growthPattern.getLabel().equals(item)) {
-                              GrowthPatternFields.add(growthPattern
-                                  .getFieldName());
-                            }
-                          }
-
-                        }
-
-                      }
-
-                      // planned land use; gaining query filter
-                      final String plannedALUsFieldName = allocationConfig
-                          .getPlannedALUsFieldName();
-
-                      if (controlScenario.getPlannedlandUseControl() == true) {
-                        Boolean lswPlanned = false;
-                        PlannedSQL = "(";
-                        final Set<PlannedALU> pFields = allocationConfig
-                            .getPlannedALUs();
-                        int cnt = 0;
-                        for (final PlannedALU plannedALU : pFields) {
-                          final String plabel = plannedALU.getLabel();
-                          final Map<String, String> spLU = plannedALU
-                              .getAssociatedALUsMap();
-                          final Iterator spMap = spLU.entrySet().iterator();
-                          while (spMap.hasNext()) {
-                            final Map.Entry mapEntry = (Map.Entry) spMap.next();
-                            // LOGGER.info("The planned land use key is: "
-                            // + mapEntry.getKey() + ",value is :"
-                            // + mapEntry.getValue());
-                            if (mapEntry.getValue().toString()
-                                .equals(futureLU.getLabel())) {
-                              lswPlanned = true;
-                              if (cnt == 0) {
-                                PlannedSQL = PlannedSQL + "\""
-                                    + plannedALUsFieldName + "\"" + "='"
-                                    + plabel + "'";
-                              } else {
-                                PlannedSQL = PlannedSQL + " OR " + "\""
-                                    + plannedALUsFieldName + "\"" + "='"
-                                    + plabel + "'";
-                              }
-                              cnt = cnt + 1;
-                            }
-                          }
-                        }
-                        PlannedSQL = PlannedSQL + ")";
-                        if (lswPlanned == false) {
-                          PlannedSQL = "";
-                        }
-                      }
-
-                      LOGGER.info("The PlannedSQL is: " + PlannedSQL);
-
-                      // Infrastructure; gaining query filter
-
-                      String InfrastructureSQLMaster = "";
-
-                      if (controlScenario.getInfrastructureControl() == true) {
-
-                        final Set<InfrastructureUses> infUses = controlScenario
-                            .getInfrastructureUses();
-
-                        int cntInfraItem = 0;
-                        for (final String item : controlScenario
-                            .getInfrastructureControlLabels()) {
-
-                          Boolean lswInf = false;
-                          for (final InfrastructureUses infUse : infUses) {
-                            if (infUse.getLanduseName().equals(
-                                futureLU.getLabel())) {
-
-                              int cntInfra = 0;
-                              Map<String, String> map = new HashMap<String, String>();
-                              map = infUse.getInfrastructureMap();
-                              final Iterator itMap = map.entrySet().iterator();
-                              while (itMap.hasNext()) {
-
-                                final Map.Entry mapEntry = (Map.Entry) itMap
-                                    .next();
-
-                                // new
-                                if (item.equals(mapEntry.getKey())) {
-
-                                  if (!mapEntry.getValue().equals("N/A")) {
-                                    lswInf = true;
-                                    if (!InfrastructureSQL.equals("")) {
-                                      InfrastructureSQL = InfrastructureSQL
-                                          + " AND (";
-                                    } else {
-                                      InfrastructureSQL = InfrastructureSQL
-                                          + "(";
-                                    }
-                                    // }
-
-                                    for (final InfrastructureALU infField : allocationConfig
-                                        .getInfrastructureALUs()) {
-                                      if (infField.getLabel().equals(
-                                          mapEntry.getKey())) {
-                                        if (mapEntry.getValue().equals(
-                                            "Required")) {
-                                          InfrastructureSQL = InfrastructureSQL
-                                              + "\"" + infField.getFieldName()
-                                              + "\"" + "<="
-                                              + projection.getLabel();
-                                        } else if (mapEntry.getValue().equals(
-                                            "Excluded")) {
-                                          InfrastructureSQL = InfrastructureSQL
-                                              + "(" + "\""
-                                              + infField.getFieldName() + "\""
-                                              + ">" + projection.getLabel()
-                                              + ")";
-                                        }
-                                        InfrastructureSQL = InfrastructureSQL
-                                            + ")";
-                                      }
-                                    }
-                                  }
-                                }
-
-                                cntInfra = cntInfra + 1;
-
-                              }
-                            }
-                          }
-                          // InfrastructureSQL = InfrastructureSQL + ")";
-                          if (lswInf == false) {
-                            if (InfrastructureSQL.length() < 2) {
-                              InfrastructureSQL = "";
-                            }
-                          }
-
-                          if (!InfrastructureSQL.equals("")) {
-
-                            if (cntInfraItem == 0) {
-                              InfrastructureSQLMaster = InfrastructureSQLMaster
-                                  + InfrastructureSQL;
-                            } else {
-
-                              if (!InfrastructureSQLMaster.equals("")) {
-                                InfrastructureSQLMaster = InfrastructureSQLMaster
-                                    + " AND (" + InfrastructureSQL + ")";
-                              } else {
-                                InfrastructureSQLMaster = InfrastructureSQLMaster
-                                    + InfrastructureSQL;
-                              }
-                            }
-
-                          }
-
-                          cntInfraItem = cntInfraItem + 1;
-                        }// end for new (string item)
-
-                      }// end if
-
-                      // InfrastructureSQL = InfrastructureSQLMaster;
-                      LOGGER
-                          .info(
-                              "For the projection year {}, the InfrastructureSQL is: {}",
-                              projection.getLabel(), InfrastructureSQL);
+                    if (!allocationScenario.getControlScenarioId().equals("None")) {
+                      PlannedSQL  = FindPlannedSQL(allocationScenario,  allocationConfig,  futureLU);
+                      InfrastructureSQL = FindInfraSQL( allocationScenario, allocationConfig,  futureLU,  projection);
                     }
 
                     AreaRequirement areaRequirement = null;
@@ -1180,12 +717,12 @@ public class AllocationAnalyzer {
                       mapLanduseExtra.put(futureLU.getLabel(), extranew);
 
                       LOGGER
-                          .info("putting "
-                              + offValue.toString()
-                              + " as Extra for land use "
-                              + futureLU.getLabel()
-                              + " since we had extra and in control phase in projection year:"
-                              + projection.getLabel());
+                      .info("putting "
+                          + offValue.toString()
+                          + " as Extra for land use "
+                          + futureLU.getLabel()
+                          + " since we had extra and in control phase in projection year:"
+                          + projection.getLabel());
 
                     }
 
@@ -1199,16 +736,222 @@ public class AllocationAnalyzer {
       }// for k= 1 to 3 end for internal control loop
       if (lswRepeat == true) {
         LOGGER
-            .info(" Allocation not satisfied after three times attempt for projection year:"
-                + projection.getLabel()
-                + " ,before starting allocation for next projection year.We should check again after completing all projection years.");
+        .info(" Allocation not satisfied after three times attempt for projection year:"
+            + projection.getLabel()
+            + " ,before starting allocation for next projection year.We should check again after completing all projection years.");
       } else {
         LOGGER.info(" Allocation staisfed for projection year:"
             + projection.getLabel()
             + " before starting allocation for next projection year.");
 
       }
-      // //////////////////////////
+      // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      ////////////////////////////////////////////
+
+      //      //control checking for the residential land use, to compensate the land for the residential LUs which have 0 demand.
+      //      //since we know that what is the land in first year, we check for each projection year that we dont have deficit.
+      //      //If we have deficit then we calculate the number of houses based on the density. The we go to the demand scenario for allocation LUs.
+      //      //we find out which land use has the most feature breakdown . for that land use we know that what it is density, then based on the number of houses we calculate the amount of land.
+      //
+      //      for (int i = 0; i < setAlu.size(); i++) {
+      //        for (final AllocationLU DeficitfutureLU : landUseOrder) {
+      //          if (DeficitfutureLU.getPriority() == i + 1) {
+      //            LOGGER.info(" allocating land use: {}, priority = {}",
+      //                DeficitfutureLU.getLabel(), DeficitfutureLU.getPriority());
+      //
+      //            //////////////////////////////////////////////////////////////////
+      //
+      //            if (allocationScenario.isManual()) {
+      //              final String scenarioID = allocationScenario.getManualdemandScenarioId();
+      //
+      //              final List<DemandScenario> listDemand = demandScenarioService
+      //                  .getDemandScenarios(project.getId());
+      //              Boolean lsw = false;
+      //              for (final DemandScenario dsn : listDemand) {
+      //                if (dsn.getId().equals(scenarioID)) {
+      //                  lsw = true;
+      //                }
+      //              }
+      //              if (lsw == false) {
+      //                //manual
+      //              } else {
+      //                //Automatic Scenario
+      //                final DemandScenario dsd = demandScenarioService.getDemandScenario(scenarioID);
+      //                final Set<DemandInfo> demandInfos = dsd.getDemandInfos();
+      //
+      //                Double LUMaxbreakdown = 0.0;
+      //                String LUMaxId = "";
+      //                Double LUbMaxCurDensity = 0.0;
+      //                for (final DemandInfo demandInfo : demandInfos) {
+      //                  if (demandInfo instanceof ResidentialDemandInfo) {
+      //                    final ResidentialDemandInfo resDInfo = (ResidentialDemandInfo) demandInfo;
+      //                    LOGGER.info(" ResidentialDemandInfo : {} ",
+      //                        resDInfo.getResidentialLUId());
+      //
+      //
+      //
+      //                    if (DeficitfutureLU.getId().equals(resDInfo.getAllocationLUId()))
+      //                    {
+      //
+      //                    }
+      //                    else
+      //                    {
+      //                      if (resDInfo.getFutureBreakdownByHType() > LUMaxbreakdown)
+      //                      {
+      //                        LUMaxbreakdown = resDInfo.getFutureBreakdownByHType();
+      //                        LUMaxId = resDInfo.getAllocationLUId();
+      //                        LUbMaxCurDensity = resDInfo.getCurrentDensity();
+      //                      }
+      //                    }
+      //                  }
+      //                }
+      //
+      //                for (final DemandInfo demandInfo : demandInfos) {
+      //                  if (demandInfo instanceof ResidentialDemandInfo) {
+      //                    final ResidentialDemandInfo resDInfo = (ResidentialDemandInfo) demandInfo;
+      //
+      //                    if (DeficitfutureLU.getId().equals(resDInfo.getAllocationLUId()))
+      //                    {
+      //
+      //                      AreaRequirement areaRequirement = null;
+      //                      AreaRequirement manualareaRequirement = null;
+      //                      if (allocationScenario.isManual()) {
+      //                        for (final AreaRequirement ar : outcome) {
+      //                          if (ar.getProjectionLabel().equals(
+      //                              projection.getLabel())) {
+      //                            if (ar.getAllocationLULabel().equals(
+      //                                DeficitfutureLU.getLabel())) {
+      //                              manualareaRequirement = ar;
+      //                            }
+      //                          }
+      //                        }
+      //                      } else {
+      //                        areaRequirement = DeficitfutureLU.getAreaRequirement(projection,
+      //                            allocationScenario.getDemandScenario());
+      //                      }
+      //                      final Double newLandUseArea = 0.0;
+      //                      if (allocationScenario.isManual()) {
+      //                        if (manualareaRequirement != null) {
+      //                          LOGGER.info(
+      //                              "@@@@@ For {} allocating  area requirement of: {}",
+      //                              DeficitfutureLU.getLabel(),
+      //                              manualareaRequirement.getRequiredArea());
+      //                        }
+      //                      } else {
+      //                        LOGGER.info(
+      //                            "@@@@@ For {} allocating  area requirement of: {}",
+      //                            DeficitfutureLU.getLabel(),
+      //                            areaRequirement.getRequiredArea());
+      //                      }
+      //                      Double remainingArea = 0.0;
+      //                      if (allocationScenario.isManual()) {
+      //                        if (manualareaRequirement != null) {
+      //                          remainingArea = manualareaRequirement.getRequiredArea();
+      //                        }
+      //                      } else {
+      //                        remainingArea = areaRequirement.getRequiredArea();
+      //                      }
+      //
+      //                      if (remainingArea == 0)
+      //                      {
+      //                        //the residential land use demand is 0
+      //                        //new we look at table to see if original area did'nt decrease because of conversion.
+      //                        Double dfirstYear = 0.0;
+      //                        for (final String landUseKey : mapLanduseSize.keySet()) {
+      //                          if (DeficitfutureLU.getLabel().equals(landUseKey)) {
+      //                            dfirstYear = mapLanduseSize.get(landUseKey);
+      //                          }
+      //
+      //                        }
+      //                        final Double dprojectionYear = geodataFilterer
+      //                            .getSumAreaProjectionYear(allocationScenario,
+      //                                projection, DeficitfutureLU);
+      //
+      //                        Double demandHappend = 0.0;
+      //                        Double demandExpected = 0.0;
+      //                        final Double extranew = 0.0;
+      //                        final Double extraused = 0.0;
+      //
+      //                        demandExpected = dfirstYear + remainingArea;
+      //                        demandHappend = dfirstYear + dprojectionYear;
+      //
+      //                        if (demandHappend < demandExpected)
+      //                        {
+      //                          final Double deficitDemand = demandExpected - demandHappend;
+      //                          //finding deficit; then asking for residential LU which has the most breakdown to allocate this deficit.
+      //                          //but first need to know how much land
+      //
+      //                          final Double householdCount = deficitDemand * resDInfo.getCurrentDensity();
+      //                          //now find how much land we require to accomodate this number of houses.
+      //                          Double actualDemand = 0.0;
+      //                          if (LUbMaxCurDensity > 0)
+      //                          {
+      //                            actualDemand =  householdCount / LUbMaxCurDensity ;
+      //                          }
+      //
+      //                          if (actualDemand > 0)
+      //                          {
+      //                            //ask LUMaxId to allocate actualDemand
+      //
+      //                            /////////////////////////////////////////////////////
+      //
+      //                            for (final AllocationLU futureLU : landUseOrder) {
+      //                              if (futureLU.getId().equals(LUMaxId)) {
+      //                                LOGGER.info(" allocating land use: {}, for deficit = {}",
+      //                                    futureLU.getLabel(), actualDemand);
+      //                                String scoreLabel = "";
+      //                                if (futureLU.getAssociatedLU() != null) {
+      //                                  scoreLabel = futureLU.getAssociatedLU().getFeatureFieldName();
+      //
+      //                                  final ArrayList<String> GrowthPatternFields = new ArrayList<String>();
+      //                                  String PlannedSQL = "";
+      //                                  String InfrastructureSQL = "";
+      //                                  //control
+      //                                  if (!allocationScenario.getControlScenarioId().equals("None")) {
+      //                                    PlannedSQL  = FindPlannedSQL(allocationScenario,  allocationConfig,  futureLU);
+      //                                    InfrastructureSQL = FindInfraSQL( allocationScenario, allocationConfig,  futureLU,  projection);
+      //                                  }//end if (!allocationScenario.getControlScenarioId().equals("None")) {
+      //
+      //                                  String sql = "";
+      //                                  sql = geodataFilterer.getAllocationRuleNew(futureLU,
+      //                                      allocationScenario, scoreLabel, existingLULabel,
+      //                                      PlannedSQL, InfrastructureSQL, GrowthPatternFields,
+      //                                      actualDemand, projection);
+      //
+      //                                  geodataFinder.updateALlocationColumnNew(sql);
+      //                                  LOGGER
+      //                                  .info(
+      //                                      "allocation sucessfully done for : {} in Projection year {} ",
+      //                                      futureLU.getLabel(), projection.getLabel());
+      //
+      //                                }
+      //                              }
+      //                            }
+
+      //                          }
+      //
+      //                        }
+      //
+      //                        //
+      //
+      //                      }
+      //
+      //                    }//end (DeficitfutureLU.getId().equals(resDInfo.getAllocationLUId()))
+      //
+      //                  }
+      //                }
+      //              }
+      //            }
+      //
+      //          }
+      //        }
+      //      }
+
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     }// for projection loop
 
     // ////////////////////////Second loop
@@ -1226,9 +969,9 @@ public class AllocationAnalyzer {
       final ArrayList<String> notSatisfieldLUArr = new ArrayList<String>();
 
       LOGGER
-          .info(
-              "performing remaining allocation analysis for Second time to make sure allocation satisfied for projection year: {}",
-              projection.getLabel());
+      .info(
+          "performing remaining allocation analysis for Second time to make sure allocation satisfied for projection year: {}",
+          projection.getLabel());
 
       // new
       final Map<String, Boolean> mapLanduseControl = new HashMap<String, Boolean>();
@@ -1275,173 +1018,9 @@ public class AllocationAnalyzer {
                     String PlannedSQL = "";
                     String InfrastructureSQL = "";
 
-                    if (!allocationScenario.getControlScenarioId().equals(
-                        "None")) {
-                      final AllocationControlScenario controlScenario = AllocationControlScenarioDao
-                          .findAllocationControlScenarioById(allocationScenario
-                              .getControlScenarioId());
-
-                      // Growth Pattern : Added to Order By section
-
-                      // String GrowthPatternSQL = "";
-                      if (controlScenario.getGrowthPatternControl() == true) {
-
-                        final Set<GrowthPatternALU> gFields = allocationConfig
-                            .getGrowthPatternALUs();
-
-                        for (final String item : controlScenario
-                            .getGrowthPatternControlLabels()) {
-                          for (final GrowthPatternALU growthPattern : gFields) {
-                            if (growthPattern.getLabel().equals(item)) {
-                              GrowthPatternFields.add(growthPattern
-                                  .getFieldName());
-                            }
-                          }
-
-                        }
-
-                      }
-
-                      // planned land use; gaining query filter
-                      final String plannedALUsFieldName = allocationConfig
-                          .getPlannedALUsFieldName();
-
-                      if (controlScenario.getPlannedlandUseControl() == true) {
-                        Boolean lswPlanned = false;
-                        PlannedSQL = "(";
-                        final Set<PlannedALU> pFields = allocationConfig
-                            .getPlannedALUs();
-                        int cnt = 0;
-                        for (final PlannedALU plannedALU : pFields) {
-                          final String plabel = plannedALU.getLabel();
-                          final Map<String, String> spLU = plannedALU
-                              .getAssociatedALUsMap();
-                          final Iterator spMap = spLU.entrySet().iterator();
-                          while (spMap.hasNext()) {
-                            final Map.Entry mapEntry = (Map.Entry) spMap.next();
-                            if (mapEntry.getValue().toString()
-                                .equals(futureLU.getLabel())) {
-                              lswPlanned = true;
-                              if (cnt == 0) {
-                                PlannedSQL = PlannedSQL + "\""
-                                    + plannedALUsFieldName + "\"" + "='"
-                                    + plabel + "'";
-                              } else {
-                                PlannedSQL = PlannedSQL + " OR " + "\""
-                                    + plannedALUsFieldName + "\"" + "='"
-                                    + plabel + "'";
-                              }
-                              cnt = cnt + 1;
-                            }
-                          }
-                        }
-                        PlannedSQL = PlannedSQL + ")";
-                        if (lswPlanned == false) {
-                          PlannedSQL = "";
-                        }
-                      }
-
-                      // Infrastructure; gaining query filter
-
-                      String InfrastructureSQLMaster = "";
-
-                      if (controlScenario.getInfrastructureControl() == true) {
-
-                        final Set<InfrastructureUses> infUses = controlScenario
-                            .getInfrastructureUses();
-
-                        int cntInfraItem = 0;
-                        for (final String item : controlScenario
-                            .getInfrastructureControlLabels()) {
-
-                          Boolean lswInf = false;
-                          for (final InfrastructureUses infUse : infUses) {
-                            if (infUse.getLanduseName().equals(
-                                futureLU.getLabel())) {
-
-                              int cntInfra = 0;
-                              Map<String, String> map = new HashMap<String, String>();
-                              map = infUse.getInfrastructureMap();
-                              final Iterator itMap = map.entrySet().iterator();
-                              while (itMap.hasNext()) {
-
-                                final Map.Entry mapEntry = (Map.Entry) itMap
-                                    .next();
-
-                                // new
-                                if (item.equals(mapEntry.getKey())) {
-
-                                  if (!mapEntry.getValue().equals("N/A")) {
-                                    lswInf = true;
-                                    if (!InfrastructureSQL.equals("")) {
-                                      InfrastructureSQL = InfrastructureSQL
-                                          + " AND (";
-                                    } else {
-                                      InfrastructureSQL = InfrastructureSQL
-                                          + "(";
-                                    }
-                                    // }
-
-                                    for (final InfrastructureALU infField : allocationConfig
-                                        .getInfrastructureALUs()) {
-                                      if (infField.getLabel().equals(
-                                          mapEntry.getKey())) {
-                                        if (mapEntry.getValue().equals(
-                                            "Required")) {
-                                          InfrastructureSQL = InfrastructureSQL
-                                              + "\"" + infField.getFieldName()
-                                              + "\"" + "<="
-                                              + projection.getLabel();
-                                        } else if (mapEntry.getValue().equals(
-                                            "Excluded")) {
-                                          InfrastructureSQL = InfrastructureSQL
-                                              + "(" + "\""
-                                              + infField.getFieldName() + "\""
-                                              + ">" + projection.getLabel()
-                                              + ")";
-                                        }
-                                        InfrastructureSQL = InfrastructureSQL
-                                            + ")";
-                                      }
-                                    }
-                                  }
-                                }
-
-                                cntInfra = cntInfra + 1;
-
-                              }
-                            }
-                          }
-                          // InfrastructureSQL = InfrastructureSQL + ")";
-                          if (lswInf == false) {
-                            if (InfrastructureSQL.length() < 2) {
-                              InfrastructureSQL = "";
-                            }
-                          }
-
-                          if (!InfrastructureSQL.equals("")) {
-
-                            if (cntInfraItem == 0) {
-                              InfrastructureSQLMaster = InfrastructureSQLMaster
-                                  + InfrastructureSQL;
-                            } else {
-
-                              if (!InfrastructureSQLMaster.equals("")) {
-                                InfrastructureSQLMaster = InfrastructureSQLMaster
-                                    + " AND (" + InfrastructureSQL + ")";
-                              } else {
-                                InfrastructureSQLMaster = InfrastructureSQLMaster
-                                    + InfrastructureSQL;
-                              }
-                            }
-
-                          }
-
-                          cntInfraItem = cntInfraItem + 1;
-                        }// end for new (string item)
-
-                      }// end if
-
+                    if (!allocationScenario.getControlScenarioId().equals("None")) {
+                      PlannedSQL  = FindPlannedSQL(allocationScenario,  allocationConfig,  futureLU);
+                      InfrastructureSQL = FindInfraSQL( allocationScenario, allocationConfig,  futureLU,  projection);
                     }
 
                     AreaRequirement areaRequirement = null;
@@ -1591,12 +1170,12 @@ public class AllocationAnalyzer {
                       mapLanduseExtra.put(futureLU.getLabel(), extranew);
 
                       LOGGER
-                          .info("putting "
-                              + offValue.toString()
-                              + " as Extra for land use "
-                              + futureLU.getLabel()
-                              + " since we had extra and in control phase in projection year:"
-                              + projection.getLabel());
+                      .info("putting "
+                          + offValue.toString()
+                          + " as Extra for land use "
+                          + futureLU.getLabel()
+                          + " since we had extra and in control phase in projection year:"
+                          + projection.getLabel());
 
                       notSatisfieldLUArr.remove(futureLU.getLabel());
 
@@ -1611,9 +1190,9 @@ public class AllocationAnalyzer {
       }// for k= 1 to 3 // end second loop
       if (lswRepeat == true) {
         LOGGER
-            .info(" Allocation not satisfied in second loop, after three times attempt for projection year:"
-                + projection.getLabel()
-                + " ,before starting allocation for next projection year.We should check again after completing all projection years.");
+        .info(" Allocation not satisfied in second loop, after three times attempt for projection year:"
+            + projection.getLabel()
+            + " ,before starting allocation for next projection year.We should check again after completing all projection years.");
 
         notSatisfield = notSatisfield + " in projection year:"
             + projection.getLabel() + " for " + notSatisfieldLUArr.toString()
@@ -1643,7 +1222,7 @@ public class AllocationAnalyzer {
 
   /**
    * Allocate land use.
-   * 
+   *
    * @param projection
    *          the projection
    * @param allocationLU
@@ -1666,7 +1245,7 @@ public class AllocationAnalyzer {
       final SimpleFeatureStore featureStore, final ALURule rule,
       final Transaction transaction, final String scoreLabel,
       final Set<AreaRequirement> outcome) throws CQLException,
-      WifInvalidConfigException, WifInvalidInputException, IOException {
+  WifInvalidConfigException, WifInvalidInputException, IOException {
     // 1. querying with ordering UAZs
     int allocatedFeatures = 0;
 
@@ -1735,7 +1314,7 @@ public class AllocationAnalyzer {
         // 3. while there is a still area to allocate
         final SimpleFeature uazFeature = its.next();
         if (allocationScenario.getWifProject().getId()
-        // FIXME
+            // FIXME
             .equals(WifKeys.TEST_PROJECT_ID)) {
           if (alreadyAllocatedDemonstration(uazFeature, allocationScenario
               .getAllocationConfig().getAllocationColumnsMap().values())) {
@@ -1795,9 +1374,9 @@ public class AllocationAnalyzer {
         projection.getLabel());
 
     LOGGER
-        .trace("%%%% updating this land use features column {}, with value {}",
-            aluColumn,
-            WifKeys.FUTURELU_PREFIX + allocationLU.getFeatureFieldName());
+    .trace("%%%% updating this land use features column {}, with value {}",
+        aluColumn,
+        WifKeys.FUTURELU_PREFIX + allocationLU.getFeatureFieldName());
     final DataAccess<SimpleFeatureType, SimpleFeature> wifDataStore = featureStore
         .getDataStore();
     FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
@@ -1826,13 +1405,13 @@ public class AllocationAnalyzer {
       }
 
       LOGGER
-          .trace(
-              "About to Update {} features with the new information for allocation... ",
-              featureCounter);
+      .trace(
+          "About to Update {} features with the new information for allocation... ",
+          featureCounter);
       transactionnew.commit();
     } finally {
       LOGGER
-          .trace("modified {} features in : {} !", featureCounter, uazDBTable);
+      .trace("modified {} features in : {} !", featureCounter, uazDBTable);
       writer.close(); // IMPORTANT
       transactionnew.close();
 
@@ -1848,7 +1427,7 @@ public class AllocationAnalyzer {
 
   /**
    * Reset analysis layer.
-   * 
+   *
    * @param allocationScenario
    *          the allocation scenario
    * @param featureStore
@@ -1860,7 +1439,7 @@ public class AllocationAnalyzer {
   private boolean resetAnalysisLayer(
       final AllocationScenario allocationScenario,
       final SimpleFeatureStore featureStore) throws WifInvalidInputException,
-      IOException {
+  IOException {
     final String uazDBTable = allocationScenario.getWifProject()
         .getSuitabilityConfig().getUnifiedAreaZone();
     final boolean status = true;
@@ -1889,24 +1468,24 @@ public class AllocationAnalyzer {
       transaction.commit();
     } catch (final Exception e) {
       LOGGER
-          .error(
-              "resetAnalysisLayer rolling back to the last known modification, commit transaction failed: {}",
-              e.getMessage());
+      .error(
+          "resetAnalysisLayer rolling back to the last known modification, commit transaction failed: {}",
+          e.getMessage());
       transaction.rollback();
       throw new WifInvalidInputException("Reset analysis layer failed", e);
     } finally {
       transaction.close();
       LOGGER
-          .info(
-              "Closing reset transaction, Finished resetting for Allocation Scenario label: {}",
-              allocationScenario.getLabel());
+      .info(
+          "Closing reset transaction, Finished resetting for Allocation Scenario label: {}",
+          allocationScenario.getLabel());
     }
     return status;
   }
 
   /**
    * Already allocated.
-   * 
+   *
    * @param uazFeature
    *          the uaz feature
    * @param columns
@@ -1931,9 +1510,9 @@ public class AllocationAnalyzer {
           // return true;
           if (uazFeature.getAttribute(aluLabel).toString().length() > 0) {
             LOGGER
-                .trace(
-                    "feature WITH ID= {}, has already being allocated in projection {}",
-                    uazFeature.getID(), aluLabel);
+            .trace(
+                "feature WITH ID= {}, has already being allocated in projection {}",
+                uazFeature.getID(), aluLabel);
             return true;
           }
         }
@@ -1954,9 +1533,9 @@ public class AllocationAnalyzer {
           if (!((Double) uazFeature.getAttribute(aluLabel))
               .equals(WifKeys.NOT_SUITABLE_SCORE)) {
             LOGGER
-                .trace(
-                    "feature WITH ID= {}, has already being allocated in projection {}",
-                    uazFeature.getID(), aluLabel);
+            .trace(
+                "feature WITH ID= {}, has already being allocated in projection {}",
+                uazFeature.getID(), aluLabel);
             return true;
           }
         }
@@ -1970,7 +1549,7 @@ public class AllocationAnalyzer {
       final AllocationScenario allocationScenario, Double remainingArea,
       final String scoreLabel, final ResultSet its, final String tschema,
       final String tname) throws CQLException, WifInvalidConfigException,
-      WifInvalidInputException, IOException, SQLException {
+  WifInvalidInputException, IOException, SQLException {
 
     final WifProject wifProject = allocationScenario.getWifProject();
     final String AllocationConfigsId = wifProject.getAllocationConfigsId();
@@ -1995,7 +1574,7 @@ public class AllocationAnalyzer {
       while (its.next() && remainingArea > 0) {
 
         if (allocationScenario.getWifProject().getId()
-        // FIXME
+            // FIXME
             .equals(WifKeys.TEST_PROJECT_ID)) {
 
         } else {
@@ -2050,10 +1629,10 @@ public class AllocationAnalyzer {
     geodataFinder.updateALlocationColumnNew(SQL);
 
     LOGGER
-        .info(
-            "%%%% updated this land use features column:value {}, for number of records: {}",
-            aluColumn + ":" + WifKeys.FUTURELU_PREFIX
-                + allocationLU.getFeatureFieldName(), allocatedFeatures);
+    .info(
+        "%%%% updated this land use features column:value {}, for number of records: {}",
+        aluColumn + ":" + WifKeys.FUTURELU_PREFIX
+        + allocationLU.getFeatureFieldName(), allocatedFeatures);
 
     if (remainingArea > 0) {
       LOGGER.warn("no more area available for allocation!! {} unallocated!",
@@ -2061,5 +1640,199 @@ public class AllocationAnalyzer {
       // break;
     }
     return true;
+  }
+
+
+  private String FindPlannedSQL(final AllocationScenario allocationScenario, final AllocationConfigs allocationConfig, final AllocationLU futureLU)
+  {
+
+    String PlannedSQL="";
+
+    final AllocationControlScenario controlScenario = AllocationControlScenarioDao
+        .findAllocationControlScenarioById(allocationScenario
+            .getControlScenarioId());
+
+    // Growth Pattern : Added to Order By section
+    final ArrayList<String> GrowthPatternFields = new ArrayList<String>();
+
+    // String GrowthPatternSQL = "";
+    if (controlScenario.getGrowthPatternControl() == true) {
+
+      final Set<GrowthPatternALU> gFields = allocationConfig
+          .getGrowthPatternALUs();
+
+      for (final String item : controlScenario
+          .getGrowthPatternControlLabels()) {
+        for (final GrowthPatternALU growthPattern : gFields) {
+          if (growthPattern.getLabel().equals(item)) {
+            GrowthPatternFields.add(growthPattern.getFieldName());
+          }
+        }
+
+      }
+
+    }
+
+    // planned land use; gaining query filter
+    final String plannedALUsFieldName = allocationConfig
+        .getPlannedALUsFieldName();
+
+    if (controlScenario.getPlannedlandUseControl() == true) {
+      Boolean lswPlanned = false;
+      PlannedSQL = "(";
+      final Set<PlannedALU> pFields = allocationConfig
+          .getPlannedALUs();
+      int cnt = 0;
+      for (final PlannedALU plannedALU : pFields) {
+        final String plabel = plannedALU.getLabel();
+        final Map<String, String> spLU = plannedALU
+            .getAssociatedALUsMap();
+        final Iterator spMap = spLU.entrySet().iterator();
+        while (spMap.hasNext()) {
+          final Map.Entry mapEntry = (Map.Entry) spMap.next();
+          // LOGGER.info("The planned land use key is: "
+          // + mapEntry.getKey() + ",value is :"
+          // + mapEntry.getValue());
+          if (mapEntry.getValue().toString()
+              .equals(futureLU.getLabel())) {
+            lswPlanned = true;
+            if (cnt == 0) {
+              PlannedSQL = PlannedSQL + "\"" + plannedALUsFieldName
+                  + "\"" + "='" + plabel + "'";
+            } else {
+              PlannedSQL = PlannedSQL + " OR " + "\""
+                  + plannedALUsFieldName + "\"" + "='" + plabel
+                  + "'";
+            }
+            cnt = cnt + 1;
+          }
+        }
+      }
+      PlannedSQL = PlannedSQL + ")";
+      if (lswPlanned == false) {
+        PlannedSQL = "";
+      }
+    }
+
+    LOGGER.info("The PlannedSQL is: " + PlannedSQL);
+
+
+    return PlannedSQL;
+
+  }
+
+  private String FindInfraSQL(final AllocationScenario allocationScenario, final AllocationConfigs allocationConfig, final AllocationLU futureLU, final Projection projection)
+  {
+
+    String InfrastructureSQL="";
+
+    final AllocationControlScenario controlScenario = AllocationControlScenarioDao
+        .findAllocationControlScenarioById(allocationScenario
+            .getControlScenarioId());
+
+    String InfrastructureSQLMaster = "";
+
+    if (controlScenario.getInfrastructureControl() == true) {
+
+      final Set<InfrastructureUses> infUses = controlScenario
+          .getInfrastructureUses();
+
+      int cntInfraItem = 0;
+      for (final String item : controlScenario
+          .getInfrastructureControlLabels()) {
+
+        Boolean lswInf = false;
+        for (final InfrastructureUses infUse : infUses) {
+          if (infUse.getLanduseName().equals(futureLU.getLabel())) {
+
+            int cntInfra = 0;
+            Map<String, String> map = new HashMap<String, String>();
+            map = infUse.getInfrastructureMap();
+            final Iterator itMap = map.entrySet().iterator();
+            while (itMap.hasNext()) {
+
+              final Map.Entry mapEntry = (Map.Entry) itMap.next();
+
+              // new
+              if (item.equals(mapEntry.getKey())) {
+
+                if (!mapEntry.getValue().equals("N/A")) {
+                  lswInf = true;
+
+                  if (!InfrastructureSQL.equals("")) {
+                    InfrastructureSQL = InfrastructureSQL
+                        + " AND (";
+                  } else {
+                    InfrastructureSQL = InfrastructureSQL + "(";
+                  }
+                  // }
+
+                  for (final InfrastructureALU infField : allocationConfig
+                      .getInfrastructureALUs()) {
+                    if (infField.getLabel().equals(
+                        mapEntry.getKey())) {
+                      if (mapEntry.getValue().equals("Required")) {
+                        InfrastructureSQL = InfrastructureSQL
+                            + "\"" + infField.getFieldName() + "\""
+                            + "<=" + projection.getLabel();
+                      } else if (mapEntry.getValue().equals(
+                          "Excluded")) {
+                        InfrastructureSQL = InfrastructureSQL + "("
+                            + "\"" + infField.getFieldName() + "\""
+                            + ">" + projection.getLabel() + ")";
+                      }
+                      InfrastructureSQL = InfrastructureSQL + ")";
+                    }
+                  }
+                }
+              }
+
+              // LOGGER.info("The Infrastructure key is: "
+              // + mapEntry.getKey() + ",value is :"
+              // + mapEntry.getValue());
+
+              cntInfra = cntInfra + 1;
+
+            }
+          }
+        }
+        // InfrastructureSQL = InfrastructureSQL + ")";
+        if (lswInf == false) {
+          if (InfrastructureSQL.length() < 2) {
+            InfrastructureSQL = "";
+          }
+        }
+
+        if (!InfrastructureSQL.equals("")) {
+
+          if (cntInfraItem == 0) {
+            InfrastructureSQLMaster = InfrastructureSQLMaster
+                + InfrastructureSQL;
+          } else {
+
+            if (!InfrastructureSQLMaster.equals("")) {
+              InfrastructureSQLMaster = InfrastructureSQLMaster
+                  + " AND (" + InfrastructureSQL + ")";
+            } else {
+              InfrastructureSQLMaster = InfrastructureSQLMaster
+                  + InfrastructureSQL;
+            }
+          }
+
+        }
+
+        cntInfraItem = cntInfraItem + 1;
+      }// end for new (string item)
+
+    }// end if
+
+
+
+
+    LOGGER.info("The InfrastructureSQL is: " + InfrastructureSQL);
+
+
+    return InfrastructureSQL;
+
   }
 }

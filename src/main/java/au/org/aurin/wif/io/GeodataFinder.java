@@ -3,7 +3,6 @@ package au.org.aurin.wif.io;
 import static org.geotools.jdbc.JDBCDataStoreFactory.DATABASE;
 import static org.geotools.jdbc.JDBCDataStoreFactory.HOST;
 import static org.geotools.jdbc.JDBCDataStoreFactory.SCHEMA;
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +40,7 @@ import org.springframework.stereotype.Component;
 import au.org.aurin.wif.exception.io.DatabaseFailedException;
 import au.org.aurin.wif.exception.validate.WifInvalidInputException;
 import au.org.aurin.wif.svc.WifKeys;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 
 /**
  * The Class GeodataFinder.
@@ -105,7 +105,7 @@ public class GeodataFinder {
 
   /**
    * Gets the json file.
-   * 
+   *
    * @param path
    *          the path
    * @return the json file
@@ -130,7 +130,7 @@ public class GeodataFinder {
 
   /**
    * Gets the wif ua zfrom shp file.
-   * 
+   *
    * @param uAZShpURL
    *          the u az shp url
    * @return the wif ua zfrom shp file
@@ -155,7 +155,7 @@ public class GeodataFinder {
 
   /**
    * Gets the wif ua zfrom db.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @return the wif ua zfrom db
@@ -183,7 +183,7 @@ public class GeodataFinder {
 
   /**
    * Delete wif uaz in db.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    */
@@ -198,7 +198,7 @@ public class GeodataFinder {
 
   /**
    * Expand ua zcolumns.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @param columnList
@@ -368,7 +368,7 @@ public class GeodataFinder {
 
   /**
    * Create Spatial Index
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @param geometryColumnName
@@ -397,7 +397,7 @@ public class GeodataFinder {
 
   /**
    * Gets the distinct entries for uaz attribute.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @param attribute
@@ -414,12 +414,13 @@ public class GeodataFinder {
     final List<String> entries = jdbcTemplate.query(query,
         new RowMapper<String>() {
 
-          public String mapRow(final ResultSet rs, final int arg1)
-              throws SQLException {
-            return rs.getObject(1).toString();
-          }
+      @Override
+      public String mapRow(final ResultSet rs, final int arg1)
+          throws SQLException {
+        return rs.getObject(1).toString();
+      }
 
-        });
+    });
 
     LOGGER.info(" returning {} distinct entries ", entries.size());
     return entries;
@@ -443,12 +444,13 @@ public class GeodataFinder {
     final List<String> entries = jdbcTemplate.query(query,
         new RowMapper<String>() {
 
-          public String mapRow(final ResultSet rs, final int arg1)
-              throws SQLException {
-            return rs.getObject(1).toString();
-          }
+      @Override
+      public String mapRow(final ResultSet rs, final int arg1)
+          throws SQLException {
+        return rs.getObject(1).toString();
+      }
 
-        });
+    });
 
     LOGGER.info(" returning {} distinct entries ", entries.size());
     return entries;
@@ -469,12 +471,13 @@ public class GeodataFinder {
     final List<String> stColumns = jdbcTemplate.query(query,
         new RowMapper<String>() {
 
-          public String mapRow(final ResultSet rs, final int arg1)
-              throws SQLException {
-            return rs.getObject(1).toString();
-          }
+      @Override
+      public String mapRow(final ResultSet rs, final int arg1)
+          throws SQLException {
+        return rs.getObject(1).toString();
+      }
 
-        });
+    });
 
     if (stColumns.size() == 0) {
       query = "SELECT DISTINCT \"" + attribute + "\"  || '@#000000' FROM "
@@ -500,12 +503,13 @@ public class GeodataFinder {
     final List<String> entries = jdbcTemplate.query(query,
         new RowMapper<String>() {
 
-          public String mapRow(final ResultSet rs, final int arg1)
-              throws SQLException {
-            return rs.getObject(1).toString();
-          }
+      @Override
+      public String mapRow(final ResultSet rs, final int arg1)
+          throws SQLException {
+        return rs.getObject(1).toString();
+      }
 
-        });
+    });
 
     LOGGER.info(" returning {} distinct entries ", entries.size());
     return entries;
@@ -513,7 +517,7 @@ public class GeodataFinder {
 
   /**
    * Gets the sum of distinct entries for uaz attribute.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @param attribute
@@ -534,7 +538,7 @@ public class GeodataFinder {
 
   /**
    * Gets the normalised sum of distinct entries uaz attribute.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @param columnName1
@@ -550,9 +554,9 @@ public class GeodataFinder {
       final String normaliser2) {
     final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     LOGGER
-        .debug(
-            "getNormalisedSumOfDistinctEntriesUAZAttribute uazTbl: {}, columnName: {}",
-            uazTbl, columnName1);
+    .debug(
+        "getNormalisedSumOfDistinctEntriesUAZAttribute uazTbl: {}, columnName: {}",
+        uazTbl, columnName1);
     LOGGER.debug("Normalizer1: {}, 2:{}", normaliser1, normaliser2);
     return jdbcTemplate.queryForObject("SELECT SUM(DISTINCT (\"" + columnName1
         + "\"*(\"" + normaliser1 + "\"/\"" + normaliser2 + "\"))) FROM "
@@ -562,7 +566,7 @@ public class GeodataFinder {
 
   /**
    * Gets the area by score ranges.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @param scoreLabel
@@ -596,7 +600,7 @@ public class GeodataFinder {
 
   /**
    * Gets the area by lu.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @param areaFeatureFieldName
@@ -621,9 +625,9 @@ public class GeodataFinder {
     Double area = 0.0;
     if (allocationValue == null || allocationFFName == null) {
       LOGGER
-          .warn(
-              "{}, doesn't have allocation value configured {}, not calculating area",
-              landUseValue, allocationFFName);
+      .warn(
+          "{}, doesn't have allocation value configured {}, not calculating area",
+          landUseValue, allocationFFName);
     } else {
       final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
       final String queryTxt = "SELECT SUM(DISTINCT (\"" + areaFeatureFieldName
@@ -646,9 +650,9 @@ public class GeodataFinder {
     Double area = 0.0;
     if (allocationValue == null || allocationFFName == null) {
       LOGGER
-          .warn(
-              "{}, doesn't have allocation value configured {}, not calculating area",
-              allocationFFName);
+      .warn(
+          "{}, doesn't have allocation value configured {}, not calculating area",
+          allocationFFName);
     } else {
       final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
       final String queryTxt = "SELECT SUM(\"" + areaFeatureFieldName
@@ -664,7 +668,7 @@ public class GeodataFinder {
 
   /**
    * Gets the wif ua zfrom db.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @param queryTxt
@@ -701,7 +705,7 @@ public class GeodataFinder {
 
   /**
    * Gets the feature collectionfrom db.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @param filter
@@ -763,7 +767,7 @@ public class GeodataFinder {
   // anymore. If this gets deleted, we'll update the Tests
   /**
    * Gets the feature collectionfrom db.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @param filter
@@ -779,7 +783,7 @@ public class GeodataFinder {
 
   /**
    * Update uaz area.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    */
@@ -810,7 +814,7 @@ public class GeodataFinder {
 
   /**
    * Gets the uAZ attributes.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @return the uAZ attributes
@@ -845,7 +849,7 @@ public class GeodataFinder {
 
   /**
    * Gets the feature sourcefrom db.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @return the feature sourcefrom db
@@ -874,7 +878,7 @@ public class GeodataFinder {
 
   /**
    * Gets the feature storefrom db.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @return the feature storefrom db
@@ -902,7 +906,7 @@ public class GeodataFinder {
 
   /**
    * Gets the wif ua zfrom db.
-   * 
+   *
    * @param wifDataStore
    *          the wif data store
    * @param uazTbl
@@ -939,7 +943,7 @@ public class GeodataFinder {
 
   /**
    * Open file data store.
-   * 
+   *
    * @param namePath
    *          the name path
    * @return the file data store
@@ -954,7 +958,7 @@ public class GeodataFinder {
 
   /**
    * Open postgis data store.
-   * 
+   *
    * @return the data store
    * @throws IOException
    *           Signals that an I/O exception has occurred.
@@ -963,12 +967,12 @@ public class GeodataFinder {
     if (wifDataSource == null) {
 
       LOGGER
-          .info(
-              "openPostgisDataStore,,accessing the following server: {} for database/schema: {}",
-              postgisDataStoreConfig.getDataStoreParams().get(HOST.key),
-              postgisDataStoreConfig.getDataStoreParams().get(DATABASE.key)
-                  + "/"
-                  + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key));
+      .info(
+          "openPostgisDataStore,,accessing the following server: {} for database/schema: {}",
+          postgisDataStoreConfig.getDataStoreParams().get(HOST.key),
+          postgisDataStoreConfig.getDataStoreParams().get(DATABASE.key)
+          + "/"
+          + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key));
       wifDataSource = dataSourceFactory
           .createGeospatialDataSource(postgisDataStoreConfig
               .getDataStoreParams());
@@ -979,7 +983,7 @@ public class GeodataFinder {
 
   /**
    * Gets the area by score ranges.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @param scoreLabel
@@ -1046,7 +1050,7 @@ public class GeodataFinder {
 
   /**
    * Gets thescore ranges.
-   * 
+   *
    * @param uazTbl
    *          the uaz tbl
    * @param scoreLabel
@@ -1067,6 +1071,37 @@ public class GeodataFinder {
       area = 0.0;
     }
     return area;
+  }
+
+  public Boolean TransformSuitabilityScore(final String uazTbl,
+      final String scoreLabel, final Double minv, final Double maxv) {
+
+    LOGGER.info("TransformSuitabilityScore: for scoreLabel:" + scoreLabel + " ,min:"
+        + Double.toString(minv) + ",max:" + Double.toString(maxv));
+    final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+    if (maxv > 0 && minv >0){
+      if (maxv - minv>0)
+      {
+        final String query = "update "
+            + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
+            + uazTbl + " SET " + scoreLabel + "= 1 + ((99 * (scoreLabel -" + Double.toString(minv) + "))/(" + Double.toString(maxv) + "-" + Double.toString(minv) +"))" ;
+
+        LOGGER.info("TransformSuitabilityScore query is: " + query);
+        jdbcTemplate.batchUpdate(new String[] { query });
+      }
+      else if (maxv - minv==0)
+      {
+        final String query = "update "
+            + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
+            + uazTbl + " SET " + scoreLabel + "=100" ;
+
+        LOGGER.info("TransformSuitabilityScore query is: " + query);
+        jdbcTemplate.batchUpdate(new String[] { query });
+      }
+    }
+
+
+    return true;
   }
 
 }

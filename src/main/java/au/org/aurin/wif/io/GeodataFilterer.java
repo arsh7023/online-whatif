@@ -37,6 +37,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+
 import au.org.aurin.wif.config.WifConfig;
 import au.org.aurin.wif.exception.config.WifInvalidConfigException;
 import au.org.aurin.wif.impl.allocation.comparators.YearComparator;
@@ -51,11 +56,6 @@ import au.org.aurin.wif.model.suitability.SuitabilityConfig;
 import au.org.aurin.wif.repo.allocation.AllocationConfigsDao;
 import au.org.aurin.wif.repo.demand.DemandConfigDao;
 import au.org.aurin.wif.svc.WifKeys;
-
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * The Class GeodataFilterer.
@@ -89,7 +89,7 @@ public class GeodataFilterer {
 
   /**
    * Gets the filter according to the CQL parseable text entered.
-   * 
+   *
    * @param queryTxt
    *          the query txt
    * @return the filter
@@ -106,7 +106,7 @@ public class GeodataFilterer {
 
   /**
    * Gets the filter from parameters.
-   * 
+   *
    * @param wifParameters
    *          the wif parameters
    * @return the filter from parameters
@@ -135,11 +135,11 @@ public class GeodataFilterer {
 
     if (polyTxt == null) {
       LOGGER
-          .info("no polygon query filter received, defaulting to including all the unified area zone!");
+      .info("no polygon query filter received, defaulting to including all the unified area zone!");
       queryTxt = "include";
     } else if (polyTxt.equals("")) {
       LOGGER
-          .info("no polygon query filter received, defaulting to including all the unified area zone!");
+      .info("no polygon query filter received, defaulting to including all the unified area zone!");
       queryTxt = "include";
     } else {
       queryTxt = polyTxt;
@@ -151,7 +151,7 @@ public class GeodataFilterer {
   /**
    * Gets the reset filter tthat will erase the canvas for the allocation
    * analysis.
-   * 
+   *
    * @return the reset filter
    * @throws CQLException
    *           the cQL exception
@@ -166,7 +166,7 @@ public class GeodataFilterer {
 
   /**
    * Gets the intersection polygon.
-   * 
+   *
    * @param wifParameters
    *          the wif parameters
    * @return the intersection polygon
@@ -227,7 +227,7 @@ public class GeodataFilterer {
           .decode((String) wifParameters.get(WifKeys.CRS_DEST));
       if (!orgCRS.equals(targetCRS)) {
         LOGGER
-            .info("the CRS of the polygon requested is different from the uaz, attempting to  transform...");
+        .info("the CRS of the polygon requested is different from the uaz, attempting to  transform...");
         final MathTransform transform = CRS.findMathTransform(orgCRS,
             targetCRS, true);
         final Polygon traPoly = (Polygon) JTS.transform(polygon, transform);
@@ -238,14 +238,14 @@ public class GeodataFilterer {
       LOGGER.debug("geometry column name: {}", geometryColumnName);
 
       queryTxt = "INTERSECTS(" + geometryColumnName + ", " + polygon.toText()
-          + ")";
+      + ")";
     }
     return queryTxt;
   }
 
   /**
    * Gets the allocation rule without any controls guidelines.
-   * 
+   *
    * @param futureLU
    *          the future lu
    * @param allocationScenario
@@ -265,7 +265,7 @@ public class GeodataFilterer {
       final String existingLULabel, final String PlannedSQL,
       final String InfrastructureSQL,
       final ArrayList<String> GrowthPatternFields, final Double remainingArea)
-      throws CQLException, WifInvalidConfigException {
+          throws CQLException, WifInvalidConfigException {
     LOGGER.debug("getAllocationRule for: {}", futureLU.getLabel());
     final String spatialPatternLabel = allocationScenario
         .getSpatialPatternLabel();
@@ -302,7 +302,7 @@ public class GeodataFilterer {
       }
     }
     LOGGER
-        .trace("including all the unified area zones That satisfies the filter!");
+    .trace("including all the unified area zones That satisfies the filter!");
     queryTxt = luFilterTxt + scoreLabel + " > 0";
     if (PlannedSQL.length() > 0) {
       queryTxt = queryTxt + " AND (" + PlannedSQL + ")";
@@ -321,9 +321,9 @@ public class GeodataFilterer {
       filter = getFilter(queryTxt);
     } catch (final Exception e) {
       LOGGER
-          .error(
-              "doAllocationAnalysis rolling back to the last known modification, commit transaction failed: {}",
-              e.getMessage());
+      .error(
+          "doAllocationAnalysis rolling back to the last known modification, commit transaction failed: {}",
+          e.getMessage());
     }
 
     query = getSortedQuery(scoreLabel, spatialPatternLabel, allocationScenario,
@@ -340,7 +340,7 @@ public class GeodataFilterer {
   /**
    * Gets the sorted query. The minimum saltine for allocation with no controls
    * requires: A growth spatial pattern label,, suitability score, and an area
-   * 
+   *
    * @param scoreLabel
    *          the score label
    * @param spatialPatternLabel
@@ -410,6 +410,7 @@ public class GeodataFilterer {
     final MathExpressionImpl m;
 
     final SortBy sortByAreaNew3 = new SortBy() {
+      @Override
       public PropertyName getPropertyName() {
         return YourPropertyNameImpl(areaLabel);
       }
@@ -421,6 +422,7 @@ public class GeodataFilterer {
         return pn;
       }
 
+      @Override
       public SortOrder getSortOrder() {
         return SortOrder.ASCENDING;
       }
@@ -515,9 +517,9 @@ public class GeodataFilterer {
     }
 
     LOGGER
-        .debug(
-            "sorting by priority of first by suitability score column: {}, then by growth pattern: {}, and only then by area size",
-            scoreLabel, spatialPatternLabel);
+    .debug(
+        "sorting by priority of first by suitability score column: {}, then by growth pattern: {}, and only then by area size",
+        scoreLabel, spatialPatternLabel);
     return query;
   }
 
@@ -528,7 +530,7 @@ public class GeodataFilterer {
       final String InfrastructureSQL,
       final ArrayList<String> GrowthPatternFields, final Double remainingArea,
       final Projection projection) throws CQLException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
 
     String SQL = " Where ";
     LOGGER.debug("getAllocationRule for: {}", futureLU.getLabel());
@@ -554,7 +556,7 @@ public class GeodataFilterer {
       final Iterator<String> iterator = undevelopedLUsColumns.iterator();
       do {
         b.append("(\"" + existingLULabel + "\"" + " ='" + iterator.next()
-            + "') ");
+        + "') ");
         b.append("OR");
       } while (iterator.hasNext());
 
@@ -568,7 +570,7 @@ public class GeodataFilterer {
       }
     }
     LOGGER
-        .trace("including all the unified area zones That satisfies the filter!");
+    .trace("including all the unified area zones That satisfies the filter!");
     queryTxt = luFilterTxt + scoreLabel + " > 0";
     if (PlannedSQL.length() > 0) {
       queryTxt = queryTxt + " AND (" + PlannedSQL + ")";
@@ -820,11 +822,86 @@ public class GeodataFilterer {
         + aluColumnProjection + "\" ='" + WifKeys.FUTURELU_PREFIX
         + futureLU.getFeatureFieldName() + "'";
 
-    LOGGER.info("getSumAreaProjectionYear SQL={}", SQL);
-
+    LOGGER.info("getSumAreaProjectionYear D1 SQL={}", SQL);
     final Double d1 = geodataFinder.getSumofALU(SQL);
 
-    return d1;
+    //////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////
+    /////new for finding the area which converted to the other landuses.
+    final TreeSet<Projection> projections = new TreeSet<Projection>(
+        new YearComparator());
+    if (allocationScenario.isManual()) {
+      final DemandConfig demandConfig = demandConfigDao
+          .findDemandConfigById(wifProject.getDemandConfigId());
+      projections.addAll(demandConfig.getProjections());
+    } else {
+      projections.addAll(wifProject.getProjections());
+    }
+    final ArrayList<String> columnList1 = new ArrayList<String>();
+    final ArrayList<String> columnList2 = new ArrayList<String>();
+    for (final Projection proj : projections) {
+      //if (proj.getYear()<= projection.getYear())
+      if (proj.getYear().equals(projection.getYear()))
+      {
+        columnList1.add(proj.getLabel());
+      }
+      columnList2.add(proj.getLabel());
+    }
+
+    final String[] columnList = new String[columnList1.size()];
+    final String[] columnListAll = new String[columnList2.size()];
+    for (int ind = 0; ind < columnList1.size(); ind++)
+    {
+      columnList[ind] = "ALU_" + columnList1.get(ind);
+
+    }
+    for (int ind = 0; ind < columnList2.size(); ind++)
+    {
+      columnListAll[ind] = "ALU_" + columnList2.get(ind);
+
+    }
+
+    Arrays.sort(columnList);
+    Arrays.sort(columnListAll);
+
+    final String firstYear = columnListAll[0];
+    String wherest=" Where \"" + firstYear + "\" ='" + WifKeys.FUTURELU_PREFIX
+        + futureLU.getFeatureFieldName() + "' AND (";
+    int inx=0;
+
+    for (final String st : columnList)
+    {
+      //      if (inx != 0)
+      //      {
+      //        if (inx ==1)
+      //        {
+      wherest = wherest + "(\"" + st + "\" <>'" + WifKeys.FUTURELU_PREFIX
+          + futureLU.getFeatureFieldName() + "' AND \"" + st + "\" <>'')";
+      //        }
+      //        else
+      //        {
+      //          wherest = wherest + " OR (\"" + st + "\" <>'" + WifKeys.FUTURELU_PREFIX
+      //              + futureLU.getFeatureFieldName() + "' AND \"" + st + "\" <>'')";
+      //        }
+      //      }
+      inx = inx+1;
+    }
+
+    wherest= wherest + ")";
+
+    SQL = "select Sum(\"" + areaLabel + "\") from "
+        + myjdbcDataStoreConfig.getSchema() + "." + uazDBTable + wherest;
+
+    LOGGER.info("getSumAreaProjectionYear D2 SQL={}", SQL);
+    final Double d2 = geodataFinder.getSumofALU(SQL);
+
+    //////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////
+
+
+
+    //return d1;
+    return d1 - d2;
   }
 
 }

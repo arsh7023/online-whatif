@@ -35,6 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.vividsolutions.jts.io.ParseException;
+
 import au.org.aurin.wif.config.GeoServerConfig;
 import au.org.aurin.wif.config.ProjectConfigurator;
 import au.org.aurin.wif.config.WifConfig;
@@ -58,12 +60,10 @@ import au.org.aurin.wif.model.suitability.SuitabilityScenario;
 import au.org.aurin.wif.repo.suitability.SuitabilityScenarioDao;
 import au.org.aurin.wif.svc.WifKeys;
 
-import com.vividsolutions.jts.io.ParseException;
-
 /**
  * <b>SuitabilityAnalyzer.java</b> : Implementation of @see WifAnalysisService
- * 
- * 
+ *
+ *
  * @author <a href="mailto:marcosnr@unimelb.edu.au"> Marcos Nino-Ruiz
  *         marcosnr@unimelb.edu.au</a> - 2012
  */
@@ -141,7 +141,7 @@ public class SuitabilityAnalyzer {
    * suitability of different locations to accommodate future land use demands
    * in the Suitability component. the results of the land allocation analysis
    * is stored directly in the provided unified areas zone
-   * 
+   *
    * @param suitabilityScenario
    *          the suitability scenario
    * @param areaAnalyzed
@@ -171,9 +171,9 @@ public class SuitabilityAnalyzer {
   public Boolean doSuitabilityAnalysisWMS(
       final SuitabilityScenario suitabilityScenario, final String areaAnalyzed,
       final String crsArea) throws WifInvalidConfigException,
-      WifInvalidInputException, NoSuchAuthorityCodeException, FactoryException,
-      MismatchedDimensionException, TransformException, ParseException,
-      IOException, SuitabilityAnalysisFailedException {
+  WifInvalidInputException, NoSuchAuthorityCodeException, FactoryException,
+  MismatchedDimensionException, TransformException, ParseException,
+  IOException, SuitabilityAnalysisFailedException {
     if (wifConfig.isProductionLevel()) {
       LOGGER.debug("doSuitabilityAnalysisWMS  suitability analysis of == {}",
           suitabilityScenario.getLabel());
@@ -248,7 +248,7 @@ public class SuitabilityAnalyzer {
       // writer = wifDataStore.getFeatureWriter(uazDBTable, filter,
       // transaction);
       LOGGER
-          .debug("Feature writer successfully obtained! Proceeding to performing analysis...");
+      .debug("Feature writer successfully obtained! Proceeding to performing analysis...");
       for (final SuitabilityLU suitabilityLU : suitabilityLUs) {
         if (wifConfig.isProductionLevel()) {
           LOGGER.debug("Using suitabilityLU.getFeatureFieldName(): {}",
@@ -303,7 +303,7 @@ public class SuitabilityAnalyzer {
             } catch (final Exception e) {
               if (featureCounter < 10) {
                 LOGGER
-                    .warn("caching/synchronicity issue, trying to recover...");
+                .warn("caching/synchronicity issue, trying to recover...");
                 Thread.sleep(3000);
                 continue;
               } else {
@@ -320,9 +320,9 @@ public class SuitabilityAnalyzer {
       }
 
       LOGGER
-          .info(
-              "attempting to modify the last features of {} features in : {}... it might take a while",
-              featureCounter, uazDBTable);
+      .info(
+          "attempting to modify the last features of {} features in : {}... it might take a while",
+          featureCounter, uazDBTable);
       final Long timeelapsed = System.currentTimeMillis() / 1000 % 60;
 
       transaction.commit();
@@ -330,7 +330,7 @@ public class SuitabilityAnalyzer {
           timeelapsed, uazDBTable);
     } catch (final IOException e) {
       LOGGER
-          .error("IOException in updating acccess failed: {}", e.getMessage());
+      .error("IOException in updating acccess failed: {}", e.getMessage());
       LOGGER.error("WMSOutcome could not be created");
       throw new SuitabilityAnalysisFailedException(
           "WMSOutcome could not be created ", e);
@@ -362,6 +362,24 @@ public class SuitabilityAnalyzer {
       // wifDataStore.dispose();
       // ali
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //new code for transforming suitablity scores
+    //    final SuitabilityConfig suitabilityConfig = wifProject.getSuitabilityConfig();
+    //
+    //    LOGGER.info("Transforming Suitability Scores.");
+    //    for (final SuitabilityLU slu : suitabilityLUs) {
+    //      final Double minv = geodataFinder.getScoreRanges("min",
+    //          suitabilityConfig.getUnifiedAreaZone(), slu.getFeatureFieldName());
+    //      final Double maxv = geodataFinder.getScoreRanges("max",
+    //          suitabilityConfig.getUnifiedAreaZone(), slu.getFeatureFieldName());
+    //      geodataFinder.TransformSuitabilityScore(suitabilityConfig.getUnifiedAreaZone(), slu.getFeatureFieldName(),minv,maxv);
+    //    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+
+
     LOGGER.info("analysis process  finished successfully for {}", uazDBTable);
     suitabilityScenarioDao.updateSuitabilityScenarioStatus(suitabilityScenario,
         Boolean.TRUE);
@@ -374,7 +392,7 @@ public class SuitabilityAnalyzer {
    * (slopes, prime agricultural soils, etc.) that can be used to analyse the
    * suitability of different locations to accommodate future land use demands
    * in the Suitability component
-   * 
+   *
    * @param suitabilityScenario
    *          the suitability scenario
    * @param areaAnalyzed
@@ -404,9 +422,9 @@ public class SuitabilityAnalyzer {
   public SimpleFeatureCollection doSuitabilityAnalysis(
       final SuitabilityScenario suitabilityScenario, final String areaAnalyzed,
       final String crsArea) throws WifInvalidConfigException,
-      WifInvalidInputException, NoSuchAuthorityCodeException, FactoryException,
-      MismatchedDimensionException, TransformException, ParseException,
-      CQLException, DatabaseFailedException {
+  WifInvalidInputException, NoSuchAuthorityCodeException, FactoryException,
+  MismatchedDimensionException, TransformException, ParseException,
+  CQLException, DatabaseFailedException {
 
     if (wifConfig.isProductionLevel()) {
       LOGGER.debug("processing suitability analysis  for ={}",
@@ -463,7 +481,7 @@ public class SuitabilityAnalyzer {
             .getExistingLUAttributeName());
         if (wifConfig.isProductionLevel()) {
           LOGGER
-              .debug("--> Existing UAZ LandUse value= {}", uazLandUseValueObj);
+          .debug("--> Existing UAZ LandUse value= {}", uazLandUseValueObj);
           // TODO Maybe later will be necessary for performance
           // SimpleFeatureBuilder sfb = new
           // SimpleFeatureBuilder(lsaFeatureType);
@@ -500,7 +518,7 @@ public class SuitabilityAnalyzer {
 
   /**
    * Generate score ranges.
-   * 
+   *
    * @param suitabilityScenario
    *          the suitability scenario
    * @return the map
