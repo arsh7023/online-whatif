@@ -68,6 +68,8 @@ import au.org.aurin.wif.model.demand.AreaRequirement;
 import au.org.aurin.wif.model.demand.DemandConfig;
 import au.org.aurin.wif.model.demand.DemandOutcome;
 import au.org.aurin.wif.model.demand.DemandScenario;
+import au.org.aurin.wif.model.demand.info.DemandInfo;
+import au.org.aurin.wif.model.demand.info.ResidentialDemandInfo;
 import au.org.aurin.wif.model.suitability.SuitabilityLU;
 import au.org.aurin.wif.model.suitability.SuitabilityScenario;
 import au.org.aurin.wif.repo.allocation.AllocationConfigsDao;
@@ -420,55 +422,15 @@ public class AllocationAnalyzer {
 
               if (!allocationScenario.getControlScenarioId().equals("None")) {
 
+
                 PlannedSQL  = FindPlannedSQL(allocationScenario,  allocationConfig,  futureLU);
                 InfrastructureSQL = FindInfraSQL( allocationScenario, allocationConfig,  futureLU,  projection);
               }
 
-              // ///////
-
               // //////// //new claudia. finding outcome we needed
-              AreaRequirement areaRequirement = null;
-              AreaRequirement manualareaRequirement = null;
-              if (allocationScenario.isManual()) {
-                // for (final AreaRequirement ar : allocationScenario
-                // .getManualdemandScenario().getAreaRequirements()) {
-                for (final AreaRequirement ar : outcome) {
-                  if (ar.getProjectionLabel().equals(projection.getLabel())) {
-                    if (ar.getAllocationLULabel().equals(futureLU.getLabel())) {
-                      manualareaRequirement = ar;
-                    }
-                  }
-                }
-              } else {
-                areaRequirement = futureLU.getAreaRequirement(projection,
-                    allocationScenario.getDemandScenario());
-              }
-              final Double newLandUseArea = 0.0;
-              if (allocationScenario.isManual()) {
-                if (manualareaRequirement != null) {
-                  // LOGGER.info(
-                  // "@@@@@ For {} allocating  area requirement of: {}",
-                  // futureLU.getLabel(),
-                  // manualareaRequirement.getRequiredArea());
-                }
-              } else {
-                // LOGGER.info("@@@@@ For {} allocating  area requirement of: {}",
-                // futureLU.getLabel(), areaRequirement.getRequiredArea());
-              }
-              Double remainingArea = 0.0;
-              Double offsetremainingArea = 0.0;
-              if (allocationScenario.isManual()) {
-                if (manualareaRequirement != null) {
-                  remainingArea = manualareaRequirement.getRequiredArea();
-                }
-              } else {
-                remainingArea = areaRequirement.getRequiredArea();
-              }
 
-              if (futureLU.getLabel().equals("Medium Density - Urbanised")) {
-                int yyyy = 0;
-                yyyy = 99999;
-              }
+              final Double remainingArea = FindAreaRequirenment(allocationScenario, futureLU ,projection, outcome);
+              Double offsetremainingArea = 0.0;
 
               // if land extra allocated before.
               offsetremainingArea = remainingArea
@@ -563,46 +525,8 @@ public class AllocationAnalyzer {
                       InfrastructureSQL = FindInfraSQL( allocationScenario, allocationConfig,  futureLU,  projection);
                     }
 
-                    AreaRequirement areaRequirement = null;
-                    AreaRequirement manualareaRequirement = null;
-                    if (allocationScenario.isManual()) {
-                      // for (final AreaRequirement ar : allocationScenario
-                      // .getManualdemandScenario().getAreaRequirements()) {
-                      for (final AreaRequirement ar : outcome) {
-                        if (ar.getProjectionLabel().equals(
-                            projection.getLabel())) {
-                          if (ar.getAllocationLULabel().equals(
-                              futureLU.getLabel())) {
-                            manualareaRequirement = ar;
-                          }
-                        }
-                      }
-                    } else {
-                      areaRequirement = futureLU.getAreaRequirement(projection,
-                          allocationScenario.getDemandScenario());
-                    }
-                    final Double newLandUseArea = 0.0;
-                    if (allocationScenario.isManual()) {
-                      if (manualareaRequirement != null) {
-                        LOGGER.info(
-                            "@@@@@ For {} allocating  area requirement of: {}",
-                            futureLU.getLabel(),
-                            manualareaRequirement.getRequiredArea());
-                      }
-                    } else {
-                      LOGGER.info(
-                          "@@@@@ For {} allocating  area requirement of: {}",
-                          futureLU.getLabel(),
-                          areaRequirement.getRequiredArea());
-                    }
-                    Double remainingArea = 0.0;
-                    if (allocationScenario.isManual()) {
-                      if (manualareaRequirement != null) {
-                        remainingArea = manualareaRequirement.getRequiredArea();
-                      }
-                    } else {
-                      remainingArea = areaRequirement.getRequiredArea();
-                    }
+
+                    final Double remainingArea = FindAreaRequirenment(allocationScenario, futureLU ,projection, outcome);
 
                     // Double dfirstYear = geodataFilterer.getSumAreaFirstYear(
                     // allocationScenario, futureLU);
@@ -630,12 +554,6 @@ public class AllocationAnalyzer {
 
                     // demandHappend = dfirstYear + dprojectionYear +
                     // mapLanduseExtra.get(futureLU.getLabel());
-
-                    if (futureLU.getLabel().equals("Residential")) {
-                      int yyyy = 0;
-                      yyyy = 1;
-                    }
-                    LOGGER.info(futureLU.getLabel());
 
                     if (mapLanduseExtra.get(futureLU.getLabel()) > 0) {
 
@@ -698,16 +616,7 @@ public class AllocationAnalyzer {
                           GrowthPatternFields, newremainingArea, projection);
 
                       geodataFinder.updateALlocationColumnNew(sql);
-                      // LOGGER
-                      // .info(
-                      // "allocation sucessfully done for : {} in Projection year {} ",
-                      // futureLU.getLabel(), projection.getLabel());
-                      // mapLanduseExtra.put(futureLU.getLabel(), extranew);
-                      //
-                      // LOGGER.info("putting zero " + " as Extra for land use "
-                      // + futureLU.getLabel()
-                      // + "  in control phase in projection year:"
-                      // + projection.getLabel());
+
                     } else if (demandHappend > demandExpected) {
 
                       mapLanduseControl.put(futureLU.getLabel(), true);
@@ -749,204 +658,166 @@ public class AllocationAnalyzer {
 
       ////////////////////////////////////////////
 
-      //      //control checking for the residential land use, to compensate the land for the residential LUs which have 0 demand.
-      //      //since we know that what is the land in first year, we check for each projection year that we dont have deficit.
-      //      //If we have deficit then we calculate the number of houses based on the density. The we go to the demand scenario for allocation LUs.
-      //      //we find out which land use has the most feature breakdown . for that land use we know that what it is density, then based on the number of houses we calculate the amount of land.
-      //
-      //      for (int i = 0; i < setAlu.size(); i++) {
-      //        for (final AllocationLU DeficitfutureLU : landUseOrder) {
-      //          if (DeficitfutureLU.getPriority() == i + 1) {
-      //            LOGGER.info(" allocating land use: {}, priority = {}",
-      //                DeficitfutureLU.getLabel(), DeficitfutureLU.getPriority());
-      //
-      //            //////////////////////////////////////////////////////////////////
-      //
-      //            if (allocationScenario.isManual()) {
-      //              final String scenarioID = allocationScenario.getManualdemandScenarioId();
-      //
-      //              final List<DemandScenario> listDemand = demandScenarioService
-      //                  .getDemandScenarios(project.getId());
-      //              Boolean lsw = false;
-      //              for (final DemandScenario dsn : listDemand) {
-      //                if (dsn.getId().equals(scenarioID)) {
-      //                  lsw = true;
-      //                }
-      //              }
-      //              if (lsw == false) {
-      //                //manual
-      //              } else {
-      //                //Automatic Scenario
-      //                final DemandScenario dsd = demandScenarioService.getDemandScenario(scenarioID);
-      //                final Set<DemandInfo> demandInfos = dsd.getDemandInfos();
-      //
-      //                Double LUMaxbreakdown = 0.0;
-      //                String LUMaxId = "";
-      //                Double LUbMaxCurDensity = 0.0;
-      //                for (final DemandInfo demandInfo : demandInfos) {
-      //                  if (demandInfo instanceof ResidentialDemandInfo) {
-      //                    final ResidentialDemandInfo resDInfo = (ResidentialDemandInfo) demandInfo;
-      //                    LOGGER.info(" ResidentialDemandInfo : {} ",
-      //                        resDInfo.getResidentialLUId());
-      //
-      //
-      //
-      //                    if (DeficitfutureLU.getId().equals(resDInfo.getAllocationLUId()))
-      //                    {
-      //
-      //                    }
-      //                    else
-      //                    {
-      //                      if (resDInfo.getFutureBreakdownByHType() > LUMaxbreakdown)
-      //                      {
-      //                        LUMaxbreakdown = resDInfo.getFutureBreakdownByHType();
-      //                        LUMaxId = resDInfo.getAllocationLUId();
-      //                        LUbMaxCurDensity = resDInfo.getCurrentDensity();
-      //                      }
-      //                    }
-      //                  }
-      //                }
-      //
-      //                for (final DemandInfo demandInfo : demandInfos) {
-      //                  if (demandInfo instanceof ResidentialDemandInfo) {
-      //                    final ResidentialDemandInfo resDInfo = (ResidentialDemandInfo) demandInfo;
-      //
-      //                    if (DeficitfutureLU.getId().equals(resDInfo.getAllocationLUId()))
-      //                    {
-      //
-      //                      AreaRequirement areaRequirement = null;
-      //                      AreaRequirement manualareaRequirement = null;
-      //                      if (allocationScenario.isManual()) {
-      //                        for (final AreaRequirement ar : outcome) {
-      //                          if (ar.getProjectionLabel().equals(
-      //                              projection.getLabel())) {
-      //                            if (ar.getAllocationLULabel().equals(
-      //                                DeficitfutureLU.getLabel())) {
-      //                              manualareaRequirement = ar;
-      //                            }
-      //                          }
-      //                        }
-      //                      } else {
-      //                        areaRequirement = DeficitfutureLU.getAreaRequirement(projection,
-      //                            allocationScenario.getDemandScenario());
-      //                      }
-      //                      final Double newLandUseArea = 0.0;
-      //                      if (allocationScenario.isManual()) {
-      //                        if (manualareaRequirement != null) {
-      //                          LOGGER.info(
-      //                              "@@@@@ For {} allocating  area requirement of: {}",
-      //                              DeficitfutureLU.getLabel(),
-      //                              manualareaRequirement.getRequiredArea());
-      //                        }
-      //                      } else {
-      //                        LOGGER.info(
-      //                            "@@@@@ For {} allocating  area requirement of: {}",
-      //                            DeficitfutureLU.getLabel(),
-      //                            areaRequirement.getRequiredArea());
-      //                      }
-      //                      Double remainingArea = 0.0;
-      //                      if (allocationScenario.isManual()) {
-      //                        if (manualareaRequirement != null) {
-      //                          remainingArea = manualareaRequirement.getRequiredArea();
-      //                        }
-      //                      } else {
-      //                        remainingArea = areaRequirement.getRequiredArea();
-      //                      }
-      //
-      //                      if (remainingArea == 0)
-      //                      {
-      //                        //the residential land use demand is 0
-      //                        //new we look at table to see if original area did'nt decrease because of conversion.
-      //                        Double dfirstYear = 0.0;
-      //                        for (final String landUseKey : mapLanduseSize.keySet()) {
-      //                          if (DeficitfutureLU.getLabel().equals(landUseKey)) {
-      //                            dfirstYear = mapLanduseSize.get(landUseKey);
-      //                          }
-      //
-      //                        }
-      //                        final Double dprojectionYear = geodataFilterer
-      //                            .getSumAreaProjectionYear(allocationScenario,
-      //                                projection, DeficitfutureLU);
-      //
-      //                        Double demandHappend = 0.0;
-      //                        Double demandExpected = 0.0;
-      //                        final Double extranew = 0.0;
-      //                        final Double extraused = 0.0;
-      //
-      //                        demandExpected = dfirstYear + remainingArea;
-      //                        demandHappend = dfirstYear + dprojectionYear;
-      //
-      //                        if (demandHappend < demandExpected)
-      //                        {
-      //                          final Double deficitDemand = demandExpected - demandHappend;
-      //                          //finding deficit; then asking for residential LU which has the most breakdown to allocate this deficit.
-      //                          //but first need to know how much land
-      //
-      //                          final Double householdCount = deficitDemand * resDInfo.getCurrentDensity();
-      //                          //now find how much land we require to accomodate this number of houses.
-      //                          Double actualDemand = 0.0;
-      //                          if (LUbMaxCurDensity > 0)
-      //                          {
-      //                            actualDemand =  householdCount / LUbMaxCurDensity ;
-      //                          }
-      //
-      //                          if (actualDemand > 0)
-      //                          {
-      //                            //ask LUMaxId to allocate actualDemand
-      //
-      //                            /////////////////////////////////////////////////////
-      //
-      //                            for (final AllocationLU futureLU : landUseOrder) {
-      //                              if (futureLU.getId().equals(LUMaxId)) {
-      //                                LOGGER.info(" allocating land use: {}, for deficit = {}",
-      //                                    futureLU.getLabel(), actualDemand);
-      //                                String scoreLabel = "";
-      //                                if (futureLU.getAssociatedLU() != null) {
-      //                                  scoreLabel = futureLU.getAssociatedLU().getFeatureFieldName();
-      //
-      //                                  final ArrayList<String> GrowthPatternFields = new ArrayList<String>();
-      //                                  String PlannedSQL = "";
-      //                                  String InfrastructureSQL = "";
-      //                                  //control
-      //                                  if (!allocationScenario.getControlScenarioId().equals("None")) {
-      //                                    PlannedSQL  = FindPlannedSQL(allocationScenario,  allocationConfig,  futureLU);
-      //                                    InfrastructureSQL = FindInfraSQL( allocationScenario, allocationConfig,  futureLU,  projection);
-      //                                  }//end if (!allocationScenario.getControlScenarioId().equals("None")) {
-      //
-      //                                  String sql = "";
-      //                                  sql = geodataFilterer.getAllocationRuleNew(futureLU,
-      //                                      allocationScenario, scoreLabel, existingLULabel,
-      //                                      PlannedSQL, InfrastructureSQL, GrowthPatternFields,
-      //                                      actualDemand, projection);
-      //
-      //                                  geodataFinder.updateALlocationColumnNew(sql);
-      //                                  LOGGER
-      //                                  .info(
-      //                                      "allocation sucessfully done for : {} in Projection year {} ",
-      //                                      futureLU.getLabel(), projection.getLabel());
-      //
-      //                                }
-      //                              }
-      //                            }
+      //control checking for the residential land use, to compensate the land for the residential LUs which have 0 demand.
+      //since we know that what is the land in first year, we check for each projection year that we dont have deficit.
+      //If we have deficit then we calculate the number of houses based on the density. The we go to the demand scenario for allocation LUs.
+      //we find out which land use has the most feature breakdown . for that land use we know that what it is density, then based on the number of houses we calculate the amount of land.
 
-      //                          }
-      //
-      //                        }
-      //
-      //                        //
-      //
-      //                      }
-      //
-      //                    }//end (DeficitfutureLU.getId().equals(resDInfo.getAllocationLUId()))
-      //
-      //                  }
-      //                }
-      //              }
-      //            }
-      //
-      //          }
-      //        }
-      //      }
+      for (int i = 0; i < setAlu.size(); i++) {
+        for (final AllocationLU DeficitfutureLU : landUseOrder) {
+          if (DeficitfutureLU.getPriority() == i + 1) {
+
+
+            //////////////////////////////////////////////////////////////////
+
+            if (allocationScenario.isManual()) {
+              final String scenarioID = allocationScenario.getManualdemandScenarioId();
+
+              final List<DemandScenario> listDemand = demandScenarioService
+                  .getDemandScenarios(project.getId());
+              Boolean lsw = false;
+              for (final DemandScenario dsn : listDemand) {
+                if (dsn.getId().equals(scenarioID)) {
+                  lsw = true;
+                }
+              }
+              if (lsw == false) {
+                //manual
+              } else {
+                //Automatic Scenario
+                final DemandScenario dsd = demandScenarioService.getDemandScenario(scenarioID);
+                final Set<DemandInfo> demandInfos = dsd.getDemandInfos();
+
+                Double LUMaxbreakdown = 0.0;
+                String LUMaxId = "";
+                Double LUbMaxCurDensity = 0.0;
+                for (final DemandInfo demandInfo : demandInfos) {
+                  if (demandInfo instanceof ResidentialDemandInfo) {
+                    final ResidentialDemandInfo resDInfo = (ResidentialDemandInfo) demandInfo;
+                    LOGGER.info(" ResidentialDemandInfo : {} ",
+                        resDInfo.getResidentialLUId());
+
+                    if (DeficitfutureLU.getId().equals(resDInfo.getAllocationLUId()))
+                    {
+
+                    }
+                    else
+                    {
+                      if (resDInfo.getFutureBreakdownByHType() > LUMaxbreakdown)
+                      {
+                        LUMaxbreakdown = resDInfo.getFutureBreakdownByHType();
+                        LUMaxId = resDInfo.getAllocationLUId();
+                        LUbMaxCurDensity = resDInfo.getCurrentDensity();
+                      }
+                    }
+                  }
+                }
+
+                for (final DemandInfo demandInfo : demandInfos) {
+                  if (demandInfo instanceof ResidentialDemandInfo) {
+                    final ResidentialDemandInfo resDInfo = (ResidentialDemandInfo) demandInfo;
+
+                    if (DeficitfutureLU.getId().equals(resDInfo.getAllocationLUId()))
+                    {
+
+
+                      final Double remainingArea = FindAreaRequirenment(allocationScenario, DeficitfutureLU ,projection, outcome);
+
+                      if (remainingArea == 0)
+                      {
+
+                        LOGGER.info(" now in Deficit control for residential land use which has zero demand: {}, projection = {}",
+                            DeficitfutureLU.getLabel(), projection.getLabel());
+                        //the residential land use demand is 0
+                        //new we look at table to see if original area did'nt decrease because of conversion.
+                        Double dfirstYear = 0.0;
+                        for (final String landUseKey : mapLanduseSize.keySet()) {
+                          if (DeficitfutureLU.getLabel().equals(landUseKey)) {
+                            dfirstYear = mapLanduseSize.get(landUseKey);
+                          }
+
+                        }
+                        final Double dprojectionYear = geodataFilterer
+                            .getSumAreaProjectionYear(allocationScenario,
+                                projection, DeficitfutureLU);
+
+                        Double demandHappend = 0.0;
+                        Double demandExpected = 0.0;
+                        final Double extranew = 0.0;
+                        final Double extraused = 0.0;
+
+                        demandExpected = dfirstYear + remainingArea;
+                        demandHappend = dfirstYear + dprojectionYear;
+
+                        if (demandHappend < demandExpected)
+                        {
+                          final Double deficitDemand = demandExpected - demandHappend;
+                          //finding deficit; then asking for residential LU which has the most breakdown to allocate this deficit.
+                          //but first need to know how much land
+
+                          final Double householdCount = deficitDemand * resDInfo.getCurrentDensity();
+                          //now find how much land we require to accomodate this number of houses.
+                          Double actualDemand = 0.0;
+                          if (LUbMaxCurDensity > 0)
+                          {
+                            actualDemand =  householdCount / LUbMaxCurDensity ;
+                          }
+
+                          if (actualDemand > 0)
+                          {
+                            //ask LUMaxId to allocate actualDemand
+
+                            /////////////////////////////////////////////////////
+
+                            for (final AllocationLU futureLU : landUseOrder) {
+                              if (futureLU.getId().equals(LUMaxId)) {
+                                LOGGER.info(" allocating land use: {}, for deficit = {}",
+                                    futureLU.getLabel(), actualDemand);
+                                String scoreLabel = "";
+                                if (futureLU.getAssociatedLU() != null) {
+                                  scoreLabel = futureLU.getAssociatedLU().getFeatureFieldName();
+
+                                  final ArrayList<String> GrowthPatternFields = new ArrayList<String>();
+                                  String PlannedSQL = "";
+                                  String InfrastructureSQL = "";
+                                  //control
+                                  if (!allocationScenario.getControlScenarioId().equals("None")) {
+                                    PlannedSQL  = FindPlannedSQL(allocationScenario,  allocationConfig,  futureLU);
+                                    InfrastructureSQL = FindInfraSQL( allocationScenario, allocationConfig,  futureLU,  projection);
+                                  }//end if (!allocationScenario.getControlScenarioId().equals("None")) {
+
+                                  String sql = "";
+                                  sql = geodataFilterer.getAllocationRuleNew(futureLU,
+                                      allocationScenario, scoreLabel, existingLULabel,
+                                      PlannedSQL, InfrastructureSQL, GrowthPatternFields,
+                                      actualDemand, projection);
+
+                                  geodataFinder.updateALlocationColumnNew(sql);
+                                  LOGGER
+                                  .info(
+                                      "allocation sucessfully done for deficit : {} in Projection year {} ",
+                                      futureLU.getLabel(), projection.getLabel());
+
+                                }
+                              }
+                            }
+
+                          }
+
+                        }
+
+                      }
+
+                    }//end (DeficitfutureLU.getId().equals(resDInfo.getAllocationLUId()))
+
+                  }
+                }
+              }
+            }
+
+          }
+        }
+      }
 
       //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1023,40 +894,7 @@ public class AllocationAnalyzer {
                       InfrastructureSQL = FindInfraSQL( allocationScenario, allocationConfig,  futureLU,  projection);
                     }
 
-                    AreaRequirement areaRequirement = null;
-                    AreaRequirement manualareaRequirement = null;
-                    if (allocationScenario.isManual()) {
-                      // for (final AreaRequirement ar : allocationScenario
-                      // .getManualdemandScenario().getAreaRequirements()) {
-                      for (final AreaRequirement ar : outcome) {
-                        if (ar.getProjectionLabel().equals(
-                            projection.getLabel())) {
-                          if (ar.getAllocationLULabel().equals(
-                              futureLU.getLabel())) {
-                            manualareaRequirement = ar;
-                          }
-                        }
-                      }
-                    } else {
-                      areaRequirement = futureLU.getAreaRequirement(projection,
-                          allocationScenario.getDemandScenario());
-                    }
-                    final Double newLandUseArea = 0.0;
-                    if (allocationScenario.isManual()) {
-                      if (manualareaRequirement != null) {
-
-                      }
-                    } else {
-
-                    }
-                    Double remainingArea = 0.0;
-                    if (allocationScenario.isManual()) {
-                      if (manualareaRequirement != null) {
-                        remainingArea = manualareaRequirement.getRequiredArea();
-                      }
-                    } else {
-                      remainingArea = areaRequirement.getRequiredArea();
-                    }
+                    final Double remainingArea = FindAreaRequirenment(allocationScenario, futureLU ,projection, outcome);
 
                     // Double dfirstYear = geodataFilterer.getSumAreaFirstYear(
                     // allocationScenario, futureLU);
@@ -1151,16 +989,6 @@ public class AllocationAnalyzer {
                           GrowthPatternFields, newremainingArea, projection);
 
                       geodataFinder.updateALlocationColumnNew(sql);
-                      // LOGGER
-                      // .info(
-                      // "allocation sucessfully done for : {} in Projection year {} ",
-                      // futureLU.getLabel(), projection.getLabel());
-                      // mapLanduseExtra.put(futureLU.getLabel(), extranew);
-
-                      // LOGGER.info("putting zero " + " as Extra for land use "
-                      // + futureLU.getLabel()
-                      // + "  in control phase in projection year:"
-                      // + projection.getLabel());
 
                     } else if (demandHappend > demandExpected) {
                       mapLanduseControl.put(futureLU.getLabel(), true);
@@ -1833,6 +1661,51 @@ public class AllocationAnalyzer {
 
 
     return InfrastructureSQL;
+
+  }
+
+
+  private Double FindAreaRequirenment(final AllocationScenario allocationScenario, final AllocationLU futureLU, final Projection projection, final Set<AreaRequirement> outcome) throws WifInvalidConfigException
+
+  {
+
+    Double remainingArea = 0.0;
+
+    AreaRequirement areaRequirement = null;
+    AreaRequirement manualareaRequirement = null;
+    if (allocationScenario.isManual()) {
+      for (final AreaRequirement ar : outcome) {
+        if (ar.getProjectionLabel().equals(projection.getLabel())) {
+          if (ar.getAllocationLULabel().equals(futureLU.getLabel())) {
+            manualareaRequirement = ar;
+          }
+        }
+      }
+    } else {
+      areaRequirement = futureLU.getAreaRequirement(projection,
+          allocationScenario.getDemandScenario());
+    }
+
+    if (allocationScenario.isManual()) {
+      if (manualareaRequirement != null) {
+      }
+    } else {
+
+    }
+
+    if (allocationScenario.isManual()) {
+      if (manualareaRequirement != null) {
+        remainingArea = manualareaRequirement.getRequiredArea();
+      }
+    } else {
+      remainingArea = areaRequirement.getRequiredArea();
+    }
+
+
+    LOGGER.info("@@@@@ For allocation land use : " + futureLU.getLabel() + ", in projection year : " + projection.getLabel() + " , the area requirement is : "  + remainingArea.toString());
+
+    return remainingArea;
+
 
   }
 }

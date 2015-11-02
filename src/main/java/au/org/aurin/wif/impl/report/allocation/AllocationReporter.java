@@ -90,8 +90,8 @@ public class AllocationReporter {
    */
   public AllocationAnalysisReport getAllocationAnalysisReport(
       final AllocationScenario allocationScenario)
-      throws WifInvalidInputException, WifInvalidConfigException,
-      ParsingException {
+          throws WifInvalidInputException, WifInvalidConfigException,
+          ParsingException {
     LOGGER.info("getAllocationAnalysisReport for: {}",
         allocationScenario.getLabel());
     final AllocationAnalysisReport allocationAnalysisReport = new AllocationAnalysisReport();
@@ -167,8 +167,8 @@ public class AllocationReporter {
 
   public AllocationSimpleAnalysisReport getAllocationSimpleAnalysisReport(
       final AllocationScenario allocationScenario)
-      throws WifInvalidInputException, WifInvalidConfigException,
-      ParsingException {
+          throws WifInvalidInputException, WifInvalidConfigException,
+          ParsingException {
     LOGGER.info("getAllocationSimpleAnalysisReport for: {}",
         allocationScenario.getLabel());
     final AllocationSimpleAnalysisReport allocationSimpleAnalysisReport = new AllocationSimpleAnalysisReport();
@@ -222,10 +222,15 @@ public class AllocationReporter {
         final String allocationFFName = allocationConfig
             .getAllocationColumnsMap().get(projection.getLabel());
 
-        final Double areaByLU = geodataFinder.getAreaByLUNew(project
+        //        final Double areaByLU = geodataFinder.getAreaByLUNew(project
+        //            .getSuitabilityConfig().getUnifiedAreaZone(), project
+        //            .getAreaLabel(), allocationFFName, WifKeys.FUTURELU_PREFIX
+        //            + allocationLU.getFeatureFieldName());
+
+        final Double areaByLU = geodataFinder.getAreaByLUNew2(project
             .getSuitabilityConfig().getUnifiedAreaZone(), project
             .getAreaLabel(), allocationFFName, WifKeys.FUTURELU_PREFIX
-            + allocationLU.getFeatureFieldName());
+            + allocationLU.getFeatureFieldName(), projections);
 
         final AllocationSimpleItemReport allocationSimpleItemReport = new AllocationSimpleItemReport();
         allocationSimpleItemReport.setLanduseName(allocationLU.getLabel());
@@ -242,7 +247,7 @@ public class AllocationReporter {
       }
     }
     allocationSimpleAnalysisReport
-        .setAllocationSimpleItemReport(setallocationSimpleItemReport);
+    .setAllocationSimpleItemReport(setallocationSimpleItemReport);
     LOGGER.info("Finished allocationAnalysisReport for: {}",
         allocationSimpleAnalysisReport.getProjectId());
     return allocationSimpleAnalysisReport;

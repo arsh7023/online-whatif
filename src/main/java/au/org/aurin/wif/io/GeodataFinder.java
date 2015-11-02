@@ -10,7 +10,9 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.TreeSet;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -39,6 +41,7 @@ import org.springframework.stereotype.Component;
 
 import au.org.aurin.wif.exception.io.DatabaseFailedException;
 import au.org.aurin.wif.exception.validate.WifInvalidInputException;
+import au.org.aurin.wif.model.Projection;
 import au.org.aurin.wif.svc.WifKeys;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 
@@ -1102,6 +1105,87 @@ public class GeodataFinder {
 
 
     return true;
+  }
+
+
+  public Double getAreaByLUNew2(final String uazTbl,
+      final String areaFeatureFieldName, final String allocationFFName,
+      final String allocationValue, final TreeSet<Projection> projections) {
+    LOGGER.debug("allocationFFName, allocationValues: {}, {}",
+        allocationFFName, allocationValue);
+    Double area = 0.0;
+    Double d1 = 0.0;
+    Double d2 = 0.0;
+    if (allocationValue == null || allocationFFName == null) {
+      LOGGER
+      .warn(
+          "{}, doesn't have allocation value configured {}, not calculating area",
+          allocationFFName);
+    } else {
+      final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+      String queryTxt = "SELECT SUM(\"" + areaFeatureFieldName
+          + "\") FROM "
+          + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
+          + uazTbl + " WHERE \"" + allocationFFName + "\"" + "  = '"
+          + allocationValue + "'";
+      LOGGER.info("getAreaByLUNew2: {}", queryTxt);
+      d1 = jdbcTemplate.queryForObject(queryTxt, Double.class);
+
+      //////////////////////////////////////////////////////////
+
+      /////new for finding the area which converted to the other landuses.
+
+      final ArrayList<String> columnList = new ArrayList<String>();
+      for (final Projection proj : projections) {
+
+        columnList.add(proj.getLabel());
+      }
+
+      final String[] columnListAll = new String[columnList.size()];
+
+      for (int ind = 0; ind < columnList.size(); ind++)
+      {
+        columnListAll[ind] = "ALU_" + columnList.get(ind);
+
+      }
+
+      Arrays.sort(columnListAll);
+
+      final String firstYear = columnListAll[0];
+
+      if (!firstYear.equals(allocationFFName))
+      {
+        String wherest=" Where \"" + firstYear + "\" ='" + allocationValue + "' AND (";
+
+        wherest = wherest + "(\"" + allocationFFName + "\" <>'" +  allocationValue + "' AND \"" + allocationFFName + "\" <>'')";
+
+        //SELECT SUM("Area_ha_1") FROM wifdemo.wif_4e69b20cdaf897fb53b2cf94525b2a57 WHERE "ALU_2031" = 'FVLD Residential**'
+
+        wherest= wherest + ")";
+
+        queryTxt = "select Sum(\"" + areaFeatureFieldName + "\") from "
+            + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
+            + uazTbl  + wherest;
+
+        LOGGER.info("getAreaByLUNew2 D2 SQL={}", queryTxt);
+        d2 = jdbcTemplate.queryForObject(queryTxt, Double.class);
+      }
+      if (d1 != null)
+      {
+        if (d2 != null)
+        {
+          area = d1- d2;
+        }
+        else
+        {
+          area = d1;
+        }
+      }
+
+
+
+    }
+    return area;
   }
 
 }

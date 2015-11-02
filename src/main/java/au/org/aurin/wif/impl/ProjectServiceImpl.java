@@ -259,12 +259,12 @@ public class ProjectServiceImpl implements ProjectService {
   public WifProject getProjectConfiguration(final String id)
       throws WifInvalidInputException, WifInvalidConfigException {
     WifProject project = wifProjectDao.findProjectById(id);
-    LOGGER.debug("...Building project full configuration: {}",
-        project.getLabel());
+    //LOGGER.debug("...Building project full configuration: {}",
+    //project.getLabel());
     final Collection<SuitabilityLU> suitabilityLUs = project
         .getSuitabilityLUs();
     final Set<SuitabilityLU> suitabilityLUsConfigured = new HashSet<SuitabilityLU>();
-    LOGGER.debug("Loading {} Suitablity Land Uses...", suitabilityLUs.size());
+    //LOGGER.debug("Loading {} Suitablity Land Uses...", suitabilityLUs.size());
     for (SuitabilityLU suitabilityLU : suitabilityLUs) {
       //LOGGER.debug("Suitability LU label: {}", suitabilityLU.getLabel());
       suitabilityLU = suitabilityLUDao.findSuitabilityLUById(suitabilityLU

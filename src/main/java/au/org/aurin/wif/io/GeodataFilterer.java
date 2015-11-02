@@ -898,10 +898,22 @@ public class GeodataFilterer {
     //////////////////////////////////////////////////////
     //////////////////////////////////////////////////////
 
-
+    Double area = 0.0;
+    if (d1 != null)
+    {
+      if (d2 != null)
+      {
+        area = d1- d2;
+      }
+      else
+      {
+        area = d1;
+      }
+    }
 
     //return d1;
-    return d1 - d2;
+    //return d1 - d2;
+    return area;
   }
 
 }
