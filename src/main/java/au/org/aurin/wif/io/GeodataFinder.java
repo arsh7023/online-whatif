@@ -1110,12 +1110,14 @@ public class GeodataFinder {
 
   public Double getAreaByLUNew2(final String uazTbl,
       final String areaFeatureFieldName, final String allocationFFName,
-      final String allocationValue, final TreeSet<Projection> projections) {
+      final String allocationValue, final TreeSet<Projection> projections, final Projection projection) {
     LOGGER.debug("allocationFFName, allocationValues: {}, {}",
         allocationFFName, allocationValue);
     Double area = 0.0;
+    Double d0 = 0.0;
     Double d1 = 0.0;
     Double d2 = 0.0;
+    String queryTxt = "";
     if (allocationValue == null || allocationFFName == null) {
       LOGGER
       .warn(
@@ -1123,13 +1125,13 @@ public class GeodataFinder {
           allocationFFName);
     } else {
       final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-      String queryTxt = "SELECT SUM(\"" + areaFeatureFieldName
-          + "\") FROM "
-          + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
-          + uazTbl + " WHERE \"" + allocationFFName + "\"" + "  = '"
-          + allocationValue + "'";
-      LOGGER.info("getAreaByLUNew2: {}", queryTxt);
-      d1 = jdbcTemplate.queryForObject(queryTxt, Double.class);
+      //       queryTxt = "SELECT SUM(\"" + areaFeatureFieldName
+      //          + "\") FROM "
+      //          + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
+      //          + uazTbl + " WHERE \"" + allocationFFName + "\"" + "  = '"
+      //          + allocationValue + "'";
+      //      LOGGER.info("getAreaByLUNew2: {}", queryTxt);
+      //      d1 = jdbcTemplate.queryForObject(queryTxt, Double.class);
 
       //////////////////////////////////////////////////////////
 
@@ -1137,8 +1139,9 @@ public class GeodataFinder {
 
       final ArrayList<String> columnList = new ArrayList<String>();
       for (final Projection proj : projections) {
-
-        columnList.add(proj.getLabel());
+        if (proj.getYear() <= projection.getYear()) {
+          columnList.add(proj.getLabel());
+        }
       }
 
       final String[] columnListAll = new String[columnList.size()];
@@ -1153,34 +1156,105 @@ public class GeodataFinder {
 
       final String firstYear = columnListAll[0];
 
+      queryTxt = "SELECT SUM(\"" + areaFeatureFieldName
+          + "\") FROM "
+          + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
+          + uazTbl + " WHERE \"" + firstYear + "\"" + "  = '"
+          + allocationValue + "'";
+      LOGGER.info("getAreaByLUNew2: {}", queryTxt);
+      d0 = jdbcTemplate.queryForObject(queryTxt, Double.class); //first year
+
       if (!firstYear.equals(allocationFFName))
       {
-        String wherest=" Where \"" + firstYear + "\" ='" + allocationValue + "' AND (";
+        //        String wherest=" Where \"" + firstYear + "\" ='" + allocationValue + "' AND (";
+        //        wherest = wherest + "(\"" + allocationFFName + "\" <>'" +  allocationValue + "' AND \"" + allocationFFName + "\" <>'')";
+        //        wherest= wherest + ")";
+        //
+        //        queryTxt = "select Sum(\"" + areaFeatureFieldName + "\") from "
+        //            + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
+        //            + uazTbl  + wherest;
+        //
+        //        LOGGER.info("getAreaByLUNew2 D2 SQL={}", queryTxt);
+        //        d2 = jdbcTemplate.queryForObject(queryTxt, Double.class);
 
-        wherest = wherest + "(\"" + allocationFFName + "\" <>'" +  allocationValue + "' AND \"" + allocationFFName + "\" <>'')";
 
-        //SELECT SUM("Area_ha_1") FROM wifdemo.wif_4e69b20cdaf897fb53b2cf94525b2a57 WHERE "ALU_2031" = 'FVLD Residential**'
 
-        wherest= wherest + ")";
-
-        queryTxt = "select Sum(\"" + areaFeatureFieldName + "\") from "
+        //////////////////////////////////////////////
+        queryTxt = "SELECT SUM(\"" + areaFeatureFieldName
+            + "\") FROM "
             + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
-            + uazTbl  + wherest;
+            + uazTbl + " WHERE ";
 
-        LOGGER.info("getAreaByLUNew2 D2 SQL={}", queryTxt);
+        String wherest="";
+        for (int ind = 1; ind <= columnListAll.length -1; ind++)
+        {
+          final String ff =columnListAll[ind];
+          if (ind ==1)
+          {
+            wherest = wherest + " (\"" + ff + "\" ='" +  allocationValue + "')";
+          }
+          else
+          {
+            wherest = wherest + " OR (\"" + ff + "\" ='" +  allocationValue + "')";
+          }
+
+        }
+        queryTxt = queryTxt + wherest;
+
+        LOGGER.info("getAreaByLUNew2: {}", queryTxt);
+        d1 = jdbcTemplate.queryForObject(queryTxt, Double.class);
+        ////////////////////////////////////////////////////
+
+        queryTxt = "SELECT SUM(\"" + areaFeatureFieldName
+            + "\") FROM "
+            + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
+            + uazTbl + " WHERE ";
+
+        wherest="(\"" + firstYear + "\" ='" + allocationValue + "') AND (";
+
+        for (int ind = 1; ind <= columnListAll.length -1; ind++)
+        {
+          final String ff =columnListAll[ind];
+          if (ind ==1)
+          {
+            wherest = wherest + "(\"" + ff + "\" <>'" +  allocationValue + "' AND \"" + ff + "\" <>'')";
+          }
+          else
+          {
+            wherest = wherest + " OR (\"" + ff + "\" <>'" +  allocationValue + "' AND \"" + ff + "\" <>'')";
+          }
+
+        }
+        queryTxt = queryTxt + wherest + ")";
+
+        LOGGER.info("getAreaByLUNew2 d2: {}", queryTxt);
         d2 = jdbcTemplate.queryForObject(queryTxt, Double.class);
+        if (d1 != null)
+        {
+          if (d2 != null)
+          {
+            area = d1- d2;
+          }
+          else
+          {
+            area = d1;
+          }
+        }
+
+        if (d0 != null)
+        {
+          area = area  + d0;
+        }
+
       }
-      if (d1 != null)
+      else //if (!firstYear.equals(allocationFFName))
       {
-        if (d2 != null)
+        if (d0 != null)
         {
-          area = d1- d2;
-        }
-        else
-        {
-          area = d1;
+          area = area  + d0;
         }
       }
+
 
 
 

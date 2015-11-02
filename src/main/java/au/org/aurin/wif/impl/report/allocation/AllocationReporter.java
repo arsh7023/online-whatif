@@ -230,7 +230,7 @@ public class AllocationReporter {
         final Double areaByLU = geodataFinder.getAreaByLUNew2(project
             .getSuitabilityConfig().getUnifiedAreaZone(), project
             .getAreaLabel(), allocationFFName, WifKeys.FUTURELU_PREFIX
-            + allocationLU.getFeatureFieldName(), projections);
+            + allocationLU.getFeatureFieldName(), projections, projection);
 
         final AllocationSimpleItemReport allocationSimpleItemReport = new AllocationSimpleItemReport();
         allocationSimpleItemReport.setLanduseName(allocationLU.getLabel());
