@@ -311,9 +311,9 @@ public class AllocationAnalyzer {
 
     // for (AllocationLU allocationLU : landUseOrder) {
     for (final AllocationLU allocationLU : setAlu) {
-      LOGGER.debug("Priority of {} for {} ", allocationLU.getPriority(),
+      LOGGER.info("Priority of {} for {} ", allocationLU.getPriority(),
           allocationLU.getLabel());
-      LOGGER.debug("id {} Number of area requirements {} ",
+      LOGGER.info("id {} Number of area requirements {} ",
           allocationLU.getId(), allocationLU.getAreaRequirements().size());
     }
     for (final Projection projection : projectedSet) {
@@ -528,116 +528,165 @@ public class AllocationAnalyzer {
 
                     final Double remainingArea = FindAreaRequirenment(allocationScenario, futureLU ,projection, outcome);
 
-                    // Double dfirstYear = geodataFilterer.getSumAreaFirstYear(
-                    // allocationScenario, futureLU);
-                    Double dfirstYear = 0.0;
-                    for (final String landUseKey : mapLanduseSize.keySet()) {
-                      if (futureLU.getLabel().equals(landUseKey)) {
-                        dfirstYear = mapLanduseSize.get(landUseKey);
+
+                    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    //////////////////////////////////////////////////////////////////////////////
+                    ////new if for residential land uses if they demand is zero in an automatic demand scenario.
+                    Boolean lswResidential = false;
+                    if (remainingArea == 0.0)
+                    {
+
+                      if (allocationScenario.isManual()) {
+                        final String scenarioID = allocationScenario.getManualdemandScenarioId();
+
+                        final List<DemandScenario> listDemand = demandScenarioService
+                            .getDemandScenarios(project.getId());
+                        Boolean lsw = false;
+                        for (final DemandScenario dsn : listDemand) {
+                          if (dsn.getId().equals(scenarioID)) {
+                            lsw = true;
+                          }
+                        }
+                        if (lsw == false) {
+                          //manual
+                        } else {
+                          //Automatic Scenario
+                          final DemandScenario dsd = demandScenarioService.getDemandScenario(scenarioID);
+                          final Set<DemandInfo> demandInfos = dsd.getDemandInfos();
+
+                          for (final DemandInfo demandInfo : demandInfos) {
+                            if (demandInfo instanceof ResidentialDemandInfo) {
+                              final ResidentialDemandInfo resDInfo = (ResidentialDemandInfo) demandInfo;
+
+                              if (futureLU.getId().equals(resDInfo.getAllocationLUId()))
+                              {
+                                lswResidential = true;
+                              }
+
+                            }
+                          }
+
+                        }
                       }
-
                     }
-                    final Double dprojectionYear = geodataFilterer
-                        .getSumAreaProjectionYear(allocationScenario,
-                            projection, futureLU);
 
-                    Double demandHappend = 0.0;
-                    Double demandExpected = 0.0;
-                    Double extranew = 0.0;
-                    Double extraused = 0.0;
+                    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    ///////////////////////////////////////////////////////////////////////////////////////////////
 
-                    demandExpected = dfirstYear + remainingArea;
-                    demandHappend = dfirstYear + dprojectionYear;
+                    if (lswResidential == false)
+                    {
 
-                    demandExpected = remainingArea;
-                    demandHappend = dprojectionYear;
-
-                    // demandHappend = dfirstYear + dprojectionYear +
-                    // mapLanduseExtra.get(futureLU.getLabel());
-
-                    if (mapLanduseExtra.get(futureLU.getLabel()) > 0) {
-
-                      if (mapLanduseExtra.get(futureLU.getLabel()) >= remainingArea) {
-                        extranew = mapLanduseExtra.get(futureLU.getLabel())
-                            - remainingArea;
-                        extraused = remainingArea;
-                      } else {
-                        extranew = 0.0;
-                        extraused = mapLanduseExtra.get(futureLU.getLabel());
+                      // Double dfirstYear = geodataFilterer.getSumAreaFirstYear(
+                      // allocationScenario, futureLU);
+                      Double dfirstYear = 0.0;
+                      for (final String landUseKey : mapLanduseSize.keySet()) {
+                        if (futureLU.getLabel().equals(landUseKey)) {
+                          dfirstYear = mapLanduseSize.get(landUseKey);
+                        }
 
                       }
-                      // mapLanduseExtra.put(futureLU.getLabel(), extranew);
+                      final Double dprojectionYear = geodataFilterer
+                          .getSumAreaProjectionYear(allocationScenario,
+                              projection, futureLU);
 
-                    }
-                    demandHappend = demandHappend + extraused;
-                    if (k == 1) {
+                      Double demandHappend = 0.0;
+                      Double demandExpected = 0.0;
+                      Double extranew = 0.0;
+                      Double extraused = 0.0;
+
+                      demandExpected = dfirstYear + remainingArea;
+                      demandHappend = dfirstYear + dprojectionYear;
+
+                      demandExpected = remainingArea;
+                      demandHappend = dprojectionYear;
+
+                      // demandHappend = dfirstYear + dprojectionYear +
+                      // mapLanduseExtra.get(futureLU.getLabel());
+
+                      if (mapLanduseExtra.get(futureLU.getLabel()) > 0) {
+
+                        if (mapLanduseExtra.get(futureLU.getLabel()) >= remainingArea) {
+                          extranew = mapLanduseExtra.get(futureLU.getLabel())
+                              - remainingArea;
+                          extraused = remainingArea;
+                        } else {
+                          extranew = 0.0;
+                          extraused = mapLanduseExtra.get(futureLU.getLabel());
+
+                        }
+                        // mapLanduseExtra.put(futureLU.getLabel(), extranew);
+
+                      }
+                      demandHappend = demandHappend + extraused;
+                      if (k == 1) {
+
+                        if (Math.abs(demandHappend - demandExpected) < 1) {
+                          mapLanduseExtra.put(futureLU.getLabel(), extranew);
+                        } else if (demandHappend < demandExpected) {
+                        } else {
+                          mapLanduseExtra.put(futureLU.getLabel(), extranew);
+                        }
+
+                        // mapLanduseExtra.put(futureLU.getLabel(), extranew);
+
+                        LOGGER.info("toltal extra used for "
+                            + futureLU.getLabel() + " in year "
+                            + projection.getLabel() + " is :"
+                            + extraused.toString());
+
+                        LOGGER.info("toltal area needed for "
+                            + futureLU.getLabel() + " in year "
+                            + projection.getLabel() + " before alloction is :"
+                            + demandExpected.toString());
+
+                        LOGGER.info("toltal area needed for "
+                            + futureLU.getLabel() + " in year "
+                            + projection.getLabel() + " after alloction is :"
+                            + demandHappend.toString());
+                      }
 
                       if (Math.abs(demandHappend - demandExpected) < 1) {
-                        mapLanduseExtra.put(futureLU.getLabel(), extranew);
+                        // mapLanduseExtra.put(futureLU.getLabel(), extranew);
+                        mapLanduseControl.put(futureLU.getLabel(), true);
+
                       } else if (demandHappend < demandExpected) {
-                      } else {
+                        lswRepeat = true;
+                        final Double newremainingArea = demandExpected
+                            - demandHappend;
+                        LOGGER.info("Allocating remaining area needed for "
+                            + futureLU.getLabel() + " in year "
+                            + projection.getLabel()
+                            + " in first control loop for k = " + k
+                            + " ,for remaining :" + newremainingArea.toString());
+                        final String sql = geodataFilterer.getAllocationRuleNew(
+                            futureLU, allocationScenario, scoreLabel,
+                            existingLULabel, PlannedSQL, InfrastructureSQL,
+                            GrowthPatternFields, newremainingArea, projection);
+
+                        geodataFinder.updateALlocationColumnNew(sql);
+
+                      } else if (demandHappend > demandExpected) {
+
+                        mapLanduseControl.put(futureLU.getLabel(), true);
+                        // if land extra allocated before.
+                        final Double offValue = demandHappend - demandExpected;
+                        extranew = extranew + offValue;
                         mapLanduseExtra.put(futureLU.getLabel(), extranew);
+
+                        LOGGER
+                        .info("putting "
+                            + offValue.toString()
+                            + " as Extra for land use "
+                            + futureLU.getLabel()
+                            + " since we had extra and in control phase in projection year:"
+                            + projection.getLabel());
+
                       }
-
-                      // mapLanduseExtra.put(futureLU.getLabel(), extranew);
-
-                      LOGGER.info("toltal extra used for "
-                          + futureLU.getLabel() + " in year "
-                          + projection.getLabel() + " is :"
-                          + extraused.toString());
-
-                      LOGGER.info("toltal area needed for "
-                          + futureLU.getLabel() + " in year "
-                          + projection.getLabel() + " before alloction is :"
-                          + demandExpected.toString());
-
-                      LOGGER.info("toltal area needed for "
-                          + futureLU.getLabel() + " in year "
-                          + projection.getLabel() + " after alloction is :"
-                          + demandHappend.toString());
-                    }
-
-                    if (Math.abs(demandHappend - demandExpected) < 1) {
-                      // mapLanduseExtra.put(futureLU.getLabel(), extranew);
-                      mapLanduseControl.put(futureLU.getLabel(), true);
-
-                    } else if (demandHappend < demandExpected) {
-                      lswRepeat = true;
-                      final Double newremainingArea = demandExpected
-                          - demandHappend;
-                      LOGGER.info("Allocating remaining area needed for "
-                          + futureLU.getLabel() + " in year "
-                          + projection.getLabel()
-                          + " in first control loop for k = " + k
-                          + " ,for remaining :" + newremainingArea.toString());
-                      final String sql = geodataFilterer.getAllocationRuleNew(
-                          futureLU, allocationScenario, scoreLabel,
-                          existingLULabel, PlannedSQL, InfrastructureSQL,
-                          GrowthPatternFields, newremainingArea, projection);
-
-                      geodataFinder.updateALlocationColumnNew(sql);
-
-                    } else if (demandHappend > demandExpected) {
-
-                      mapLanduseControl.put(futureLU.getLabel(), true);
-                      // if land extra allocated before.
-                      final Double offValue = demandHappend - demandExpected;
-                      extranew = extranew + offValue;
-                      mapLanduseExtra.put(futureLU.getLabel(), extranew);
-
-                      LOGGER
-                      .info("putting "
-                          + offValue.toString()
-                          + " as Extra for land use "
-                          + futureLU.getLabel()
-                          + " since we had extra and in control phase in projection year:"
-                          + projection.getLabel());
-
-                    }
+                    }// end if (lswResidential == false)
 
                   }// endif(mapLanduseControl.get(futureLU.getLabel()) ==false)
 
-                }// end if
+                }// end if (futureLU.getAssociatedLU() != null) {
               }// end if (futureLU.getPriority() == i + 1) {
             }
           }//

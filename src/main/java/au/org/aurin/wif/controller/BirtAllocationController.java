@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -42,9 +43,12 @@ import au.org.aurin.wif.exception.config.ParsingException;
 import au.org.aurin.wif.exception.config.WifInvalidConfigException;
 import au.org.aurin.wif.exception.validate.IncompleteDemandScenarioException;
 import au.org.aurin.wif.exception.validate.WifInvalidInputException;
+import au.org.aurin.wif.impl.allocation.comparators.YearComparator;
+import au.org.aurin.wif.model.Projection;
 import au.org.aurin.wif.model.WifProject;
 import au.org.aurin.wif.model.allocation.AllocationScenario;
 import au.org.aurin.wif.model.demand.AreaRequirement;
+import au.org.aurin.wif.model.demand.DemandConfig;
 import au.org.aurin.wif.model.demand.DemandOutcome;
 import au.org.aurin.wif.model.demand.DemandScenario;
 import au.org.aurin.wif.model.reports.BirtReport;
@@ -55,6 +59,7 @@ import au.org.aurin.wif.svc.allocation.AllocationScenarioService;
 import au.org.aurin.wif.svc.demand.DemandOutcomeService;
 import au.org.aurin.wif.svc.demand.DemandScenarioService;
 import au.org.aurin.wif.svc.report.ReportService;
+import au.org.aurin.wif.svc.suitability.DemandConfigService;
 import au.org.aurin.wif.svc.suitability.SuitabilityScenarioService;
 
 @Controller
@@ -93,6 +98,9 @@ public class BirtAllocationController {
   /** The demand outcome service. */
   @Resource
   private DemandOutcomeService manualdemandScenarioService;
+
+  @Resource
+  private DemandConfigService demandConfigService;
 
   /** The Constant LOGGER. */
   private static final Logger LOGGER = LoggerFactory
@@ -659,6 +667,17 @@ public class BirtAllocationController {
     DemandOutcome manualdemandScn;
     final WifProject project = allocationScenario.getWifProject();
 
+    final String prjID = allocationScenario.getProjectId();
+
+    LOGGER.info("projectId: " + prjID);
+    final DemandConfig demandConfig = demandConfigService
+        .getDemandConfig(prjID);
+
+    final TreeSet<Projection> projections = new TreeSet<Projection>(
+        new YearComparator());
+    projections.addAll(demandConfig.getProjections());
+    final Projection current = projections.first();
+
     final String suitabilityScenarioId = allocationScenario
         .getSuitabilityScenarioId();
     final SuitabilityScenario suitabilityScenario = suitabilityScenarioService
@@ -709,6 +728,43 @@ public class BirtAllocationController {
       Double alloc_value = 0.0;
       alloc_value = (double)Math.round(s.getSumofArea() * 100);
       alloc_value = alloc_value/100;
+
+      /////////////////////////////////
+      Double alloc_value_Prev = 0.0;
+
+      Projection projectionPrev = null;
+      if (current.getYear().equals(s.getYear()))
+      {
+        alloc_value_Prev = alloc_value;
+      }
+      else
+      {
+
+        for (final Projection projection: projections)
+        {
+          if (projection.getYear().equals(s.getYear()))
+          {
+            projectionPrev = projections.lower(projection);
+            break;
+          }
+        }
+      }
+
+
+      if (projectionPrev != null)
+      {
+        for (final AllocationSimpleItemReport sin : it) {
+          if (projectionPrev.getYear().equals(sin.getYear()))
+          {
+            if (s.getLanduseName().equals(sin.getLanduseName()))
+            {
+              alloc_value_Prev = (double)Math.round(sin.getSumofArea() * 100);
+              alloc_value_Prev = alloc_value_Prev/100;
+            }
+          }
+        }
+      }
+      ///////////////////////////////////
 
 
       str.append("<list>");
@@ -761,7 +817,15 @@ public class BirtAllocationController {
       str.append("</value>");
 
       str.append("<value>");
-      str.append(percentage);
+      //str.append(percentage);
+      Double diffvalue = alloc_value - alloc_value_Prev;
+
+
+      diffvalue = (double)Math.round(diffvalue * 100);
+      diffvalue = diffvalue/100;
+
+      //LOGGER.info("DIFF value: " + diffvalue);
+      str.append(diffvalue);
       str.append("</value>");
 
       str.append("</list>");
@@ -832,7 +896,7 @@ public class BirtAllocationController {
       birtEngine = factory.createReportEngine(config);
 
       final URL peopleresource = getClass()
-          .getResource("/allocationnewpdf.rptdesign"); // allocation.rptdesign
+          .getResource("/allocationnewpdf2.rptdesign"); // allocation.rptdesign
 
       IReportRunnable runnable = null;
       runnable = birtEngine.openReportDesign(peopleresource.getFile());
@@ -926,6 +990,16 @@ public class BirtAllocationController {
 
     DemandOutcome manualdemandScn;
     final WifProject project = allocationScenario.getWifProject();
+    final String prjID = allocationScenario.getProjectId();
+
+    LOGGER.info("projectId: " + prjID);
+    final DemandConfig demandConfig = demandConfigService
+        .getDemandConfig(prjID);
+
+    final TreeSet<Projection> projections = new TreeSet<Projection>(
+        new YearComparator());
+    projections.addAll(demandConfig.getProjections());
+    final Projection current = projections.first();
 
     final String suitabilityScenarioId = allocationScenario
         .getSuitabilityScenarioId();
@@ -978,6 +1052,44 @@ public class BirtAllocationController {
       alloc_value = (double)Math.round(s.getSumofArea() * 100);
       alloc_value = alloc_value/100;
 
+      /////////////////////////////////
+      Double alloc_value_Prev = 0.0;
+
+      Projection projectionPrev = null;
+      if (current.getYear().equals(s.getYear()))
+      {
+        alloc_value_Prev = alloc_value;
+      }
+      else
+      {
+
+        for (final Projection projection: projections)
+        {
+          if (projection.getYear().equals(s.getYear()))
+          {
+            projectionPrev = projections.lower(projection);
+            break;
+          }
+        }
+      }
+
+
+      if (projectionPrev != null)
+      {
+        for (final AllocationSimpleItemReport sin : it) {
+          if (projectionPrev.getYear().equals(sin.getYear()))
+          {
+            if (s.getLanduseName().equals(sin.getLanduseName()))
+            {
+              alloc_value_Prev = (double)Math.round(sin.getSumofArea() * 100);
+              alloc_value_Prev = alloc_value_Prev/100;
+            }
+          }
+        }
+      }
+      ///////////////////////////////////
+
+
       str.append("<list>");
       str.append("<value>");
       str.append(s.getLanduseName());
@@ -1025,7 +1137,16 @@ public class BirtAllocationController {
       str.append("</value>");
 
       str.append("<value>");
-      str.append(percentage);
+      //str.append(percentage);
+
+      Double diffvalue = alloc_value - alloc_value_Prev;
+
+
+      diffvalue = (double)Math.round(diffvalue * 100);
+      diffvalue = diffvalue/100;
+
+      //LOGGER.info("DIFF value: " + diffvalue);
+      str.append(diffvalue);
       str.append("</value>");
 
       str.append("</list>");
@@ -1095,8 +1216,8 @@ public class BirtAllocationController {
           .createFactoryObject(IReportEngineFactory.EXTENSION_REPORT_ENGINE_FACTORY);
       birtEngine = factory.createReportEngine(config);
 
-      final URL peopleresource = getClass()
-          .getResource("/allocationnew.rptdesign"); // allocation.rptdesign
+      //final URL peopleresource = getClass().getResource("/allocationnew.rptdesign"); // allocation.rptdesign
+      final URL peopleresource = getClass().getResource("/allocationnew2.rptdesign"); // allocationnew.rptdesign
 
       IReportRunnable runnable = null;
       runnable = birtEngine.openReportDesign(peopleresource.getFile());

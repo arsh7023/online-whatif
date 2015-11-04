@@ -1,6 +1,7 @@
 package au.org.aurin.wif.impl.report.allocation;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import au.org.aurin.wif.exception.config.ParsingException;
 import au.org.aurin.wif.exception.config.WifInvalidConfigException;
 import au.org.aurin.wif.exception.validate.WifInvalidInputException;
-import au.org.aurin.wif.impl.allocation.AllocationAnalyzer;
 import au.org.aurin.wif.impl.allocation.comparators.YearComparator;
 import au.org.aurin.wif.io.GeodataFinder;
 import au.org.aurin.wif.model.Projection;
@@ -36,6 +36,7 @@ import au.org.aurin.wif.model.reports.allocation.AllocationAnalysisReport;
 import au.org.aurin.wif.model.reports.allocation.AllocationSimpleAnalysisReport;
 import au.org.aurin.wif.model.reports.allocation.AllocationSimpleItemReport;
 import au.org.aurin.wif.repo.allocation.AllocationConfigsDao;
+import au.org.aurin.wif.svc.AllocationLUService;
 import au.org.aurin.wif.svc.ProjectService;
 import au.org.aurin.wif.svc.WifKeys;
 import au.org.aurin.wif.svc.suitability.DemandConfigService;
@@ -48,9 +49,11 @@ public class AllocationReporter {
   @SuppressWarnings("unused")
   private static final long serialVersionUID = 1363346734533L;
 
-  /** The allocation analyzer. */
-  @Autowired
-  private AllocationAnalyzer allocationAnalyzer;
+
+
+  /** The allocation lu service. */
+  @Resource
+  private AllocationLUService allocationLUService;
 
   /** The Constant LOGGER. */
   private static final Logger LOGGER = LoggerFactory
@@ -203,19 +206,19 @@ public class AllocationReporter {
         new YearComparator());
     projections.addAll(demandConfig.getProjections());
     final Projection current = projections.first();
-    LOGGER.debug("current year projection: {}", current.getLabel());
-    // setting up taking into account current projection year is not a
-    // projection by itself,per se,
-    // NavigableSet<Projection> projectedSet = projections.tailSet(
-    // projections.first(), false);
-    final Set<AllocationLU> allocationLandUses = project
-        .getAllocationLandUses();
+    LOGGER.info("current year projection: {}", current.getLabel());
+
+    //    final Set<AllocationLU> allocationLandUses = project
+    //        .getAllocationLandUses();
+
+    final List<AllocationLU> allocationLandUses  = allocationLUService.getAllocationLUsSuitabilityAssociated(projectId);
     for (final AllocationLU allocationLU : allocationLandUses) {
       if (allocationLU.getLabel() == null) {
         LOGGER.warn("Not performing analysis for null label for LU: {}",
             allocationLU.getId());
         continue;
       }
+
       for (final Projection projection : projections) {
         LOGGER.debug("getAreaByLU for: {}, id {}", allocationLU.getLabel(),
             allocationLU.getId());
@@ -232,6 +235,8 @@ public class AllocationReporter {
             .getAreaLabel(), allocationFFName, WifKeys.FUTURELU_PREFIX
             + allocationLU.getFeatureFieldName(), projections, projection);
 
+        final Double areaByLU2 = 0.0;
+
         final AllocationSimpleItemReport allocationSimpleItemReport = new AllocationSimpleItemReport();
         allocationSimpleItemReport.setLanduseName(allocationLU.getLabel());
         if (areaByLU == null) {
@@ -239,6 +244,10 @@ public class AllocationReporter {
         } else {
           allocationSimpleItemReport.setSumofArea(areaByLU);
         }
+
+
+        allocationSimpleItemReport.setSumofPreviousArea(areaByLU2);
+
 
         allocationSimpleItemReport.setYear(projection.getYear());
 
