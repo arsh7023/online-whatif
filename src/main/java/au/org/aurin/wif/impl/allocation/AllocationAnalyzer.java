@@ -70,6 +70,8 @@ import au.org.aurin.wif.model.demand.DemandOutcome;
 import au.org.aurin.wif.model.demand.DemandScenario;
 import au.org.aurin.wif.model.demand.info.DemandInfo;
 import au.org.aurin.wif.model.demand.info.ResidentialDemandInfo;
+import au.org.aurin.wif.model.reports.allocation.AllocationSimpleAnalysisReport;
+import au.org.aurin.wif.model.reports.allocation.AllocationSimpleItemReport;
 import au.org.aurin.wif.model.suitability.SuitabilityLU;
 import au.org.aurin.wif.model.suitability.SuitabilityScenario;
 import au.org.aurin.wif.repo.allocation.AllocationConfigsDao;
@@ -80,6 +82,7 @@ import au.org.aurin.wif.repo.demand.DemandScenarioDao;
 import au.org.aurin.wif.svc.AllocationLUService;
 import au.org.aurin.wif.svc.WifKeys;
 import au.org.aurin.wif.svc.demand.DemandScenarioService;
+import au.org.aurin.wif.svc.report.ReportService;
 
 /**
  * The Class AllocationAnalyzer.
@@ -136,6 +139,12 @@ public class AllocationAnalyzer {
 
   @Autowired
   private DemandScenarioService demandScenarioService;
+
+  @Autowired
+  private AllocationSimpleAnalysisReport allocationSimpleAnalysisReport;
+
+  @Autowired
+  private ReportService reportService;
 
   /** The Constant LOGGER. */
   private static final Logger LOGGER = LoggerFactory
@@ -398,7 +407,7 @@ public class AllocationAnalyzer {
     }
 
 
-    // 1. Allocate within each projection and for each land-use
+    //// 1. Allocate within each  projection and for  each land-use
     for (final Projection projection : projectedSet) {
       LOGGER.info("performing allocation analysis for projection year: {}",
           projection.getLabel());
@@ -531,7 +540,8 @@ public class AllocationAnalyzer {
 
                     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                     //////////////////////////////////////////////////////////////////////////////
-                    ////new if for residential land uses if they demand is zero in an automatic demand scenario.
+                    ////new for residential land uses, if they demand is zero in an automatic demand scenario.
+                    ////we check it later.
                     Boolean lswResidential = false;
                     if (remainingArea == 0.0)
                     {
@@ -743,8 +753,8 @@ public class AllocationAnalyzer {
                 for (final DemandInfo demandInfo : demandInfos) {
                   if (demandInfo instanceof ResidentialDemandInfo) {
                     final ResidentialDemandInfo resDInfo = (ResidentialDemandInfo) demandInfo;
-                    LOGGER.info(" ResidentialDemandInfo : {} ",
-                        resDInfo.getResidentialLUId());
+                    //                    LOGGER.info(" ResidentialDemandInfo : {} ",
+                    //                        resDInfo.getResidentialLUId());
 
                     if (DeficitfutureLU.getId().equals(resDInfo.getAllocationLUId()))
                     {
@@ -805,7 +815,7 @@ public class AllocationAnalyzer {
                           //but first need to know how much land
 
                           final Double householdCount = deficitDemand * resDInfo.getCurrentDensity();
-                          //now find how much land we require to accomodate this number of houses.
+                          //now find how much land we require to accommodate this number of houses.
                           Double actualDemand = 0.0;
                           if (LUbMaxCurDensity > 0)
                           {
@@ -874,214 +884,97 @@ public class AllocationAnalyzer {
 
     }// for projection loop
 
-    // ////////////////////////Second loop
 
+    //////report
     String notSatisfield = "";
     String returnStr = "";
 
-    for (final AllocationLU futureLU : landUseOrder) {
+    allocationSimpleAnalysisReport = new AllocationSimpleAnalysisReport();
+    allocationSimpleAnalysisReport = reportService
+        .getAllocationSimpleAnalysisReport(allocationScenario);
+    final Set<AllocationSimpleItemReport> it = allocationSimpleAnalysisReport
+        .getAllocationSimpleItemReport();
 
-      mapLanduseExtra.put(futureLU.getLabel(), 0.0);
+
+    for (final AllocationSimpleItemReport s : it) {
+
+      Double alloc_value = 0.0;
+      alloc_value = (double)Math.round(s.getSumofArea() * 100);
+      alloc_value = alloc_value/100;
+
+      /////////////////////////////////
+      Double alloc_value_Prev = 0.0;
+
+      Projection projectionPrev = null;
+      if (current.getYear().equals(s.getYear()))
+      {
+        alloc_value_Prev = alloc_value;
+      }
+      else
+      {
+
+        for (final Projection projection: projections)
+        {
+          if (projection.getYear().equals(s.getYear()))
+          {
+            projectionPrev = projections.lower(projection);
+            break;
+          }
+        }
+      }
+
+
+      if (projectionPrev != null)
+      {
+        for (final AllocationSimpleItemReport sin : it) {
+          if (projectionPrev.getYear().equals(sin.getYear()))
+          {
+            if (s.getLanduseName().equals(sin.getLanduseName()))
+            {
+              alloc_value_Prev = (double)Math.round(sin.getSumofArea() * 100);
+              alloc_value_Prev = alloc_value_Prev/100;
+            }
+          }
+        }
+      }
+      ///////////////////////////////////
+
+      Double demand_value = 0.0;
+      for (final AreaRequirement area: outcome)
+      {
+        if (area.getAllocationLULabel().equals(s.getLanduseName()))
+        {
+          if (Integer.valueOf(area.getProjectionLabel()) == s.getYear())
+          {
+
+            //demand_value = (double) (Math.round(area.getRequiredArea() * 100000) / 100000);
+            demand_value = area.getRequiredArea();
+            demand_value = (double)Math.round(demand_value * 100);
+            demand_value = demand_value/100;
+          }
+        }
+      }
+
+
+      Double diffvalue = alloc_value - alloc_value_Prev;
+
+
+      diffvalue = (double)Math.round(diffvalue * 100);
+      diffvalue = diffvalue/100;
+
+      if (demand_value > 0)
+      {
+        if (diffvalue < demand_value)
+        {
+          notSatisfield = notSatisfield + "[" +  s.getYear() + " for:" + s.getLanduseName() + "],";
+        }
+      }
+
+
     }
 
-    for (final Projection projection : projectedSet) {
 
-      final ArrayList<String> notSatisfieldLUArr = new ArrayList<String>();
-
-      LOGGER
-      .info(
-          "performing remaining allocation analysis for Second time to make sure allocation satisfied for projection year: {}",
-          projection.getLabel());
-
-      // new
-      final Map<String, Boolean> mapLanduseControl = new HashMap<String, Boolean>();
-      for (final AllocationLU futureLU : landUseOrder) {
-        mapLanduseControl.put(futureLU.getLabel(), false);
-      }
-
-      Boolean lswRepeat = false;
-      for (int k = 1; k <= 3; k++) {
-
-        LOGGER.info("k in second control loop is " + k + " ,lswRepeat is: "
-            + lswRepeat + ", projection is:" + projection.getLabel());
-
-        if (k == 1 || lswRepeat == true) {
-          lswRepeat = false;
-          for (int i = 0; i < setAlu.size(); i++) {
-            for (final AllocationLU futureLU : landUseOrder) {
-              if (futureLU.getPriority() == i + 1) {
-                String scoreLabel = "";
-
-                LOGGER.info("mapLanduseControl in second control loop for "
-                    + futureLU.getLabel() + " in  k =" + k + " is: "
-                    + mapLanduseControl.get(futureLU.getLabel()));
-                if (mapLanduseControl.get(futureLU.getLabel()) == false) {
-
-                  Boolean lswstl = true;
-                  for (final String stl : notSatisfieldLUArr) {
-                    if (stl.equals(futureLU.getLabel())) {
-                      lswstl = false;
-                    }
-                  }
-                  if (lswstl == true) {
-                    notSatisfieldLUArr.add(futureLU.getLabel());
-                  }
-
-                  if (futureLU.getAssociatedLU() != null) {
-                    scoreLabel = futureLU.getAssociatedLU()
-                        .getFeatureFieldName();
-
-                    // ///////////////////////////////////////////////
-                    // control scenario
-
-                    final ArrayList<String> GrowthPatternFields = new ArrayList<String>();
-                    String PlannedSQL = "";
-                    String InfrastructureSQL = "";
-
-                    if (!allocationScenario.getControlScenarioId().equals("None")) {
-                      PlannedSQL  = FindPlannedSQL(allocationScenario,  allocationConfig,  futureLU);
-                      InfrastructureSQL = FindInfraSQL( allocationScenario, allocationConfig,  futureLU,  projection);
-                    }
-
-                    final Double remainingArea = FindAreaRequirenment(allocationScenario, futureLU ,projection, outcome);
-
-                    // Double dfirstYear = geodataFilterer.getSumAreaFirstYear(
-                    // allocationScenario, futureLU);
-                    Double dfirstYear = 0.0;
-                    for (final String landUseKey : mapLanduseSize.keySet()) {
-                      if (futureLU.getLabel().equals(landUseKey)) {
-                        dfirstYear = mapLanduseSize.get(landUseKey);
-                      }
-
-                    }
-                    final Double dprojectionYear = geodataFilterer
-                        .getSumAreaProjectionYear(allocationScenario,
-                            projection, futureLU);
-
-                    Double demandHappend = 0.0;
-                    Double demandExpected = 0.0;
-                    Double extranew = 0.0;
-                    Double extraused = 0.0;
-
-                    demandExpected = dfirstYear + remainingArea;
-                    demandHappend = dfirstYear + dprojectionYear;
-
-                    demandExpected = remainingArea;
-                    demandHappend = dprojectionYear;
-
-                    // demandHappend = dfirstYear + dprojectionYear +
-                    // mapLanduseExtra.get(futureLU.getLabel());
-
-                    if (mapLanduseExtra.get(futureLU.getLabel()) > 0) {
-
-                      if (mapLanduseExtra.get(futureLU.getLabel()) >= remainingArea) {
-                        extranew = mapLanduseExtra.get(futureLU.getLabel())
-                            - remainingArea;
-                        extraused = remainingArea;
-                      } else {
-                        extranew = 0.0;
-                        extraused = mapLanduseExtra.get(futureLU.getLabel());
-
-                      }
-                      // mapLanduseExtra.put(futureLU.getLabel(), extranew);
-
-                    }
-                    demandHappend = demandHappend + extraused;
-                    if (k == 1) {
-                      if (Math.abs(demandHappend - demandExpected) < 1) {
-                        mapLanduseExtra.put(futureLU.getLabel(), extranew);
-                      } else if (demandHappend < demandExpected) {
-                      } else {
-                        mapLanduseExtra.put(futureLU.getLabel(), extranew);
-                      }
-
-                      // mapLanduseExtra.put(futureLU.getLabel(), extranew);
-
-                      LOGGER.info("toltal extra used for "
-                          + futureLU.getLabel() + " in year "
-                          + projection.getLabel() + " is :"
-                          + extraused.toString());
-
-                      LOGGER.info("toltal area needed for "
-                          + futureLU.getLabel() + " in year "
-                          + projection.getLabel() + " before alloction is :"
-                          + demandExpected.toString());
-
-                      LOGGER.info("toltal area needed for "
-                          + futureLU.getLabel() + " in year "
-                          + projection.getLabel() + " after alloction is :"
-                          + demandHappend.toString());
-                    }
-
-                    if (futureLU.getLabel()
-                        .equals("Medium Density - Urbanised")) {
-                      int yyyy = 0;
-                      yyyy = 1;
-                    }
-                    if (Math.abs(demandHappend - demandExpected) < 1) {
-                      // mapLanduseExtra.put(futureLU.getLabel(), extranew);
-                      mapLanduseControl.put(futureLU.getLabel(), true);
-                      notSatisfieldLUArr.remove(futureLU.getLabel());
-
-                    } else if (demandHappend < demandExpected) {
-                      lswRepeat = true;
-                      final Double newremainingArea = demandExpected
-                          - demandHappend;
-                      LOGGER.info("Allocating remaining area needed for "
-                          + futureLU.getLabel()
-                          + " in second control loop for k = " + k
-                          + " , in year " + projection.getLabel()
-                          + " ,for remaining :" + newremainingArea.toString());
-                      final String sql = geodataFilterer.getAllocationRuleNew(
-                          futureLU, allocationScenario, scoreLabel,
-                          existingLULabel, PlannedSQL, InfrastructureSQL,
-                          GrowthPatternFields, newremainingArea, projection);
-
-                      geodataFinder.updateALlocationColumnNew(sql);
-
-                    } else if (demandHappend > demandExpected) {
-                      mapLanduseControl.put(futureLU.getLabel(), true);
-                      // if land extra allocated before.
-                      final Double offValue = demandHappend - demandExpected;
-                      extranew = extranew + offValue;
-                      mapLanduseExtra.put(futureLU.getLabel(), extranew);
-
-                      LOGGER
-                      .info("putting "
-                          + offValue.toString()
-                          + " as Extra for land use "
-                          + futureLU.getLabel()
-                          + " since we had extra and in control phase in projection year:"
-                          + projection.getLabel());
-
-                      notSatisfieldLUArr.remove(futureLU.getLabel());
-
-                    }
-
-                  }// end if
-                }// end if
-              }// end if (futureLU.getPriority() == i + 1) {
-            }// end for second loop
-          }
-        }// end if k ==1
-      }// for k= 1 to 3 // end second loop
-      if (lswRepeat == true) {
-        LOGGER
-        .info(" Allocation not satisfied in second loop, after three times attempt for projection year:"
-            + projection.getLabel()
-            + " ,before starting allocation for next projection year.We should check again after completing all projection years.");
-
-        notSatisfield = notSatisfield + " in projection year:"
-            + projection.getLabel() + " for " + notSatisfieldLUArr.toString()
-            + " , ";
-      } else {
-        LOGGER.info(" Allocation staisfed in second loop, for projection year:"
-            + projection.getLabel()
-            + " before starting allocation for next projection year.");
-
-      }
-
-    }// for projection loop
+    ///////////////////////////////////////////////////////////
 
     if (notSatisfield.length() > 0) {
       returnStr = "Allocation not satisfied " + notSatisfield;

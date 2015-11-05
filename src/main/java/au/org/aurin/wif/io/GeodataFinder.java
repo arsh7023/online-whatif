@@ -1179,6 +1179,7 @@ public class GeodataFinder {
 
 
 
+
         //////////////////////////////////////////////
         queryTxt = "SELECT SUM(\"" + areaFeatureFieldName
             + "\") FROM "
@@ -1229,6 +1230,7 @@ public class GeodataFinder {
 
         LOGGER.info("getAreaByLUNew2 d2: {}", queryTxt);
         d2 = jdbcTemplate.queryForObject(queryTxt, Double.class);
+
         if (d1 != null)
         {
           if (d2 != null)
@@ -1238,6 +1240,13 @@ public class GeodataFinder {
           else
           {
             area = d1;
+          }
+        }
+        else
+        {
+          if (d2 != null)
+          {
+            area = 0- d2;
           }
         }
 
