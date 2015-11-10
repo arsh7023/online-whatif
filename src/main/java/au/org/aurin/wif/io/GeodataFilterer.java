@@ -899,6 +899,19 @@ public class GeodataFilterer {
     //////////////////////////////////////////////////////
 
     Double area = 0.0;
+    //    if (d1 != null)
+    //    {
+    //      if (d2 != null)
+    //      {
+    //        area = d1- d2;
+    //      }
+    //      else
+    //      {
+    //        area = d1;
+    //      }
+    //    }
+    //
+    ///
     if (d1 != null)
     {
       if (d2 != null)
@@ -910,10 +923,45 @@ public class GeodataFilterer {
         area = d1;
       }
     }
+    else
+    {
+      if (d2 != null)
+      {
+        area = 0- d2;
+      }
+    }
+
 
     //return d1;
     //return d1 - d2;
     return area;
   }
+
+
+  public Double getSumAreaforAProjectionYear(
+      final AllocationScenario allocationScenario, final AllocationLU futureLU, final Projection projection) {
+
+    String SQL = "";
+
+    final WifProject wifProject = allocationScenario.getWifProject();
+
+    LOGGER.info("getSumAreaforAProjecgtionYear for " +  futureLU.getLabel() + " in year: " + projection.getYear());
+
+    final SuitabilityConfig suitabilityConfig = wifProject
+        .getSuitabilityConfig();
+    final String uazDBTable = suitabilityConfig.getUnifiedAreaZone();
+    final String areaLabel = wifProject.getAreaLabel();
+
+
+    SQL = "select Sum(\"" + areaLabel + "\") from "
+        + myjdbcDataStoreConfig.getSchema() + "." + uazDBTable + " where \""
+        + "ALU_" + projection.getLabel() + "\" ='" + WifKeys.FUTURELU_PREFIX
+        + futureLU.getFeatureFieldName() + "'";
+
+    final Double d = geodataFinder.getSumofALU(SQL);
+
+    return d;
+  }
+
 
 }

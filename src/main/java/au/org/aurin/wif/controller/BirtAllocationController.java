@@ -725,42 +725,55 @@ public class BirtAllocationController {
 
     for (final AllocationSimpleItemReport s : it) {
 
-      Double alloc_value = 0.0;
-      alloc_value = (double)Math.round(s.getSumofArea() * 100);
-      alloc_value = alloc_value/100;
+      Double Accumulated_Happend = 0.0;
+      Accumulated_Happend = (double)Math.round(s.getSumofArea() * 100);
+      Accumulated_Happend = Accumulated_Happend/100;
 
-      /////////////////////////////////
-      Double alloc_value_Prev = 0.0;
 
-      Projection projectionPrev = null;
-      if (current.getYear().equals(s.getYear()))
-      {
-        alloc_value_Prev = alloc_value;
-      }
-      else
-      {
-
-        for (final Projection projection: projections)
+      Double ExpectedAccumulate = 0.0;
+      for (final AllocationSimpleItemReport sin : it) {
+        if (current.getYear().equals(sin.getYear()))
         {
-          if (projection.getYear().equals(s.getYear()))
+          if (s.getLanduseName().equals(sin.getLanduseName()))
           {
-            projectionPrev = projections.lower(projection);
-            break;
+            ExpectedAccumulate = (double)Math.round(sin.getSumofArea() * 100);
+            ExpectedAccumulate = ExpectedAccumulate/100;
           }
         }
       }
 
 
-      if (projectionPrev != null)
+      for (final AreaRequirement area: outcome)
       {
-        for (final AllocationSimpleItemReport sin : it) {
-          if (projectionPrev.getYear().equals(sin.getYear()))
+        if (area.getAllocationLULabel().equals(s.getLanduseName()))
+        {
+          if (Integer.valueOf(area.getProjectionLabel()) <= s.getYear())
           {
-            if (s.getLanduseName().equals(sin.getLanduseName()))
-            {
-              alloc_value_Prev = (double)Math.round(sin.getSumofArea() * 100);
-              alloc_value_Prev = alloc_value_Prev/100;
-            }
+            Double demand_value1 = 0.0;
+            demand_value1 = area.getRequiredArea();
+            demand_value1 = (double)Math.round(demand_value1 * 100);
+            demand_value1 = demand_value1/100;
+            ExpectedAccumulate = ExpectedAccumulate + demand_value1;
+          }
+        }
+      }
+
+      ExpectedAccumulate = (double)Math.round(ExpectedAccumulate * 100);
+      ExpectedAccumulate = ExpectedAccumulate/100;
+
+
+      Double demand_value = 0.0;
+      for (final AreaRequirement area: outcome)
+      {
+        if (area.getAllocationLULabel().equals(s.getLanduseName()))
+        {
+          if (Integer.valueOf(area.getProjectionLabel()) == s.getYear())
+          {
+
+            //demand_value = (double) (Math.round(area.getRequiredArea() * 100000) / 100000);
+            demand_value = area.getRequiredArea();
+            demand_value = (double)Math.round(demand_value * 100);
+            demand_value = demand_value/100;
           }
         }
       }
@@ -775,56 +788,18 @@ public class BirtAllocationController {
       str.append(s.getYear());
       str.append("</value>");
       str.append("<value>");
-      //str.append((double) Math.round(s.getSumofArea() * 100000) / 100000);
-      str.append(alloc_value);
-      str.append("</value>");
-
-      Double demand_value = 0.0;
-
-      for (final AreaRequirement area: outcome)
-      {
-        if (area.getAllocationLULabel().equals(s.getLanduseName()))
-        {
-          if (Integer.valueOf(area.getProjectionLabel()) == s.getYear())
-          {
-            //demand_value = (double) Math.round(area.getRequiredArea() * 100000 / 100000);
-            demand_value = area.getRequiredArea();
-            demand_value = (double)Math.round(demand_value * 100);
-            demand_value = demand_value/100;
-
-
-          }
-        }
-      }
-
-      Double percentage=0.0;
-      if (demand_value != 0.0)
-      {
-        if (s.getSumofArea() != 0.0)
-        {
-
-          //percentage =  (double) Math.round(s.getSumofArea() * 100000) / 100000 * 100.0 / demand_value;
-          //percentage = Math.round(percentage * 100.0) / 100.0;
-          percentage = alloc_value/ demand_value * 100;
-          percentage = (double)Math.round(percentage * 100);
-          percentage = percentage/100;
-        }
-      }
-
-
-      str.append("<value>");
       str.append(demand_value);
       str.append("</value>");
-
       str.append("<value>");
-      //str.append(percentage);
-      Double diffvalue = alloc_value - alloc_value_Prev;
-
-
+      str.append(ExpectedAccumulate);
+      str.append("</value>");
+      str.append("<value>");
+      str.append(Accumulated_Happend);
+      str.append("</value>");
+      str.append("<value>");
+      Double diffvalue = Accumulated_Happend - ExpectedAccumulate;
       diffvalue = (double)Math.round(diffvalue * 100);
       diffvalue = diffvalue/100;
-
-      //LOGGER.info("DIFF value: " + diffvalue);
       str.append(diffvalue);
       str.append("</value>");
 
@@ -1039,8 +1014,6 @@ public class BirtAllocationController {
     }
 
 
-
-
     ///////////////////////////////////////////
 
 
@@ -1048,59 +1021,76 @@ public class BirtAllocationController {
 
     for (final AllocationSimpleItemReport s : it) {
 
-      Double alloc_value = 0.0;
-      alloc_value = (double)Math.round(s.getSumofArea() * 100);
-      alloc_value = alloc_value/100;
+      Double Accumulated_Happend = 0.0;
+      Accumulated_Happend = (double)Math.round(s.getSumofArea() * 100);
+      Accumulated_Happend = Accumulated_Happend/100;
+
+
+      /////////////////////////////////////////
+
+      Double ExpectedAccumulate = 0.0;
+      for (final AllocationSimpleItemReport sin : it) {
+        if (current.getYear().equals(sin.getYear()))
+        {
+          if (s.getLanduseName().equals(sin.getLanduseName()))
+          {
+            ExpectedAccumulate = (double)Math.round(sin.getSumofArea() * 100);
+            ExpectedAccumulate = ExpectedAccumulate/100;
+          }
+        }
+      }
+
+
+      for (final AreaRequirement area: outcome)
+      {
+        if (area.getAllocationLULabel().equals(s.getLanduseName()))
+        {
+          if (Integer.valueOf(area.getProjectionLabel()) <= s.getYear())
+          {
+            Double demand_value1 = 0.0;
+            demand_value1 = area.getRequiredArea();
+            demand_value1 = (double)Math.round(demand_value1 * 100);
+            demand_value1 = demand_value1/100;
+            ExpectedAccumulate = ExpectedAccumulate + demand_value1;
+          }
+        }
+      }
 
       /////////////////////////////////
-      Double alloc_value_Prev = 0.0;
-
-      Projection projectionPrev = null;
-      if (current.getYear().equals(s.getYear()))
-      {
-        alloc_value_Prev = alloc_value;
-      }
-      else
-      {
-
-        for (final Projection projection: projections)
-        {
-          if (projection.getYear().equals(s.getYear()))
-          {
-            projectionPrev = projections.lower(projection);
-            break;
-          }
-        }
-      }
-
-
-      if (projectionPrev != null)
-      {
-        for (final AllocationSimpleItemReport sin : it) {
-          if (projectionPrev.getYear().equals(sin.getYear()))
-          {
-            if (s.getLanduseName().equals(sin.getLanduseName()))
-            {
-              alloc_value_Prev = (double)Math.round(sin.getSumofArea() * 100);
-              alloc_value_Prev = alloc_value_Prev/100;
-            }
-          }
-        }
-      }
-      ///////////////////////////////////
-
-
-      str.append("<list>");
-      str.append("<value>");
-      str.append(s.getLanduseName());
-      str.append("</value>");
-      str.append("<value>");
-      str.append(s.getYear());
-      str.append("</value>");
-      str.append("<value>");
-      //str.append((double) Math.round(s.getSumofArea() * 100000) / 100000);
-      str.append(alloc_value);
-      str.append("</value>");
+      //      Double alloc_value_Prev = 0.0;
+      //
+      //      Projection projectionPrev = null;
+      //      if (current.getYear().equals(s.getYear()))
+      //      {
+      //        alloc_value_Prev = alloc_value;
+      //      }
+      //      else
+      //      {
+      //
+      //        for (final Projection projection: projections)
+      //        {
+      //          if (projection.getYear().equals(s.getYear()))
+      //          {
+      //            projectionPrev = projections.lower(projection);
+      //            break;
+      //          }
+      //        }
+      //      }
+      //
+      //
+      //      if (projectionPrev != null)
+      //      {
+      //        for (final AllocationSimpleItemReport sin : it) {
+      //          if (projectionPrev.getYear().equals(sin.getYear()))
+      //          {
+      //            if (s.getLanduseName().equals(sin.getLanduseName()))
+      //            {
+      //              alloc_value_Prev = (double)Math.round(sin.getSumofArea() * 100);
+      //              alloc_value_Prev = alloc_value_Prev/100;
+      //            }
+      //          }
+      //        }
+      //      }
 
       Double demand_value = 0.0;
       for (final AreaRequirement area: outcome)
@@ -1117,35 +1107,29 @@ public class BirtAllocationController {
           }
         }
       }
-
-      Double percentage=0.0;
-      if (demand_value != 0.0)
-      {
-        if (s.getSumofArea() != 0.0)
-        {
-          //percentage = (double) Math.round(s.getSumofArea() * 100000) / 100000 * 100.0 / demand_value;
-          //percentage = Math.round(percentage * 100.0) / 100.0;
-          percentage = alloc_value/ demand_value * 100;
-          percentage = (double)Math.round(percentage * 100);
-          percentage = percentage/100;
-        }
-      }
+      ///////////////////////////////////
 
 
+      str.append("<list>");
+      str.append("<value>");
+      str.append(s.getLanduseName());
+      str.append("</value>");
+      str.append("<value>");
+      str.append(s.getYear());
+      str.append("</value>");
       str.append("<value>");
       str.append(demand_value);
       str.append("</value>");
-
       str.append("<value>");
-      //str.append(percentage);
-
-      Double diffvalue = alloc_value - alloc_value_Prev;
-
-
+      str.append(ExpectedAccumulate);
+      str.append("</value>");
+      str.append("<value>");
+      str.append(Accumulated_Happend);
+      str.append("</value>");
+      str.append("<value>");
+      Double diffvalue = Accumulated_Happend - ExpectedAccumulate;
       diffvalue = (double)Math.round(diffvalue * 100);
       diffvalue = diffvalue/100;
-
-      //LOGGER.info("DIFF value: " + diffvalue);
       str.append(diffvalue);
       str.append("</value>");
 

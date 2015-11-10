@@ -49,6 +49,11 @@
                     <property name="name">Color2</property>
                     <property name="dataType">string</property>
                 </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">Color3</property>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -70,6 +75,10 @@
                 <structure>
                     <property name="columnName">Color2</property>
                     <text-property name="displayName">Color2</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Color3</property>
+                    <text-property name="displayName">Color3</text-property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
@@ -99,6 +108,11 @@
                         <property name="name">Color2</property>
                         <property name="dataType">string</property>
                     </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">Color3</property>
+                        <property name="dataType">string</property>
+                    </structure>
                 </list-property>
             </structure>
             <property name="dataSource">Data Source</property>
@@ -122,12 +136,14 @@
 						var Color = favrow[2];
 						var Color1 = favrow[3];
 						var Color2 = favrow[4];
+						var Color3 = favrow[5];
 						
 						row["Customer"]=Customer;
 						row["Favorite"]=Favorite;
 						row["Color"]=Color
 						row["Color1"]=Color1
 						row["Color2"]=Color2
+						row["Color3"]=Color3
 						
 						currentrow = currentrow + 1;
 						return ( true );]]></method>
@@ -223,6 +239,17 @@
                             <property name="function">sum</property>
                             <property name="isCalculated">false</property>
                             <expression name="measureExpression" type="javascript">dataSetRow["Color2"]</expression>
+                            <property name="dataType">float</property>
+                            <property name="isVisible">true</property>
+                        </tabular-measure>
+                    </property>
+                </tabular-measure-group>
+                <tabular-measure-group name="Summary Field4" id="249">
+                    <property name="measures">
+                        <tabular-measure name="Color3" id="250">
+                            <property name="function">sum</property>
+                            <property name="isCalculated">false</property>
+                            <expression name="measureExpression" type="javascript">dataSetRow["Color3"]</expression>
                             <property name="dataType">float</property>
                             <property name="isVisible">true</property>
                         </tabular-measure>
@@ -360,6 +387,7 @@
     </styles>
     <page-setup>
         <simple-master-page name="Simple MasterPage" id="2">
+            <property name="rightMargin">0in</property>
             <page-footer>
                 <text id="3">
                     <property name="contentType">html</property>
@@ -422,7 +450,7 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                             <property name="aggregationOnRow">GroupLU/Customer</property>
                             <property name="aggregationOnColumn">GroupYear/Favorite</property>
                             <property name="height">1.09375in</property>
-                            <property name="width">2in</property>
+                            <property name="width">1.5833333333333333in</property>
                             <property name="content">
                                 <data id="227">
                                     <property name="fontSize">xx-large</property>
@@ -438,7 +466,7 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                                 <label id="229">
                                     <property name="fontSize">x-large</property>
                                     <property name="textAlign">center</property>
-                                    <text-property name="text">Accumulated Area</text-property>
+                                    <text-property name="text">Demand</text-property>
                                 </label>
                             </property>
                             <property name="height">0.3472222222222222in</property>
@@ -451,7 +479,7 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                         <extended-item extensionName="AggregationCell" id="240">
                             <property name="aggregationOnRow">GroupLU/Customer</property>
                             <property name="aggregationOnColumn">GroupYear/Favorite</property>
-                            <property name="width">2in</property>
+                            <property name="width">1.3229166666666667in</property>
                             <property name="content">
                                 <data id="241">
                                     <property name="fontSize">xx-large</property>
@@ -465,7 +493,7 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                             <property name="content">
                                 <label id="243">
                                     <property name="fontSize">x-large</property>
-                                    <text-property name="text">Demand</text-property>
+                                    <text-property name="text">Expected Accumulated</text-property>
                                 </label>
                             </property>
                         </extended-item>
@@ -477,7 +505,7 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                         <extended-item extensionName="AggregationCell" id="245">
                             <property name="aggregationOnRow">GroupLU/Customer</property>
                             <property name="aggregationOnColumn">GroupYear/Favorite</property>
-                            <property name="width">1.7604166666666667in</property>
+                            <property name="width">1.5416666666666667in</property>
                             <property name="content">
                                 <data id="246">
                                     <property name="fontSize">xx-large</property>
@@ -491,7 +519,35 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                             <property name="content">
                                 <label id="248">
                                     <property name="fontSize">x-large</property>
-                                    <text-property name="text">Allocated</text-property>
+                                    <text-property name="text">Acculmulated Area</text-property>
+                                </label>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+                <extended-item extensionName="MeasureView" id="251">
+                    <property name="measure">Color3</property>
+                    <property name="detail">
+                        <extended-item extensionName="AggregationCell" id="252">
+                            <property name="aggregationOnRow">GroupLU/Customer</property>
+                            <property name="aggregationOnColumn">GroupYear/Favorite</property>
+                            <property name="fontSize">xx-large</property>
+                            <property name="width">1.5520833333333333in</property>
+                            <property name="content">
+                                <data id="253">
+                                    <property name="fontFamily">fantasy</property>
+                                    <property name="fontSize">xx-large</property>
+                                    <property name="resultSetColumn">Color3_GroupLU/Customer_GroupYear/Favorite</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="header">
+                        <extended-item extensionName="CrosstabCell" id="254">
+                            <property name="content">
+                                <label id="255">
+                                    <property name="fontSize">x-large</property>
+                                    <text-property name="text">Difference</text-property>
                                 </label>
                             </property>
                         </extended-item>
@@ -620,6 +676,16 @@ reportContext.getHttpServletRequest().getBean("BirtReport").getProjectName();</e
                 <structure>
                     <property name="name">Color2_GroupLU/Customer_GroupYear/Favorite</property>
                     <expression name="expression">measure["Color2"]</expression>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>GroupLU/Customer</value>
+                        <value>GroupYear/Favorite</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                </structure>
+                <structure>
+                    <property name="name">Color3_GroupLU/Customer_GroupYear/Favorite</property>
+                    <expression name="expression">measure["Color3"]</expression>
                     <property name="dataType">float</property>
                     <simple-property-list name="aggregateOn">
                         <value>GroupLU/Customer</value>
