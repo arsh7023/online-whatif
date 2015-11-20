@@ -64,6 +64,7 @@ import au.org.aurin.wif.svc.AsyncProjectService;
 import au.org.aurin.wif.svc.ProjectService;
 import au.org.aurin.wif.svc.WifKeys;
 import au.org.aurin.wif.svc.report.ReportService;
+import au.org.aurin.wif.svc.suitability.FactorService;
 
 /**
  * The Class ProjectController.
@@ -107,6 +108,10 @@ public class ProjectController {
 
   @Resource
   private AllocationLUService allocationLUService;
+
+  /** the service. */
+  @Resource
+  private FactorService factorService;
 
   /**
    * Gets the project revision.
@@ -1034,7 +1039,16 @@ public class ProjectController {
     final String msg = "getProjectReport failed: {}";
 
     try {
+
       final WifProject project = projectService.getProjectConfiguration(id);
+      /////for deleting extra factor types.
+      projectService.updateProject(project);
+      factorService.deleteFactorTypesExtra(id);
+      /////
+
+
+
+
 
       return reportService.getProjectReport(project);
     } catch (final WifInvalidInputException e) {

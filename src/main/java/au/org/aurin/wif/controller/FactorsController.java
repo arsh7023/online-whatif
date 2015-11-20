@@ -46,7 +46,7 @@ public class FactorsController {
 
   /**
    * Sets the factor service.
-   * 
+   *
    * @param factorService
    *          the new factor service
    */
@@ -56,7 +56,7 @@ public class FactorsController {
 
   /**
    * Gets the factors for project.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -71,7 +71,7 @@ public class FactorsController {
   List<Factor> getFactorsForProject(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId)
-      throws WifInvalidInputException {
+          throws WifInvalidInputException {
     LOGGER.info("*******>> getFactorsForProject request for project  id ={}",
         projectId);
     return factorService.getFactors(projectId);
@@ -79,7 +79,7 @@ public class FactorsController {
 
   /**
    * Gets the factor.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -98,14 +98,14 @@ public class FactorsController {
   Factor getFactor(@RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
     LOGGER.info("*******>> getFactor request for project  id ={}", projectId);
     return factorService.getFactor(id, projectId);
   }
 
   /**
    * Creates the factor.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -129,16 +129,16 @@ public class FactorsController {
   Factor createFactor(@RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId,
       @RequestBody final Factor factor, final HttpServletResponse response)
-      throws WifInvalidInputException, BindException,
-      WifInvalidConfigException, InvalidLabelException {
+          throws WifInvalidInputException, BindException,
+          WifInvalidConfigException, InvalidLabelException {
     LOGGER
-        .info("*******>> createFactor request for project  id ={}", projectId);
+    .info("*******>> createFactor request for project  id ={}", projectId);
     return factorService.createFactor(factor, projectId);
   }
 
   /**
    * Update factor.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -160,16 +160,16 @@ public class FactorsController {
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId,
       @PathVariable("id") final String id, @RequestBody final Factor factor)
-      throws WifInvalidInputException, BindException, WifInvalidConfigException {
+          throws WifInvalidInputException, BindException, WifInvalidConfigException {
     LOGGER
-        .info("*******>> updateFactor request for project  id ={}", projectId);
+    .info("*******>> updateFactor request for project  id ={}", projectId);
     factor.setId(id);
     factorService.updateFactor(factor, projectId);
   }
 
   /**
    * Delete factor.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -187,17 +187,17 @@ public class FactorsController {
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
     LOGGER
-        .info("*******>> deleteFactor request for project  id ={}", projectId);
+    .info("*******>> deleteFactor request for project  id ={}", projectId);
 
     factorService.deleteFactor(id, projectId);
   }
-  
-  
+
+
   /**
    * Gets the factorTypes.
-   * 
+   *
    * @param projectId
    *          the project id
    * @param factorId
@@ -215,16 +215,16 @@ public class FactorsController {
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("factorId") final String factorId,
       @PathVariable("projectId") final String projectId)
-      throws WifInvalidInputException {
+          throws WifInvalidInputException {
     LOGGER.info("*******>> getFactorsTypesForFactorID request for factor  id ={}",
-    		factorId);
+        factorId);
     return factorService.getFactorTypes(factorId);
   }
-  
-  
+
+
   /**
    * GET factorType.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -241,22 +241,22 @@ public class FactorsController {
   @RequestMapping(method = RequestMethod.GET, value = "/{projectId}/factors/{factorId}/factorTypes/{id}")
   @ResponseStatus(HttpStatus.OK)
   public @ResponseBody
-   FactorType getFactorType(
+  FactorType getFactorType(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId,
       @PathVariable("factorId") final String factorId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
     LOGGER
-        .info("*******>> getFactorType request for id ={}", id);
+    .info("*******>> getFactorType request for id ={}", id);
 
     return factorService.getFactorType(projectId, factorId, id);
   }
-  
+
 
   /**
    * GET factorType.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -273,23 +273,23 @@ public class FactorsController {
   @RequestMapping(method = RequestMethod.GET, value = "/{projectId}/factors/{factorId}/factorTypesByLable/{lable}")
   @ResponseStatus(HttpStatus.OK)
   public @ResponseBody
-   List<FactorType> getFactorTypesByLabel(
+  List<FactorType> getFactorTypesByLabel(
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @PathVariable("projectId") final String projectId,
       @PathVariable("factorId") final String factorId,
       @PathVariable("lable") final String lable) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
     LOGGER
-        .info("*******>> getFactorTypeByLable request for lable ={}", lable);
+    .info("*******>> getFactorTypeByLable request for lable ={}", lable);
 
     return factorService.getFactorTypeByLable(projectId, factorId, lable);
   }
-  
-  
-  
+
+
+
   /**
    * Delete factorType.
-   * 
+   *
    * @param roleId
    *          the role id
    * @param projectId
@@ -310,11 +310,24 @@ public class FactorsController {
       @PathVariable("projectId") final String projectId,
       @PathVariable("factorId") final String factorId,
       @PathVariable("id") final String id) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  WifInvalidConfigException {
     LOGGER
-        .info("*******>> deleteFactorType request for id ={}", id);
+    .info("*******>> deleteFactorType request for id ={}", id);
 
     factorService.deleteFactorType(projectId, factorId, id);
+  }
+
+  @RequestMapping(method = RequestMethod.DELETE, value = "/{projectId}/deleteFactorTypesExtra")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteFactorTypeExtra(
+      @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
+      @PathVariable("projectId") final String projectId) throws WifInvalidInputException,
+  WifInvalidConfigException {
+
+    factorService.deleteFactorTypesExtra(projectId);
+
+
+
   }
 
 }

@@ -52,7 +52,7 @@ public class FactorServiceImpl implements FactorService {
   /** The factor dao. */
   @Autowired
   private CouchFactorDao factorDao;
-  
+
 
   /** The mapper. */
   @Autowired
@@ -89,26 +89,27 @@ public class FactorServiceImpl implements FactorService {
    * au.org.aurin.wif.svc.suitability.FactorService#createFactor(au.org.aurin
    * .wif.model.suitability.Factor, java.lang.String)
    */
-  public Factor createFactor(Factor factor, String projectId)
+  @Override
+  public Factor createFactor(final Factor factor, final String projectId)
       throws WifInvalidInputException, WifInvalidConfigException,
       InvalidLabelException {
     validate(factor, projectId);
     LOGGER.debug("persisting the wif factor= {}", factor.getLabel());
-    Set<FactorType> factorTypes = factor.getFactorTypes();
+    final Set<FactorType> factorTypes = factor.getFactorTypes();
     if (factorTypes != null) {
       LOGGER.debug("it has {} factor types associated with it",
           factorTypes.size());
-      Set<FactorType> savedFactorTypes = new HashSet<FactorType>();
-      for (FactorType factorType : factorTypes) {
+      final Set<FactorType> savedFactorTypes = new HashSet<FactorType>();
+      for (final FactorType factorType : factorTypes) {
         validate(factorType, factor);
         savedFactorTypes.add(factorTypeDao.persistFactorType(factorType));
       }
       factor.setFactorTypes(savedFactorTypes);
     }
 
-    WifProject project = projectService.getProject(projectId);
+    final WifProject project = projectService.getProject(projectId);
     factor.setProjectId(projectId);
-    Factor savedFactor = factorDao.persistFactor(factor);
+    final Factor savedFactor = factorDao.persistFactor(factor);
 
     LOGGER.debug("returning the factor with id={}", savedFactor.getId());
     project.getFactors().add(savedFactor);
@@ -119,7 +120,7 @@ public class FactorServiceImpl implements FactorService {
 
   /**
    * Validate ffactor type .
-   * 
+   *
    * @param factorType
    *          the factor type
    * @param factor
@@ -129,7 +130,7 @@ public class FactorServiceImpl implements FactorService {
    * @throws WifInvalidInputException
    *           the wif invalid input exception
    */
-  private void validate(FactorType factorType, Factor factor)
+  private void validate(final FactorType factorType, final Factor factor)
       throws InvalidLabelException, WifInvalidInputException {
     String message = "createfactor failed: factorType is null";
     if (factorType == null) {
@@ -141,10 +142,10 @@ public class FactorServiceImpl implements FactorService {
       throw new InvalidLabelException(message);
     } else {
       message = "createfactor failed: factorType label has already been used in this factor configuration";
-      Set<FactorType> factorTypes = factor.getFactorTypes();
-      for (FactorType factorType2 : factorTypes) {
+      final Set<FactorType> factorTypes = factor.getFactorTypes();
+      for (final FactorType factorType2 : factorTypes) {
         if (factorType.getLabel().equals(factorType2.getLabel())
-            && (factorType2.getId() != null)) {
+            && factorType2.getId() != null) {
           LOGGER.error(message);
           throw new InvalidLabelException(message);
         }
@@ -155,7 +156,7 @@ public class FactorServiceImpl implements FactorService {
 
   /**
    * Validate ffactor business logic.
-   * 
+   *
    * @param factor
    *          the factor
    * @param projectId
@@ -165,7 +166,7 @@ public class FactorServiceImpl implements FactorService {
    * @throws WifInvalidInputException
    *           the wif invalid input exception
    */
-  private void validate(Factor factor, String projectId)
+  private void validate(final Factor factor, final String projectId)
       throws InvalidLabelException, WifInvalidInputException {
     String message = "createfactor failed: factor is null";
     if (factor == null) {
@@ -178,8 +179,8 @@ public class FactorServiceImpl implements FactorService {
     } else {
 
       message = "createfactor failed: factor label has already been used in this project configuration";
-      List<Factor> factors = factorDao.getFactors(projectId);
-      for (Factor factor2 : factors) {
+      final List<Factor> factors = factorDao.getFactors(projectId);
+      for (final Factor factor2 : factors) {
         if (factor.getLabel().equals(factor2.getLabel())) {
           LOGGER.error(message);
           throw new InvalidLabelException(message);
@@ -193,22 +194,23 @@ public class FactorServiceImpl implements FactorService {
    * @see
    * au.org.aurin.wif.svc.suitability.FactorService#getFactor(java.lang.String)
    */
-  public Factor getFactor(String id) throws WifInvalidInputException,
-      WifInvalidConfigException {
+  @Override
+  public Factor getFactor(final String id) throws WifInvalidInputException,
+  WifInvalidConfigException {
 
     LOGGER.debug("getting the factor with ID={}", id);
     try {
-      Factor factor = factorDao.findFactorById(id);
+      final Factor factor = factorDao.findFactorById(id);
       if (factor == null) {
         LOGGER.error("illegal argument, the factor with the ID " + id
             + " supplied was not found ");
         throw new InvalidEntityIdException(
             "illegal argument, the factor with the ID " + id
-                + " supplied was not found ");
+            + " supplied was not found ");
       }
       return factor;
 
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
 
       LOGGER.error("illegal argument, the ID " + id
           + " supplied doesn't identify a valid factor ");
@@ -223,11 +225,12 @@ public class FactorServiceImpl implements FactorService {
    * au.org.aurin.wif.svc.suitability.FactorService#getFactor(java.lang.String,
    * java.lang.String)
    */
-  public Factor getFactor(String id, String projectId)
+  @Override
+  public Factor getFactor(final String id, final String projectId)
       throws WifInvalidInputException, WifInvalidConfigException {
-    Factor factor = getFactor(id);
+    final Factor factor = getFactor(id);
     if (factor.getProjectId().equals(projectId)) {
-      WifProject project = projectService.getProject(projectId);
+      final WifProject project = projectService.getProject(projectId);
       factor.setWifProject(project);
 
       return factor;
@@ -248,18 +251,19 @@ public class FactorServiceImpl implements FactorService {
    * au.org.aurin.wif.svc.suitability.FactorService#updateFactor(au.org.aurin
    * .wif.model.suitability.Factor, java.lang.String)
    */
-  public void updateFactor(Factor factor, String projectId)
+  @Override
+  public void updateFactor(final Factor factor, final String projectId)
       throws WifInvalidInputException, WifInvalidConfigException {
     LOGGER.info("updating factor: {}, with id: {}", factor.getLabel(),
         factor.getId());
     try {
-      WifProject project = projectService.getProject(projectId);
+      final WifProject project = projectService.getProject(projectId);
       factor.setWifProject(project);
-      Set<FactorType> factorTypes = factor.getFactorTypes();
+      final Set<FactorType> factorTypes = factor.getFactorTypes();
       if (factorTypes != null) {
         LOGGER.debug("it has {} factor types associated with it",
             factorTypes.size());
-        for (FactorType factorType : factorTypes) {
+        for (final FactorType factorType : factorTypes) {
           if (factorType.getId() != null) {
             factorType.setRevision(factorTypeDao.findFactorTypeById(
                 factorType.getId()).getRevision());
@@ -271,17 +275,17 @@ public class FactorServiceImpl implements FactorService {
         }
       }
       factor
-          .setRevision(factorDao.findFactorById(factor.getId()).getRevision());
+      .setRevision(factorDao.findFactorById(factor.getId()).getRevision());
       factorDao.updateFactor(factor);
-      Object oldFactor = project.getFactorById(factor.getId());
+      final Object oldFactor = project.getFactorById(factor.getId());
       project.getFactors().remove(oldFactor);
       project.getFactors().add(factor);
       projectService.updateProject(project);
 
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
 
       LOGGER
-          .error("illegal argument, the ID supplied doesn't identify a valid factor ");
+      .error("illegal argument, the ID supplied doesn't identify a valid factor ");
       throw new WifInvalidInputException(
           "illegal argument, the ID supplied doesn't identify a valid factor ");
     }
@@ -293,43 +297,44 @@ public class FactorServiceImpl implements FactorService {
    * au.org.aurin.wif.svc.suitability.FactorService#deleteFactor(java.lang.String
    * , java.lang.String)
    */
-  public void deleteFactor(String id, String projectId)
+  @Override
+  public void deleteFactor(final String id, final String projectId)
       throws WifInvalidInputException, WifInvalidConfigException {
     LOGGER.info("deleting the factor with ID={}", id);
     try {
-      Factor factor = factorDao.findFactorById(id);
+      final Factor factor = factorDao.findFactorById(id);
       if (factor == null) {
         LOGGER.error("illegal argument, the factor with the ID " + id
             + " supplied was not found ");
         throw new InvalidEntityIdException(
             "illegal argument, the factor with the ID " + id
-                + " supplied was not found ");
+            + " supplied was not found ");
       }
       if (factor.getProjectId().equals(projectId)) {
-        Set<FactorType> factorTypes = factor.getFactorTypes();
+        final Set<FactorType> factorTypes = factor.getFactorTypes();
         if (factorTypes != null) {
           LOGGER.debug("deleting {} factor types associated with it",
               factorTypes.size());
-          for (FactorType factorType : factorTypes) {
+          for (final FactorType factorType : factorTypes) {
             factorTypeDao.deleteFactorType(factorType);
           }
         }
 
         factorDao.deleteFactor(factor);
-        WifProject project = projectService.getProject(projectId);
+        final WifProject project = projectService.getProject(projectId);
 
-        Object oldFactor = project.getFactorById(factor.getId());
+        final Object oldFactor = project.getFactorById(factor.getId());
         project.getFactors().remove(oldFactor);
         projectService.updateProject(project);
       } else {
         LOGGER
-            .error("illegal argument, the factor supplied doesn't belong to project: "
-                + projectId);
+        .error("illegal argument, the factor supplied doesn't belong to project: "
+            + projectId);
         throw new WifInvalidInputException(
             "illegal argument, the factor supplied doesn't belong to project: "
                 + projectId);
       }
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
 
       LOGGER.error("illegal argument, the ID " + id
           + " supplied doesn't identify a valid factor ");
@@ -343,102 +348,203 @@ public class FactorServiceImpl implements FactorService {
    * @see
    * au.org.aurin.wif.svc.suitability.FactorService#getFactors(java.lang.String)
    */
-  public List<Factor> getFactors(String projectID)
+  @Override
+  public List<Factor> getFactors(final String projectID)
       throws WifInvalidInputException {
     LOGGER.info("getting allfactors for projectID: {} ", projectID);
 
     return factorDao.getFactors(projectID);
   }
-  
-  public List<FactorType> getFactorTypes(String factorID)
-	      throws WifInvalidInputException {
-	    LOGGER.info("getting allfactorTypes for factorID: {} ",factorID);
-	    return factorTypeDao.getFactorTypes(factorID);
+
+  @Override
+  public List<FactorType> getFactorTypes(final String factorID)
+      throws WifInvalidInputException {
+    LOGGER.info("getting allfactorTypes for factorID: {} ",factorID);
+    return factorTypeDao.getFactorTypes(factorID);
   }
-  
-  public void deleteFactorType(String projectId, String factorId, String id)
-	      throws WifInvalidInputException, WifInvalidConfigException {
-	    LOGGER.info("deleting the factorType with ID={}", id);
-	    try {
-	      FactorType factorType = factorTypeDao.findFactorTypeById(id);
-	      if (factorType == null) {
-	        LOGGER.error("illegal argument, the factorType with the ID " + id
-	            + " supplied was not found ");
-	        throw new InvalidEntityIdException(
-	            "illegal argument, the factorType with the ID " + id
-	                + " supplied was not found ");
-	      }
-	      if (factorType.getFactorId().equals(factorId)) {
-	       
-	            factorTypeDao.deleteFactorType(factorType);
 
-		        WifProject project = projectService.getProject(projectId);
+  @Override
+  public void deleteFactorType(final String projectId, final String factorId, final String id)
+      throws WifInvalidInputException, WifInvalidConfigException {
+    LOGGER.info("deleting the factorType with ID={}", id);
+    try {
+      final FactorType factorType = factorTypeDao.findFactorTypeById(id);
+      if (factorType == null) {
+        final WifProject project = projectService.getProject(projectId);
 
-		        Object oldFactorType = project.getFactorById(factorId).getFactorTypeById(id);
-		        
-		        project.getFactorById(factorId).getFactorTypes().remove(oldFactorType);
-		        projectService.updateProject(project);
-	       
-	       
-	      } else {
-	        LOGGER
-	            .error("illegal argument, the factortype supplied doesn't belong to factor: "
-	                + factorId);
-	        throw new WifInvalidInputException(
-	            "illegal argument, the factor supplied doesn't belong to factor: "
-	                + factorId);
-	      }
-	    } catch (IllegalArgumentException e) {
+        final Object oldFactorType = project.getFactorById(factorId).getFactorTypeById(id);
 
-	      LOGGER.error("illegal argument, the ID " + id
-	          + " supplied doesn't identify a valid factorType ");
-	      throw new InvalidEntityIdException("illegal argument, the ID " + id
-	          + " supplied doesn't identify a valid factorType ");
-	    }
-	  }
+        project.getFactorById(factorId).getFactorTypes().remove(oldFactorType);
+        LOGGER.error("illegal argument, the factorType with the ID " + id
+            + " supplied was not found ");
+        throw new InvalidEntityIdException(
+            "illegal argument, the factorType with the ID " + id
+            + " supplied was not found ");
+      }
+      if (factorType.getFactorId().equals(factorId)) {
 
-	public FactorType getFactorType(String projectId, String factorId, String id)
-			throws WifInvalidInputException, WifInvalidConfigException {
-		
-	    LOGGER.debug("getting the factorType with ID={}", id);
-	    try {
-	      FactorType factorType = factorTypeDao.findFactorTypeById(id);
-	      if (factorType == null) {
-	        LOGGER.error("illegal argument, the factorType with the ID " + id
-	            + " supplied was not found ");
-	        throw new InvalidEntityIdException(
-	            "illegal argument, the factorType with the ID " + id
-	                + " supplied was not found ");
-	      }
-	      return factorType;
+        factorTypeDao.deleteFactorType(factorType);
 
-	    } catch (IllegalArgumentException e) {
+        final WifProject project = projectService.getProject(projectId);
 
-	      LOGGER.error("illegal argument, the ID " + id
-	          + " supplied doesn't identify a valid factorType ");
-	      throw new WifInvalidInputException("illegal argument, the ID  " + id
-	          + "supplied doesn't identify a valid factorType ");
-	    }
-	}
+        final Object oldFactorType = project.getFactorById(factorId).getFactorTypeById(id);
 
-	
-	public List<FactorType> getFactorTypeByLable(String projectId, String factorId, String lable)
-			throws WifInvalidInputException, WifInvalidConfigException {
+        project.getFactorById(factorId).getFactorTypes().remove(oldFactorType);
+        projectService.updateProject(project);
 
-		
-		List<FactorType> outList=new ArrayList<FactorType>();
-	    LOGGER.info("getting allfactorTypes for factorID: {} and Label: {} ",factorId, lable);
-	    for (FactorType ft :factorTypeDao.getFactorTypes(factorId))
-	    {
-	    	if (ft.getLabel().equals(lable))
-	    	{
-	    		outList.add(ft);
-	    	}
-	    }
-	    
-	    return outList;
-		
-		
-	}
+
+      } else {
+        LOGGER
+        .error("illegal argument, the factortype supplied doesn't belong to factor: "
+            + factorId);
+        throw new WifInvalidInputException(
+            "illegal argument, the factor supplied doesn't belong to factor: "
+                + factorId);
+      }
+    } catch (final IllegalArgumentException e) {
+
+      LOGGER.error("illegal argument, the ID " + id
+          + " supplied doesn't identify a valid factorType ");
+      throw new InvalidEntityIdException("illegal argument, the ID " + id
+          + " supplied doesn't identify a valid factorType ");
+    }
+  }
+
+  @Override
+  public FactorType getFactorType(final String projectId, final String factorId, final String id)
+      throws WifInvalidInputException, WifInvalidConfigException {
+
+    LOGGER.debug("getting the factorType with ID={}", id);
+    try {
+      final FactorType factorType = factorTypeDao.findFactorTypeById(id);
+      if (factorType == null) {
+        LOGGER.error("illegal argument, the factorType with the ID " + id
+            + " supplied was not found ");
+        throw new InvalidEntityIdException(
+            "illegal argument, the factorType with the ID " + id
+            + " supplied was not found ");
+      }
+      return factorType;
+
+    } catch (final IllegalArgumentException e) {
+
+      LOGGER.error("illegal argument, the ID " + id
+          + " supplied doesn't identify a valid factorType ");
+      throw new WifInvalidInputException("illegal argument, the ID  " + id
+          + "supplied doesn't identify a valid factorType ");
+    }
+  }
+
+
+  @Override
+  public List<FactorType> getFactorTypeByLable(final String projectId, final String factorId, final String lable)
+      throws WifInvalidInputException, WifInvalidConfigException {
+
+
+    final List<FactorType> outList=new ArrayList<FactorType>();
+    LOGGER.info("getting allfactorTypes for factorID: {} and Label: {} ",factorId, lable);
+    for (final FactorType ft :factorTypeDao.getFactorTypes(factorId))
+    {
+      if (ft.getLabel().equals(lable))
+      {
+        outList.add(ft);
+      }
+    }
+
+    return outList;
+
+  }
+
+  @Override
+  public void deleteFactorTypesExtra(final String projectId)
+      throws WifInvalidInputException, WifInvalidConfigException {
+    LOGGER.info("deleting the FactorTypesExtra with ID={}", projectId);
+    try {
+
+      final List<Factor> listFactor=getFactors(projectId);
+
+      for (final Factor prjFactor :listFactor )
+      {
+        final String factorId = prjFactor.getId();
+        final List<FactorType> listFactorTypesExtra= getFactorTypes(factorId);
+        final Set<FactorType> listFactorTypes  = getFactor(factorId, projectId).getFactorTypes();
+
+
+        for (final FactorType fct: listFactorTypesExtra)
+        {
+          final String st = fct.getId();
+          Boolean lsw = false;
+          for (final FactorType infct: listFactorTypes)
+          {
+            if (infct.getId().equals(st))
+            {
+              lsw = true;
+            }
+          }
+          if (lsw == false) //extra
+          {
+            deleteFactorTypeNew(projectId, factorId, st);
+            LOGGER.info("*******>> deleteFactorTypeExtra for factorType with ID ={} for factor = {}", fct.getLabel(), prjFactor.getLabel());
+            //LOGGER.info("*******>> deleteFactorTypeExtra delete for factorType with ID ={} for factor = {}", fct.getLabel(), prjFactor.getLabel());
+          }
+        }
+      }
+
+
+    } catch (final Exception e) {
+      LOGGER.info("error in delete FactorTypesExtra for  the project ID " + projectId);
+
+    }
+  }
+
+  public void deleteFactorTypeNew(final String projectId, final String factorId, final String id)
+      throws WifInvalidInputException, WifInvalidConfigException {
+    LOGGER.info("deleting the factorType with ID={}", id);
+    try {
+      final FactorType factorType = factorTypeDao.findFactorTypeById(id);
+      if (factorType == null) {
+        final WifProject project = projectService.getProject(projectId);
+
+        final Object oldFactorType = project.getFactorById(factorId).getFactorTypeById(id);
+
+        project.getFactorById(factorId).getFactorTypes().remove(oldFactorType);
+        LOGGER.error("illegal argument, the factorType with the ID " + id
+            + " supplied was not found ");
+        throw new InvalidEntityIdException(
+            "illegal argument, the factorType with the ID " + id
+            + " supplied was not found ");
+      }
+      if (factorType.getFactorId().equals(factorId)) {
+
+        factorTypeDao.deleteFactorType(factorType);
+
+        final WifProject project = projectService.getProject(projectId);
+
+        final Object oldFactorType = project.getFactorById(factorId).getFactorTypeById(id);
+
+        project.getFactorById(factorId).getFactorTypes().remove(oldFactorType);
+        projectService.updateProject(project);
+
+
+      } else {
+        LOGGER
+        .error("illegal argument, the factortype supplied doesn't belong to factor: "
+            + factorId);
+        throw new WifInvalidInputException(
+            "illegal argument, the factor supplied doesn't belong to factor: "
+                + factorId);
+      }
+    } catch (final IllegalArgumentException e) {
+
+      LOGGER.error("illegal argument, the ID " + id
+          + " supplied doesn't identify a valid factorType ");
+      throw new InvalidEntityIdException("illegal argument, the ID " + id
+          + " supplied doesn't identify a valid factorType ");
+    }
+  }
+
+
+
+
 
 }

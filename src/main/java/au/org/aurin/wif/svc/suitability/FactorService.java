@@ -16,7 +16,7 @@ public interface FactorService {
 
   /**
    * Adds the factor.
-   * 
+   *
    * @param factor
    *          the factor
    * @param projectId
@@ -34,7 +34,7 @@ public interface FactorService {
 
   /**
    * Gets the factor.
-   * 
+   *
    * @param id
    *          the id
    * @return the factor
@@ -44,11 +44,11 @@ public interface FactorService {
    *           the wif invalid config exception
    */
   Factor getFactor(String id) throws WifInvalidInputException,
-      WifInvalidConfigException;
+  WifInvalidConfigException;
 
   /**
    * Gets the factor.
-   * 
+   *
    * @param id
    *          the id
    * @param projectId
@@ -64,7 +64,7 @@ public interface FactorService {
 
   /**
    * Update factor.
-   * 
+   *
    * @param factor
    *          the factor
    * @param projectId
@@ -79,7 +79,7 @@ public interface FactorService {
 
   /**
    * Delete factor.
-   * 
+   *
    * @param id
    *          the id
    * @param projectId
@@ -94,7 +94,7 @@ public interface FactorService {
 
   /**
    * Gets the factors for a given project.
-   * 
+   *
    * @param projectId
    *          the project id
    * @return the factors
@@ -102,11 +102,11 @@ public interface FactorService {
    *           the wif invalid input exception
    */
   List<Factor> getFactors(String projectId) throws WifInvalidInputException;
-  
-  
+
+
   /**
    * Gets the factorTypes for a given factor.
-   * 
+   *
    * @param factorId
    *          the factor id
    * @return the factorTypes
@@ -114,17 +114,17 @@ public interface FactorService {
    *           the wif invalid input exception
    */
   List<FactorType> getFactorTypes(String factorId) throws WifInvalidInputException;
-  
-  
+
+
   /**
    * Gets the factorType.
-   * 
+   *
    * @param projectId
    *          the project id
    * @param factorId
-   *          the factor id          
+   *          the factor id
    * @param id
-   *          the id          
+   *          the id
    * @return the factorType
    * @throws WifInvalidInputException
    *           the wif invalid input exception
@@ -133,36 +133,36 @@ public interface FactorService {
    */
   FactorType getFactorType(String projectId, String factorId, String id )
       throws WifInvalidInputException, WifInvalidConfigException;
-  
-  
+
+
   /**
    * Delete factorType.
-   * 
-   * 
+   *
+   *
    * @param projectId
    *          the project id
    * @param factorid
    *          the factorid
    * @param id
-   *          the id                    
+   *          the id
    * @throws WifInvalidInputException
    *           the wif invalid input exception
    * @throws WifInvalidConfigException
    *           the wif invalid config exception
    */
   void deleteFactorType(String projectId, String factorId, String id)
-	      throws WifInvalidInputException, WifInvalidConfigException;
-  
-  
+      throws WifInvalidInputException, WifInvalidConfigException;
+
+
   /**
    * Gets the factorTypeByLabel.
-   * 
+   *
    * @param projectId
    *          the project id
    * @param factorId
-   *          the factor id          
+   *          the factor id
    * @param label
-   *          the label          
+   *          the label
    * @return the factorType
    * @throws WifInvalidInputException
    *           the wif invalid input exception
@@ -171,6 +171,20 @@ public interface FactorService {
    */
   List<FactorType> getFactorTypeByLable(String projectId, String factorId, String lable )
       throws WifInvalidInputException, WifInvalidConfigException;
-  
+
+  /**
+   * Delete factorTypeExtra.
+   *
+   *
+   * @param projectId
+   *          the project id
+   * @throws WifInvalidInputException
+   *           the wif invalid input exception
+   * @throws WifInvalidConfigException
+   *           the wif invalid config exception
+   */
+  void deleteFactorTypesExtra(String projectId)
+      throws WifInvalidInputException, WifInvalidConfigException;
+
 
 }
