@@ -14,8 +14,10 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
 import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -947,6 +949,7 @@ public class ProjectController {
    *           the wif invalid input exception
    * @throws WifInvalidConfigException
    *           the wif invalid config exception
+   * @throws ParsingException
    */
   @RequestMapping(method = RequestMethod.POST, value = "/restore", consumes = "application/json", produces = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
@@ -955,7 +958,7 @@ public class ProjectController {
       @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
       @RequestBody final ProjectReport projectReport,
       final HttpServletResponse response) throws WifInvalidInputException,
-  WifInvalidConfigException {
+  WifInvalidConfigException, ParsingException {
     LOGGER.info("*******>> restoreProject request for projectReport label ={}",
         projectReport.getLabel());
     final String msg = "restoreProject failed: {}";
@@ -1227,6 +1230,7 @@ public class ProjectController {
    *
    * @param roleId
    *          the role id
+   * @return
    * @return the all projects names
    * @throws WifInvalidConfigException
    *           the wif invalid config exception
@@ -1342,5 +1346,111 @@ public class ProjectController {
     }
   }
 
+  @RequestMapping(method = RequestMethod.GET, value = "/{user_id}/copydemo", produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  public @ResponseBody
+  String CopyDemoProject(
+      @RequestHeader(HEADER_USER_ID_KEY) final String roleId
+      ,@PathVariable("user_id") final String user_id) throws WifInvalidConfigException,
+  WifInvalidInputException, ParsingException, NoSuchAuthorityCodeException, FactoryException {
+
+
+    final String msg = "getProjectReport failed: {}";
+
+    String out ="";
+    String id = "";
+    String dbName="";
+    CoordinateReferenceSystem crs = null;
+
+    try {
+
+      Boolean lsw=false;
+      final List<WifProject> wifProjectsRole = projectService.getAllProjects(roleId);
+      for (final WifProject prjRole:wifProjectsRole)
+      {
+        if (prjRole.getRoleOwner().toLowerCase().equals(roleId))
+        {
+          final String prjName = "Demo_for_" + roleId;
+          if (prjRole.getLabel().toLowerCase().equals(prjName.toLowerCase()))
+          {
+            lsw = true;
+          }
+        }
+      }
+
+
+
+      if (lsw == false)
+      {
+        final List<WifProject> wifProjects = projectService.getAllProjects(WifKeys.SHIB_ROLE_NAME);
+        for (final WifProject prj:wifProjects)
+        {
+          if (prj.getRoleOwner().toLowerCase().equals(WifKeys.SHIB_ROLE_NAME.toLowerCase()))
+          {
+            if (prj.getLabel().toLowerCase().equals(WifKeys.DEMO_PROJECT_NAME.toLowerCase()))
+            {
+              id = prj.getId();
+              dbName = prj.getSuitabilityConfig().getUnifiedAreaZone();
+              crs = CRS.decode(prj.getSrs());
+
+            }
+          }
+        }
+
+        if (!id.equals("")) {
+          LOGGER.info("*******>> copydemo request for project  id ={}", id);
+        }
+
+        if (!dbName.equals(""))
+        {
+
+          //copydb
+          geodataFinder.CopyDemoTable("wanneroofor" + user_id, dbName);
+
+
+          final WifProject project = projectService.getProjectConfiguration(id);
+          /////for deleting extra factor types.
+          projectService.updateProject(project);
+          factorService.deleteFactorTypesExtra(id);
+          ////
+
+          final ProjectReport projectReport= reportService.getProjectReport(project);
+
+          final WifProject wifProject = projectService.restoreProjectConfiguration(projectReport);
+          LOGGER.info("*******>> project restored with ID ={} ", wifProject.getId());
+
+          final WifProject newProject = projectService.getProject(wifProject.getId());
+          newProject.setName("Demo_for_" + roleId);
+          newProject.setRoleOwner(roleId);
+          newProject.getSuitabilityConfig().setUnifiedAreaZone("wanneroofor" + user_id);
+          projectService.updateProject(newProject);
+
+          //pubish Geoserver layer
+          crs = CRS.decode(newProject.getSrs());
+          projectService.PublishWMSLayer( newProject
+              .getSuitabilityConfig().getUnifiedAreaZone(), crs, newProject.getId());
+
+
+          out ="copied";
+        }
+      }
+
+
+
+    } catch (final WifInvalidInputException e) {
+      out ="failed";
+      LOGGER.error(msg, e.getMessage());
+      throw new WifInvalidInputException(msg, e);
+    } catch (final WifInvalidConfigException e) {
+      out ="failed";
+      LOGGER.error(msg, e.getMessage());
+      throw new WifInvalidConfigException(msg, e);
+    } catch (final ParsingException e) {
+      out ="failed";
+      LOGGER.error(msg, e.getMessage());
+      throw new ParsingException(msg, e);
+    }
+    return out;
+  }
 
 }

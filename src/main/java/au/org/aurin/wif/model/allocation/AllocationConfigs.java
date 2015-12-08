@@ -6,15 +6,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import au.org.aurin.wif.exception.config.WifInvalidConfigException;
-import au.org.aurin.wif.model.ProjectCouchDoc;
-import au.org.aurin.wif.model.WifProject;
-import au.org.aurin.wif.svc.WifKeys;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import au.org.aurin.wif.exception.config.WifInvalidConfigException;
+import au.org.aurin.wif.model.ProjectCouchDoc;
+import au.org.aurin.wif.model.WifProject;
+import au.org.aurin.wif.svc.WifKeys;
 
 /**
  * The Class AllocationConfigs.
@@ -35,10 +35,15 @@ public class AllocationConfigs extends ProjectCouchDoc {
   private Set<InfrastructureALU> infrastructureALUs;
   private Set<GrowthPatternALU> growthPatternALUs;
 
-  private final Set<ColorALU> colorALUs;
+  private Set<ColorALU> colorALUs;
 
   public Set<ColorALU> getColorALUs() {
     return colorALUs;
+  }
+
+  public void setColorALUs(
+      final Set<ColorALU> colorALUs) {
+    this.colorALUs = colorALUs;
   }
 
   @JsonIgnore
@@ -46,7 +51,7 @@ public class AllocationConfigs extends ProjectCouchDoc {
 
   /**
    * Gets the wif project.
-   * 
+   *
    * @return the wif project
    */
   public WifProject getWifProject() {
@@ -55,7 +60,7 @@ public class AllocationConfigs extends ProjectCouchDoc {
 
   /**
    * Sets the wif project.
-   * 
+   *
    * @param wifProject
    *          the new wif project
    */
@@ -80,7 +85,7 @@ public class AllocationConfigs extends ProjectCouchDoc {
 
   /**
    * Gets the reset columns.
-   * 
+   *
    * @return the reset columns
    */
   @JsonIgnore

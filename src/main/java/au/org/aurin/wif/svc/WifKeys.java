@@ -66,10 +66,10 @@ public class WifKeys {
 
   /** The Constant POLYGON_ALLOCATION_TEST. */
   public static final Object POLYGON_ALLOCATION_TEST =
-  // null;//it will only work if the whole area is selected, but makes the
-  // automated testing very slow
-  "POLYGON((1799535 788274,1799535 788000,1799000 788000,1799000 788274,1799535 788274))";// 8
-                                                                                          // features
+      // null;//it will only work if the whole area is selected, but makes the
+      // automated testing very slow
+      "POLYGON((1799535 788274,1799535 788000,1799000 788000,1799000 788274,1799535 788274))";// 8
+  // features
 
   /** The Constant TIME_LAPSE. */
   public static final long TIME_LAPSE = 1000000;
@@ -296,5 +296,8 @@ public class WifKeys {
 
   /** The shib name to see all projects. */
   public static String SHIB_ROLE_NAME = "alireza.shamakhy@unimelb.edu.au";// "Alireza+Shamakhy"
+
+  /** The demo project name. */
+  public static String DEMO_PROJECT_NAME = "wanneroo";
 
 }

@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import au.org.aurin.wif.exception.config.GeoServerConfigException;
 import au.org.aurin.wif.exception.config.InvalidEntityIdException;
@@ -28,7 +29,7 @@ public interface ProjectService {
 
   /**
    * Gets the project.
-   * 
+   *
    * @param pId
    *          the id
    * @return the project
@@ -38,11 +39,11 @@ public interface ProjectService {
    *           the wif invalid config exception
    */
   WifProject getProject(String pId) throws WifInvalidInputException,
-      WifInvalidConfigException;
+  WifInvalidConfigException;
 
   /**
    * Gets the project no mapping.
-   * 
+   *
    * @param pId
    *          the id
    * @return the project no mapping
@@ -52,11 +53,11 @@ public interface ProjectService {
    *           the wif invalid config exception
    */
   WifProject getProjectNoMapping(String pId) throws WifInvalidInputException,
-      WifInvalidConfigException;
+  WifInvalidConfigException;
 
   /**
    * Gets the project.
-   * 
+   *
    * @param role
    *          the role
    * @param id
@@ -72,7 +73,7 @@ public interface ProjectService {
 
   /**
    * Creates the project.
-   * 
+   *
    * @param project
    *          the project
    * @param username
@@ -91,7 +92,7 @@ public interface ProjectService {
 
   /**
    * Gets the project configuration.
-   * 
+   *
    * @param id
    *          the id
    * @return the project configuration
@@ -105,7 +106,7 @@ public interface ProjectService {
 
   /**
    * Delete project.
-   * 
+   *
    * @param id
    *          the id
    * @throws WifInvalidInputException
@@ -114,11 +115,11 @@ public interface ProjectService {
    *           the wif invalid config exception
    */
   void deleteProject(String id) throws WifInvalidInputException,
-      WifInvalidConfigException;
+  WifInvalidConfigException;
 
   /**
    * Delete project.
-   * 
+   *
    * @param id
    *          the id
    * @param deleteUAZ
@@ -133,7 +134,7 @@ public interface ProjectService {
 
   /**
    * Convert union to uaz.
-   * 
+   *
    * @param id
    *          the id
    * @param optionalColumns
@@ -160,14 +161,14 @@ public interface ProjectService {
    */
   Boolean convertUnionToUAZ(String id, List<String> optionalColumns,
       String roleId) throws WifInvalidInputException,
-      UAZAlreadyCreatedException, WifInvalidConfigException,
-      IncompleteSuitabilityLUConfigException, NoSuchAuthorityCodeException,
-      DataStoreUnavailableException, FactoryException,
-      GeoServerConfigException, DataStoreCreationException;
+  UAZAlreadyCreatedException, WifInvalidConfigException,
+  IncompleteSuitabilityLUConfigException, NoSuchAuthorityCodeException,
+  DataStoreUnavailableException, FactoryException,
+  GeoServerConfigException, DataStoreCreationException;
 
   /**
    * Update project.
-   * 
+   *
    * @param project
    *          the project
    * @throws WifInvalidInputException
@@ -176,11 +177,11 @@ public interface ProjectService {
    *           the wif invalid config exception
    */
   void updateProject(WifProject project) throws WifInvalidInputException,
-      WifInvalidConfigException;
+  WifInvalidConfigException;
 
   /**
    * Gets the all projects.
-   * 
+   *
    * @param role
    *          the role
    * @return the all projects
@@ -191,7 +192,7 @@ public interface ProjectService {
 
   /**
    * Setup allocation config.
-   * 
+   *
    * @param project
    *          the project
    * @return true, if successful
@@ -210,7 +211,7 @@ public interface ProjectService {
    * Setup Manual allocation config. IN manual allocation config we just asking
    * area requirenments. It needed projection and for each projection area
    * required for specific land use
-   * 
+   *
    * @param project
    *          the project
    * @return true, if successful
@@ -235,7 +236,7 @@ public interface ProjectService {
 
   /**
    * Restore project configuration.
-   * 
+   *
    * @param projectReport
    *          the project report
    * @return the wif project
@@ -243,14 +244,15 @@ public interface ProjectService {
    *           the wif invalid input exception
    * @throws WifInvalidConfigException
    *           the wif invalid config exception
+   * @throws ParsingException
    */
   WifProject restoreProjectConfiguration(ProjectReport projectReport)
-      throws WifInvalidInputException, WifInvalidConfigException;
+      throws WifInvalidInputException, WifInvalidConfigException, ParsingException;
 
   /**
    * Purge project taht could have been created by the as synchronous process
    * but it failed
-   * 
+   *
    * @param id
    *          the id
    * @throws InvalidEntityIdException
@@ -258,6 +260,9 @@ public interface ProjectService {
   void purgeProject(String id) throws InvalidEntityIdException;
 
   File getProjectZipUAZ(String id) throws WifInvalidInputException,
-      WifInvalidConfigException, IOException, DatabaseFailedException;
+  WifInvalidConfigException, IOException, DatabaseFailedException;
+
+  Boolean PublishWMSLayer( String tableName,
+      CoordinateReferenceSystem crs, String projectID);
 
 }

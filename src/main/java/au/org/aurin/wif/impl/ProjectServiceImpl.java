@@ -26,7 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import au.org.aurin.wif.config.GeoServerConfig;
 import au.org.aurin.wif.config.WifConfig;
@@ -93,6 +98,8 @@ import au.org.aurin.wif.repo.suitability.impl.CouchFactorDao;
 import au.org.aurin.wif.repo.suitability.impl.CouchFactorTypeDao;
 import au.org.aurin.wif.svc.ProjectService;
 import au.org.aurin.wif.svc.WifKeys;
+import au.org.aurin.wif.svc.allocation.AllocationConfigsService;
+import au.org.aurin.wif.svc.demand.DemandScenarioService;
 import au.org.aurin.wif.svc.suitability.DemandConfigService;
 import au.org.aurin.wif.svc.suitability.SuitabilityLUService;
 import au.org.aurin.wif.svc.suitability.SuitabilityScenarioService;
@@ -228,6 +235,12 @@ public class ProjectServiceImpl implements ProjectService {
 
   /** The projects pool. */
   private HashMap<Integer, Future<WifProject>> projectsPool;
+
+  @Resource
+  private AllocationConfigsService AllocationConfigsService;
+
+  @Resource
+  private DemandScenarioService demandScenarioService;
 
   /**
    * Inits the.
@@ -953,7 +966,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public WifProject restoreProjectConfiguration(
       final ProjectReport projectReport) throws WifInvalidInputException,
-  WifInvalidConfigException {
+  WifInvalidConfigException, ParsingException {
     final WifProject oldProject = projectReport.getProject();
     LOGGER.debug("...Serializing project full configuration: {}",
         oldProject.getLabel());
@@ -1175,6 +1188,10 @@ public class ProjectServiceImpl implements ProjectService {
           .getInfrastructureALUs());
       allocationConfigs.setGrowthPatternALUs(allocationConfigold
           .getGrowthPatternALUs());
+
+      allocationConfigs.setColorALUs(allocationConfigold.getColorALUs());
+
+
 
       final AllocationConfigs savedAllocationConfigs = allocationConfigsDao
           .persistAllocationConfigs(allocationConfigs);
@@ -1602,6 +1619,28 @@ public class ProjectServiceImpl implements ProjectService {
     // ////////////
     wifProjectDao.updateProject(restoreProject);
 
+    ///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////
+    demandConfigService.updateDemandConfig(demandConfig, restoreProject.getId());
+
+    final List<DemandScenario> lst = demandScenarioService.getDemandScenarios(restoreProject.getId());
+    for (final DemandScenario demandScenario: lst)
+    {
+      demandScenarioService.updateDemandScenario(demandScenario, restoreProject.getId());
+    }
+
+    final List<SuitabilityScenario> lstSuit= suitabilityScenarioService.getSuitabilityScenarios(restoreProject.getId());
+    for (final SuitabilityScenario suitScen: lstSuit)
+    {
+      suitScen.setReady(true);
+      suitabilityScenarioService.updateSuitabilityScenario(suitScen,
+          restoreProject.getId());
+    }
+
+    ///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////
+
+
     LOGGER.debug("Project with ID {}, and name {} is restored ", newProjectId,
         restoreProject.getLabel());
     return restoreProject;
@@ -1615,6 +1654,124 @@ public class ProjectServiceImpl implements ProjectService {
   public void deleteProject(final String id) throws WifInvalidInputException,
   WifInvalidConfigException {
     deleteProject(id, true);
+  }
+
+  @Override
+  public Boolean PublishWMSLayer( final String tableName,
+      final CoordinateReferenceSystem crs, final String projectID)
+  {
+    Boolean lsw = false;
+    try
+    {
+
+      if (checkMSLayerExists(tableName).equals("")) {
+      } else {
+        deleteWMSLayer(tableName);
+        lsw = true;
+      }
+
+      ////////////////////////
+
+
+
+      final GSFeatureTypeEncoder ftEnc = new GSFeatureTypeEncoder();
+      LOGGER.info("creating new Geoserver layer ={}", tableName);
+      ftEnc.setName(tableName);
+      ftEnc.setTitle(tableName);
+      final String srs = CRS.toSRS(crs);
+
+      LOGGER.info("Project SRS ={}", srs);
+      if (srs == null) {
+        LOGGER.info("PublishWMSLayer failed: srs is null or invalid");
+      }
+      ftEnc.setSRS(srs);
+
+      final GSLayerEncoder layerEnc = new GSLayerEncoder();
+      LOGGER.info("publishing the project layer in geoserver restUrl ={}",
+          geoserverConfig.getRestUrl());
+      LOGGER.info("publishing the project layer in workspace ={}, store ={} ",
+          geoserverConfig.getWorkspace(), geoserverConfig.getStoreName());
+
+      final long startTime = System.nanoTime();
+      final boolean publishResult = geoserverPublisher.publishDBLayer(
+          geoserverConfig.getWorkspace(), geoserverConfig.getStoreName(), ftEnc,
+          layerEnc);
+      final long endTime = System.nanoTime();
+      final long duration = endTime - startTime;
+      LOGGER.info(">>>>>>>>>>>>>>*************** GeoServer publishing took in ms "+ duration / 1000000);
+      //geoserverPublisher.reload();
+      if (!publishResult) {
+        LOGGER.info("PublishWMSLayer failed: geoserver layer could not be created, wmsOutcome will not work!");
+      }
+      else
+      {
+
+        //publish style //
+        final AllocationConfigs allocationConfigs = AllocationConfigsService.getAllocationConfigs(projectID);
+        AllocationConfigsService.CreateStyleDemo(allocationConfigs, projectID, true);
+
+
+
+      }
+
+    }
+    catch(final Exception e)
+    {
+      LOGGER.info("PublishWMSLayer failed for table: {}  ", tableName);
+    }
+    return lsw;
+  }
+
+  public void deleteWMSLayer(final String tableName)
+      throws DataStoreUnavailableException, GeoServerConfigException {
+
+    geoserverPublisher.removeLayer(geoserverConfig.getWorkspace(), tableName);
+    geoserverPublisher.reload();
+    LOGGER.info("deleting the project layer in geoserver ={}", tableName);
+
+  }
+
+  public String checkMSLayerExists(final String tableName) {
+
+    String outs = "";
+    try {
+
+      final String sUrl = geoserverConfig.getRestUrl() + "rest/workspaces/"
+          + geoserverConfig.getWorkspace() + "/datastores/"
+          + geoserverConfig.getStoreName() + "/featuretypes/" + tableName;
+      // final String str =
+      // "http://localhost:7000/geoserver/rest/workspaces/envision/datastores/Envision/featuretypes/vic_maroondah_mce02_9ea2659d94165120867ab5fa0e00a754";
+
+      LOGGER.info("checkMSLayerExists layer ={}", sUrl);
+
+      final String aut = geoserverConfig.getUserName() + ":"
+          + geoserverConfig.getPassword();
+      final String plainCreds = aut; // "admin:geoserver";
+      final byte[] plainCredsBytes = plainCreds.getBytes();
+
+      final byte[] base64CredsBytes = org.apache.commons.codec.binary.Base64
+          .encodeBase64(plainCredsBytes);
+      final String base64Creds = new String(base64CredsBytes);
+
+      final HttpHeaders headers = new HttpHeaders();
+      headers.add("Authorization", "Basic " + base64Creds);
+
+      /*
+       * final HttpHeaders headers = new HttpHeaders(); headers.add("username",
+       * "admin"); headers.add("password", "geoserver");
+       */
+      final HttpEntity<String> entity = new HttpEntity<String>("parameters",
+          headers);
+
+      final RestTemplate restTemplate = new RestTemplate();
+      final ResponseEntity<String> st = restTemplate.exchange(sUrl,
+          HttpMethod.GET, entity, String.class);
+      outs = st.getBody();
+    } catch (final Exception e) {
+      LOGGER.info("checkMSLayerExists Error: " + e.toString());
+    }
+    return outs;
+
   }
 
 }

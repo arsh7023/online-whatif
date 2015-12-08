@@ -1,12 +1,12 @@
 /*
- * 
+ *
  */
 package au.org.aurin.wif.impl.allocation;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
-
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -16,6 +16,10 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.apache.commons.codec.binary.Base64;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +48,7 @@ import au.org.aurin.wif.model.allocation.AllocationLU;
 import au.org.aurin.wif.model.allocation.ColorALU;
 import au.org.aurin.wif.model.allocation.LandUseFunction;
 import au.org.aurin.wif.model.demand.DemandConfig;
+import au.org.aurin.wif.model.suitability.SuitabilityConfig;
 import au.org.aurin.wif.repo.allocation.AllocationConfigsDao;
 import au.org.aurin.wif.repo.impl.CouchAllocationLUDao;
 import au.org.aurin.wif.repo.impl.CouchWifProjectDao;
@@ -51,6 +56,7 @@ import au.org.aurin.wif.svc.ProjectService;
 import au.org.aurin.wif.svc.WifKeys;
 import au.org.aurin.wif.svc.allocation.AllocationConfigsService;
 import au.org.aurin.wif.svc.suitability.DemandConfigService;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 
 /**
  * The Class AllocationConfigServiceImpl.
@@ -133,13 +139,14 @@ public class AllocationConfigsServiceImpl implements AllocationConfigsService {
    * au.org.aurin.wif.svc.suitability.AllocationConfigService#createAllocationConfig
    * (au.org.aurin.wif.model.Allocation.AllocationConfig, java.lang.String)
    */
+  @Override
   public AllocationConfigs createAllocationConfigs(
       final AllocationConfigs AllocationConfigs, final String projectId)
-      throws WifInvalidInputException, WifInvalidConfigException,
-      IncompleteAllocationConfigsException, ParsingException {
+          throws WifInvalidInputException, WifInvalidConfigException,
+          IncompleteAllocationConfigsException, ParsingException {
     if (AllocationConfigs == null) {
       LOGGER
-          .error("createAllocationConfig failed: AllocationConfig is null or invalid");
+      .error("createAllocationConfig failed: AllocationConfig is null or invalid");
       throw new WifInvalidInputException(
           "createAllocationConfig failed: AllocationConfig is null or invalid");
     }
@@ -261,6 +268,7 @@ public class AllocationConfigsServiceImpl implements AllocationConfigsService {
     return manualsavedAllocationConfig;
   }
 
+  @Override
   public Boolean CreateStyle(final AllocationConfigs AllocationConfigs,
       final String projectId, final Boolean lsw) {
     try {
@@ -492,6 +500,7 @@ public class AllocationConfigsServiceImpl implements AllocationConfigsService {
    * au.org.aurin.wif.svc.AllocationConfigService#getAllocationConfig(java.lang
    * .String)
    */
+  @Override
   public AllocationConfigs getAllocationConfigs(final String projectId)
       throws WifInvalidInputException, WifInvalidConfigException {
     String AllocationConfigsId = null;
@@ -545,9 +554,10 @@ public class AllocationConfigsServiceImpl implements AllocationConfigsService {
    * au.org.aurin.wif.svc.AllocationConfigService#updateAllocationConfig(au.
    * org.aurin .wif.model.allocation.AllocationConfig, java.lang.String)
    */
+  @Override
   public void updateAllocationConfigs(
       final AllocationConfigs AllocationConfigs, final String projectId)
-      throws WifInvalidInputException, WifInvalidConfigException {
+          throws WifInvalidInputException, WifInvalidConfigException {
     LOGGER.info("updating AllocationConfig: {}, with id: {}",
         AllocationConfigs.getLabel(), AllocationConfigs.getId());
     try {
@@ -557,8 +567,8 @@ public class AllocationConfigsServiceImpl implements AllocationConfigsService {
         // AllocationConfig = AllocationSetupParser.parse(AllocationConfig,
         // project);
         AllocationConfigs
-            .setRevision(AllocationConfigsDao.findAllocationConfigsById(
-                AllocationConfigs.getId()).getRevision());
+        .setRevision(AllocationConfigsDao.findAllocationConfigsById(
+            AllocationConfigs.getId()).getRevision());
         AllocationConfigsDao.updateAllocationConfigs(AllocationConfigs);
       } else {
         final String msg = "illegal argument, the ID " + projectId
@@ -569,7 +579,7 @@ public class AllocationConfigsServiceImpl implements AllocationConfigsService {
     } catch (final IllegalArgumentException e) {
 
       LOGGER
-          .error("illegal argument, the AllocationConfig supplied is invalid ");
+      .error("illegal argument, the AllocationConfig supplied is invalid ");
       throw new WifInvalidInputException(
           "illegal argument, the AllocationConfig supplied is invalid ");
     }
@@ -581,6 +591,7 @@ public class AllocationConfigsServiceImpl implements AllocationConfigsService {
    * au.org.aurin.wif.svc.AllocationConfigService#deleteAllocationConfig(java
    * .lang.String , java.lang.String)
    */
+  @Override
   public void deleteAllocationConfigs(final String projectId)
       throws WifInvalidInputException, WifInvalidConfigException {
     LOGGER.info("deleting the AllocationConfig from project with ID={}",
@@ -600,4 +611,205 @@ public class AllocationConfigsServiceImpl implements AllocationConfigsService {
           + projectId + " supplied doesn't identify a valid AllocationConfig ");
     }
   }
+
+
+
+  @Override
+  public Boolean CreateStyleDemo(final AllocationConfigs AllocationConfigs,
+      final String projectId, final Boolean lsw) {
+    try {
+      if (AllocationConfigs == null) {
+        LOGGER.error("CreateStyle failed: AllocationConfig is null or invalid");
+        throw new WifInvalidInputException(
+            "CreateStyle failed: AllocationConfig is null or invalid");
+      }
+
+      LOGGER.debug("createAllocationConfig for project  id ={}", projectId);
+      WifProject project = projectService.getProject(projectId);
+      project = projectParser.parse(project);
+      AllocationConfigs.setProjectId(projectId);
+
+      Set<ColorALU> sttColor= new HashSet<ColorALU>();
+      // new for geoserver styling and geoserver cache
+      if (AllocationConfigs.getColorALUs().size() == 0) {
+
+        final String attr = project.getExistingLUAttributeName();
+
+        final SuitabilityConfig suitabilityConfig = project
+            .getSuitabilityConfig();
+        if (suitabilityConfig != null) {
+          final String uazTbl = suitabilityConfig.getUnifiedAreaZone();
+          final List<String> lstColor = geodataFinder.getDistinctColorsForALUConfig(uazTbl, attr);
+          if (lstColor.size()>0)
+          {
+            for (final String color:lstColor)
+            {
+              final String[] st = color.split("@");
+              final ColorALU col = new ColorALU();
+              col.setLabel(st[0]);
+              col.setAssociatedColors(st[1]);
+              sttColor.add(col);
+            }
+          }
+        }
+
+      }
+      else
+      {
+        sttColor = AllocationConfigs.getColorALUs();
+      }
+
+      //if (AllocationConfigs.getColorALUs().size() != 0) {
+      if (sttColor.size() != 0) {
+
+        String propertyName = "";
+        final String opacity = "1";
+
+        propertyName = project.getExistingLUAttributeName();
+        final String styleName = project.getSuitabilityConfig()
+            .getUnifiedAreaZone();
+
+        final String potentialStyleStart = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<sld:StyledLayerDescriptor xmlns=\"http://www.opengis.net/sld\" xmlns:sld=\"http://www.opengis.net/sld\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:gml=\"http://www.opengis.net/gml\" version=\"1.0.0\">"
+            + "<sld:NamedLayer>"
+            + "<sld:Name>"
+            + styleName
+            + "</sld:Name>"
+            + "<sld:UserStyle>"
+            + "<sld:Title>SLD Potential Development</sld:Title>"
+            + "<sld:FeatureTypeStyle>";
+
+        final String potentialStyleEnd = "</sld:FeatureTypeStyle>"
+            + "</sld:UserStyle>" + "</sld:NamedLayer>"
+            + "</sld:StyledLayerDescriptor>";
+        String NewStyle = "";
+        String sld = "";
+        //for (final ColorALU color : AllocationConfigs.getColorALUs()) {
+        for (final ColorALU color : sttColor) {
+
+          final String title = color.getLabel();
+          final String colorcode = color.getAssociatedColors();
+
+          NewStyle = "<sld:Rule>" + "<sld:Title>" + title + "</sld:Title>"
+              + "<ogc:Filter>" + "<PropertyIsEqualTo>" + "<ogc:PropertyName>"
+              + propertyName + "</ogc:PropertyName>" + "<ogc:Literal>" + title
+              + "</ogc:Literal>" + "</PropertyIsEqualTo>" + "</ogc:Filter>"
+              + "<sld:PolygonSymbolizer>" + "<sld:Fill>"
+              + "<sld:CssParameter name=\"fill\">" + colorcode
+              + "</sld:CssParameter>" + "<CssParameter name=\"fill-opacity\">"
+              + opacity + "</CssParameter>" + "</sld:Fill>"
+              + "</sld:PolygonSymbolizer>" + "</sld:Rule>";
+
+          sld = sld + NewStyle;
+
+        }// end for
+
+        sld = potentialStyleStart + sld + potentialStyleEnd;
+        LOGGER.info("sld is : " + sld);
+
+        final Document doc = DocumentHelper.parseText(sld);
+        final StringWriter sw = new StringWriter();
+        final OutputFormat format = OutputFormat.createPrettyPrint();
+        format.setIndent(true);
+        format.setIndentSize(3);
+        final XMLWriter xw = new XMLWriter(sw, format);
+        xw.write(doc);
+
+        sld=sw.toString();
+        LOGGER.info("sld is : " + sld);
+        // final String styleName = geoserverConfig.getWorkspace() + ":"
+        // + project.getSuitabilityConfig().getUnifiedAreaZone();
+        geoserverPublisher.reload();
+        if (lsw == true) {
+          geoserverPublisher.publishStyle(sld, styleName);
+        } else if (lsw == false) {
+          geoserverPublisher.publishStyle(sld, styleName);
+          geoserverPublisher.updateStyle(sld, styleName);
+        }
+
+        // //geoserverPublisher.publishStyle(sld, styleName);
+        // geoserverPublisher.reload();
+
+        // ///////seeding cache
+
+        final HttpHeaders headers = new HttpHeaders();
+
+        final String aut = geoserverConfig.getUserName() + ":"
+            + geoserverConfig.getPassword();
+
+        LOGGER.info(aut);
+
+        final String plainCreds = aut; // "admin:geoserver";
+        final byte[] plainCredsBytes = plainCreds.getBytes();
+
+        final byte[] base64CredsBytes = org.apache.commons.codec.binary.Base64
+            .encodeBase64(plainCredsBytes);
+        final String base64Creds = new String(base64CredsBytes);
+
+        final String auth = aut;
+        final byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset
+            .forName("US-ASCII")));
+        final String authHeader = "Basic " + new String(encodedAuth);
+        headers.add("Authorization", authHeader);
+
+        // headers.add("Accept", "application/json");
+        headers.setContentType(MediaType.TEXT_XML);
+        // headers.add("Authorization", "Basic " + base64Creds);
+
+        final String styleName2 = geoserverConfig.getWorkspace() + ":"
+            + project.getSuitabilityConfig().getUnifiedAreaZone();
+
+        // //////change default style
+
+        final String changeStyle = "<layer><defaultStyle><name>" + styleName
+            + "</name></defaultStyle></layer>";
+        LOGGER.info(changeStyle);
+        final String styleUrl = geoserverConfig.getRestUrl() + "rest/layers/"
+            + styleName2 + "/";
+        LOGGER.info(styleUrl);
+        final HttpEntity<String> entityStyle = new HttpEntity<String>(
+            changeStyle, headers);
+
+        final ResponseEntity<String> stStyle = restTemplate.exchange(styleUrl,
+            HttpMethod.PUT, entityStyle, String.class);
+        LOGGER.info(stStyle.getBody());
+        // //////end change default style
+
+        // ///////seeding
+        String mydata = "<seedRequest><name>"
+            + styleName2
+            + "</name><srs><number>900913</number></srs><zoomStart>1</zoomStart><zoomStop>15</zoomStop><format>image/png</format><type>RESEED</type><threadCount>1</threadCount><parameters><entry><string>STYLES</string><string>"
+            + styleName + "</string></entry></parameters></seedRequest>";
+
+        mydata = "<seedRequest><name>"
+            + styleName2
+            + "</name><srs><number>900913</number></srs><zoomStart>1</zoomStart><zoomStop>15</zoomStop><format>image/png</format><type>RESEED</type><threadCount>1</threadCount>"
+            + "</seedRequest>";
+
+        LOGGER.info(mydata);
+
+        final String url = geoserverConfig.getRestUrl() + "gwc/rest/seed/"
+            + styleName2 + ".xml";
+
+        LOGGER.info(url);
+
+        final HttpEntity<String> entity = new HttpEntity<String>(mydata,
+            headers);
+
+        final ResponseEntity<String> st = restTemplate.exchange(url,
+            HttpMethod.POST, entity, String.class);
+        LOGGER.info(st.getBody());
+        // ///////end seeding
+
+      }// end if
+      // geoserverPublisher.reload();
+
+    } catch (final Exception e) {
+      LOGGER.error(e.toString());
+    }
+
+    return null;
+
+  }
+
 }

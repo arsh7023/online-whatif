@@ -14,7 +14,7 @@ public interface AllocationConfigsService {
 
   /**
    * Adds the AllocationConfigs.
-   * 
+   *
    * @param AllocationConfigs
    *          the AllocationConfigs
    * @param projectId
@@ -31,12 +31,12 @@ public interface AllocationConfigsService {
    */
   AllocationConfigs createAllocationConfigs(
       AllocationConfigs AllocationConfigs, String projectId)
-      throws WifInvalidInputException, WifInvalidConfigException,
-      ParsingException, IncompleteAllocationConfigsException;
+          throws WifInvalidInputException, WifInvalidConfigException,
+          ParsingException, IncompleteAllocationConfigsException;
 
   /**
    * Gets the AllocationConfigs.
-   * 
+   *
    * @param projectId
    *          the project id
    * @return the AllocationConfigs
@@ -53,7 +53,7 @@ public interface AllocationConfigsService {
 
   /**
    * Update AllocationConfigs.
-   * 
+   *
    * @param AllocationConfigs
    *          the AllocationConfigs
    * @param projectId
@@ -65,11 +65,11 @@ public interface AllocationConfigsService {
    */
   void updateAllocationConfigs(AllocationConfigs AllocationConfigs,
       String projectId) throws WifInvalidInputException,
-      WifInvalidConfigException;
+  WifInvalidConfigException;
 
   /**
    * Delete AllocationConfigs.
-   * 
+   *
    * @param projectId
    *          the project id
    * @throws WifInvalidInputException
@@ -81,6 +81,9 @@ public interface AllocationConfigsService {
       throws WifInvalidInputException, WifInvalidConfigException;
 
   Boolean CreateStyle(final AllocationConfigs AllocationConfigs,
+      final String projectId, final Boolean lsw);
+
+  Boolean CreateStyleDemo(final AllocationConfigs AllocationConfigs,
       final String projectId, final Boolean lsw);
 
 }

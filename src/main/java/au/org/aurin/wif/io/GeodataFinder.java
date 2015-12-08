@@ -1272,4 +1272,58 @@ public class GeodataFinder {
   }
 
 
+  /**
+   * Update uaz area.
+   *
+   * @param uazTbl
+   *          the uaz tbl
+   */
+  public void CopyDemoTable(final String newTbl, final String uazTbl) {
+
+    LOGGER.info("CopyDemoTable for table : {}", uazTbl);
+
+    try {
+      final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+      String queryTxt = "SELECT count(*)  FROM information_schema.tables "
+          + " WHERE table_name='" + newTbl + "'" + " and table_schema='"
+          + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "'";
+
+      LOGGER.info("updateUAZcolumnsALU query is: " + queryTxt);
+
+      Boolean lsw =false;
+      if (jdbcTemplate.queryForInt( queryTxt) == 1) {
+        lsw = true;
+        queryTxt = "DROP TABLE "
+            + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
+            + newTbl;
+        LOGGER.info("CopyDemoTable querydelete: {}", queryTxt);
+        jdbcTemplate.execute(queryTxt);
+        geoserverPublisher.reload();
+      }
+      //      final CREATE TABLE wifdemo.perth_peel_scenario3 (LIKE wifdemo.wif_ac8702c64b7c1f603bcd2671f3039639 INCLUDING INDEXES);
+      //      final insert into  wifdemo.perth_peel_scenario3 select *  from wifdemo.wif_ac8702c64b7c1f603bcd2671f3039639;
+
+      queryTxt = "CREATE TABLE "
+          + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
+          + newTbl + " (LIKE "+ postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "." + uazTbl
+          + " INCLUDING INDEXES) ";
+      LOGGER.info("CopyDemoTable query1: {}", queryTxt);
+      jdbcTemplate.execute(queryTxt);
+
+      queryTxt = "insert into "
+          + postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "."
+          + newTbl + " SELECT * FROM "+ postgisDataStoreConfig.getDataStoreParams().get(SCHEMA.key) + "." + uazTbl;
+      LOGGER.info("CopyDemoTable query2: {}", queryTxt);
+      jdbcTemplate.execute(queryTxt);
+
+
+    } catch (final Exception e) {
+      LOGGER.error("could not access table {} ", uazTbl);
+    }
+  }
 }
+
+
+
+
