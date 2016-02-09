@@ -164,6 +164,13 @@ Now set up an admin user by logging in to the web interface at [http://whatif-de
 	\q
 
 	exit
+	
+### Restore Sample table into the database
+
+We need to run command below to restore a sample table into the database. The dump file located in the db directory is:  wanneroodump
+
+	sudo pg_restore -Fc -U whatif -i -h localhost -p 5432 -d whatif-development wanneroodump
+
 
 ### Deploy geoserver on Tomcat
 

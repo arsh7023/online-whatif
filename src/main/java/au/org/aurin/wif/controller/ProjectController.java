@@ -1387,7 +1387,7 @@ public class ProjectController {
         {
           if (prj.getRoleOwner().toLowerCase().equals(WifKeys.SHIB_ROLE_NAME.toLowerCase()))
           {
-            if (prj.getLabel().toLowerCase().equals(WifKeys.DEMO_PROJECT_NAME.toLowerCase()))
+            if (prj.getLabel().toLowerCase().equals(WifKeys.DEMO_PROJECT_NAME_ADMIN.toLowerCase()))
             {
               id = prj.getId();
               dbName = prj.getSuitabilityConfig().getUnifiedAreaZone();

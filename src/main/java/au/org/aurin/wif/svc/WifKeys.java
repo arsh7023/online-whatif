@@ -64,6 +64,9 @@ public class WifKeys {
   /** The Constant CRS_DEFAULT. */
   public static final String CRS_DEFAULT = "EPSG:4326"; // was EPSG:4283
 
+  /** The Constant CRS_TEST. */
+  public static final String CRS_WANNEROO = "EPSG:28350";
+
   /** The Constant POLYGON_ALLOCATION_TEST. */
   public static final Object POLYGON_ALLOCATION_TEST =
       // null;//it will only work if the whole area is selected, but makes the
@@ -299,5 +302,7 @@ public class WifKeys {
 
   /** The demo project name. */
   public static String DEMO_PROJECT_NAME = "wanneroo";
+
+  public static String DEMO_PROJECT_NAME_ADMIN = "WannerooAdmin";
 
 }
