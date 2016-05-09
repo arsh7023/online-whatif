@@ -56,6 +56,7 @@ export geoserver_master_pw=geoserver
 export workspace=whatif
 export datastore=whatifStore
 export hostname=`hostname`
+export namespace_uri="http://$hostname/$workspace"
 export auth_user=envision
 export auth_pass=`pwgen -n 16 -N 1`
 export auth_db=envisiondb
@@ -136,10 +137,11 @@ echo "."
 if ! curl -s -u "admin:$geoserver_master_pw" -XGET -H "Accept: text/xml" -H "Content-type: text/xml" http://localhost:8082/geoserver/rest/workspaces.xml |grep -q "<name>$workspace</name>"
 then
 	xml="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<workspace>
-  <name>$workspace</name>
-</workspace>"
-	curl -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" http://localhost:8082/geoserver/rest/workspaces
+<namespace>
+  <prefix>$workspace</prefix>
+  <uri>$namespace_uri</uri>
+</namespace>"
+	curl -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" http://localhost:8082/geoserver/rest/namespaces
 fi
 
 # create a new datastore
