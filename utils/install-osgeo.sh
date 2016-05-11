@@ -505,8 +505,20 @@ fi
 
 # Build and deploy the war files
 function build_war_files {
-	# Install the build dependencies
-	sudo apt-get -y install git tig maven default-jdk
+	# if there are any missing package dependencies, install them
+	packages=""
+	for package in git tig maven default-jdk
+	do
+		if ! dpkg -s $package 2>/dev/null |grep Status |grep -q installed
+	        then
+	                packages="${packages} ${package}"
+	        fi
+	done
+	packages=`echo $packages | awk '{gsub(/^ +| +$/,"")} {print $0}'` # trim leading and trailing whitespace
+	if [[ $packages != "" ]]
+	then
+		sudo apt-get install -y $packages
+	fi
 
 	# Clone the source and build
 	sudo -u $user1 mkdir -p dependencies && cd dependencies
@@ -572,7 +584,7 @@ sudo "$script_dir"/refresh-java-keystore.sh
 services="dovecot postfix postgresql couchdb tomcat7 apache2"
 for service in $services
 do
-	if dpkg -s $service 2>/dev/null |grep Status |grep -q installed
+	if dpkg -l |awk '{ print $2 }' |grep "\^${service}\$" > /dev/null
 	then
 		sudo service $service restart
 	fi
