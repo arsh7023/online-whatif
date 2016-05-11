@@ -35,6 +35,8 @@ set -x
 # https://github.com/AURIN/online-whatif/blob/master/INSTALL.md
 #
 
+# script requires root as this is expected by the OSGeo install process
+# some commands are run as the normal user with uid 1000, mainly for the geoserver jetty container which expects this on OSGeo
 if [[ $EUID -ne 0 ]]; then
 	echo "This script must be run as root" 1>&2
 	exit 1
@@ -42,7 +44,7 @@ fi
 
 show_help() {
 cat << EOF
-Usage: ${0##*/} [-he]
+Usage: ${0##*/} [-hes]
 Install AURIN Online WhatIf on OSGeo.  More information on installing Online
 WhatIf is available at: https://github.com/AURIN/online-whatif/blob/master/INSTALL.md
 
@@ -76,10 +78,20 @@ while getopts "hes" opt; do
 done
 shift "$((OPTIND-1))" # Shift off the options and optional --.
 
-sudo apt-get install -y couchdb pwgen
+# if there are any missing package dependencies, install them
+packages=""
+for package in couchdb pwgen
+do
+	if ! dpkg -s $package |grep Status |grep -q installed
+        then
+                packages="${packages} ${package}"
+        fi
+done
+packages=`echo $packages | awk '{gsub(/^ +| +$/,"")} {print $0}'` # trim leading and trailing whitespace
+sudo apt-get install -y "$packages"
 
 # Set all variables and passwords (you may update these to your liking)
-export initial_pwd="`pwd`"
+export script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # directory that contains the script
 export pg_user=whatif
 export pg_pass=`pwgen -n 16 -N 1`
 export PGPASSWORD=$pg_pass # PGPASSWORD is the variable that pg_dump and pg_restore look for
@@ -149,16 +161,18 @@ if ! sudo -u postgres psql << EOF | cut -d \| -f 1 |grep wifdemo > /dev/null
 \dt *.*
 EOF
 then
-	pg_restore -Fc -U $pg_user -i -h localhost -p 5432 -d whatif-development $initial_pwd/../db/wanneroodump
+	pg_restore -Fc -U $pg_user -i -h localhost -p 5432 -d whatif-development $script_dir/../db/wanneroodump
 fi
 
 # allow the system-provided geoserver to handle long urls
-sudo sed -i "s/<Set name=\"confidentialPort\">8443<\/Set>/<Set name=\"confidentialPort\">8443</Set>\n            <Set name=\"headerBufferSize\">64000</Set>/" /usr/local/lib/geoserver-2.8.2/etc/jetty.xml
-
-# (re)start system-provided geoserver
-echo "restarting system-provided geoserver"
-/usr/local/lib/geoserver-2.8.2/bin/shutdown.sh > /dev/null 2>&1
-/usr/local/lib/geoserver-2.8.2/bin/startup.sh > /dev/null 2>&1 &
+if ! grep -q "<Set name=\"headerBufferSize\">64000</Set>" /usr/local/lib/geoserver-2.8.2/etc/jetty.xml
+then
+	sudo sed -i "s/<Set name=\"confidentialPort\">8443<\/Set>/<Set name=\"confidentialPort\">8443<\/Set>\n            <Set name=\"headerBufferSize\">64000<\/Set>/" /usr/local/lib/geoserver-2.8.2/etc/jetty.xml
+	# (re)start system-provided geoserver
+	echo "restarting system-provided geoserver"
+	sudo -u $user1 -c /usr/local/lib/geoserver-2.8.2/bin/shutdown.sh > /dev/null 2>&1
+	sudo -u $user1 -c /usr/local/lib/geoserver-2.8.2/bin/startup.sh > /dev/null 2>&1 &
+fi
 
 echo -n "waiting for geoserver to start"
 until curl -s "http://localhost:8082/geoserver/web/" |grep "<title>GeoServer: Welcome</title>"
@@ -357,11 +371,11 @@ create extension postgis;
 \q
 EOF
 	sudo -u postgres psql $auth_db -f ../db/structure.sql
-	sed "s/##user##/$user1/; s/##hostname##/$hostname/" ../db/users_osgeo.sql | sudo cat sudo -u postgres psql $auth_db
+	sed "s/##user##/$user1/; s/##hostname##/$hostname/" ../db/users_osgeo.sql | sudo -u postgres psql $auth_db
 fi
 	
 # Install the email dependencies for the Workbenchauth authentication system
-install_email_deps() {
+function install_email_deps {
 	# Set up SMTP daemon for sending email to new users
 	if ! dpkg -s postfix |grep Status |grep -q installed
 	then
@@ -432,15 +446,15 @@ broken_sasl_auth_clients = yes"
 	then
 		sudo adduser $email_user --gecos "User Administration" --disabled-password
 		sudo bash -c "chpasswd << END
-	$email_user:$email_pass
-	END"
+$email_user:$email_pass
+END"
 	fi
 }
 
 # install email dependencies for Workbenchauth if requested
 if [[ email_deps -eq 1 ]]
 then
-	install_email_deps();
+	install_email_deps
 fi
 
 #XXX Create whatif users
@@ -485,7 +499,7 @@ EOF"
 fi
 
 # Build and deploy the war files
-build_war_files() {
+function build_war_files {
 	# Install the build dependencies
 	sudo apt-get -y install git tig maven default-jdk
 
@@ -493,35 +507,35 @@ build_war_files() {
 	mkdir -p dependencies && cd dependencies
 	if [ ! -e online-whatif-ui ]
 	then
-		git clone https://github.com/AURIN/online-whatif-ui.git
+		sudo -u $user1 -c "git clone https://github.com/AURIN/online-whatif-ui.git"
 	fi
 	if [ ! -e workbenchauth ]
 	then
-		git clone https://github.com/AURIN/workbenchauth.git
+		sudo -u $user1 -c "git clone https://github.com/AURIN/workbenchauth.git"
 	fi
 	export AURIN_DIR="/etc/aurin"
 	export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre
 	if [ ! -f workbenchauth/target/workbenchauth-1.0.0.war ]
 	then
 		cd workbenchauth
-		mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
+		sudo -u $user1 -c "mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR"
 		cd ..
 	fi
 	if [ ! -f online-whatif-ui/target/whatif-1.0.war ]
 	then
 		cd online-whatif-ui
-		mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
+		sudo -u $user1 -c "mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR"
 		cd ..
 	fi
-	if [ ! -f ${initial_pwd}/../target/aurin-wif-1.0.war ]
+	if [ ! -f ${script_dir}/../target/aurin-wif-1.0.war ]
 	then
-		cd "$initial_pwd/.."
-		mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
-		cd "$initial_pwd"
+		cd "$script_dir/.."
+		sudo -u $user1 -c "mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR"
+		cd "$script_dir"
 	fi
 
 	# Deploy the war files
-	cd "$initial_pwd"
+	cd "$script_dir"
 	sudo cp dependencies/workbenchauth/target/workbenchauth-1.0.0.war /var/lib/tomcat7/webapps/workbenchauth.war
 	sudo cp dependencies/online-whatif-ui/target/whatif-1.0.war /var/lib/tomcat7/webapps/whatif.war
 	sudo cp ../target/aurin-wif-1.0.war /var/lib/tomcat7/webapps/aurin-wif.war
@@ -529,19 +543,28 @@ build_war_files() {
 
 if [[ build_source -eq 1 ]]
 then
-	build_war_files()
+	build_war_files
 else
-	# XXX download and install war files from github release tag
+	# download and install war files from github release tag
+	sudo -u $user1 -c "mkdir -p "$script_dir"/download"
+	# XXX change to v1.0.0-alpha.1 when released
+	sudo -u $user1 -c "curl -q -o "$script_dir"/download/aurin-wif-1.0.war https://github.com/AURIN/online-whatif/releases/download/untagged-8df05b5c23e620b3d70b/aurin-wif-1.0.war"
+	sudo -u $user1 -c "curl -q -o "$script_dir"/download/whatif-1.0.war https://github.com/AURIN/online-whatif/releases/download/untagged-8df05b5c23e620b3d70b/whatif-1.0.war"
+	sudo -u $user1 -c "curl -q -o "$script_dir"/download/workbenchauth-1.0.0.war https://github.com/AURIN/online-whatif/releases/download/untagged-8df05b5c23e620b3d70b/workbenchauth-1.0.0.war"
+
+	sudo cp "$script_dir"/download/workbenchauth-1.0.0.war /var/lib/tomcat7/webapps/workbenchauth.war
+	sudo cp "$script_dir"/download/whatif-1.0.war /var/lib/tomcat7/webapps/whatif.war
+	sudo cp "$script_dir"/download/aurin-wif-1.0.war /var/lib/tomcat7/webapps/aurin-wif.war
 fi
 
 # Ensure that the self-signed SSL certificate is trusted by java
-sudo "$initial_pwd"/refresh-java-keystore.sh
+sudo "$script_dir"/refresh-java-keystore.sh
 
 # Restart relevant services
 services="dovecot postfix postgresql couchdb tomcat7 apache2"
 for service in $services
 do
-	if dpkg -l |awk '{ print $2 }' |grep "\^${service}\$" > /dev/null
+	if dpkg -s $service |grep Status |grep -q installed
 	then
 		sudo service $service restart
 	fi
