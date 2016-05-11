@@ -83,15 +83,19 @@ shift "$((OPTIND-1))" # Shift off the options and optional --.
 packages=""
 for package in couchdb pwgen
 do
-	if ! dpkg -s $package |grep Status |grep -q installed
+	if ! dpkg -s $package 2>/dev/null |grep Status |grep -q installed
         then
                 packages="${packages} ${package}"
         fi
 done
 packages=`echo $packages | awk '{gsub(/^ +| +$/,"")} {print $0}'` # trim leading and trailing whitespace
-sudo apt-get install -y "$packages"
+if [[ $packages != "" ]]
+then
+	sudo apt-get install -y $packages
+fi
 
 # Set all variables and passwords (you may update these to your liking)
+export github_release=v1.0.0-alpha.1
 export script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # directory that contains the script
 export pg_user=whatif
 export pg_pass=`pwgen -n 16 -N 1`
@@ -169,11 +173,12 @@ fi
 if ! grep -q "<Set name=\"headerBufferSize\">64000</Set>" /usr/local/lib/geoserver-2.8.2/etc/jetty.xml
 then
 	sudo sed -i "s/<Set name=\"confidentialPort\">8443<\/Set>/<Set name=\"confidentialPort\">8443<\/Set>\n            <Set name=\"headerBufferSize\">64000<\/Set>/" /usr/local/lib/geoserver-2.8.2/etc/jetty.xml
-	# (re)start system-provided geoserver
-	echo "restarting system-provided geoserver"
-	sudo -u $user1 -c /usr/local/lib/geoserver-2.8.2/bin/shutdown.sh > /dev/null 2>&1
-	sudo -u $user1 -c /usr/local/lib/geoserver-2.8.2/bin/startup.sh > /dev/null 2>&1 &
 fi
+
+# (re)start system-provided geoserver
+echo "restarting system-provided geoserver"
+sudo -u $user1 /usr/local/lib/geoserver-2.8.2/bin/shutdown.sh > /dev/null 2>&1
+sudo -u $user1 /usr/local/lib/geoserver-2.8.2/bin/startup.sh > /dev/null 2>&1 &
 
 echo -n "waiting for geoserver to start"
 until curl -s "http://localhost:8082/geoserver/web/" |grep "<title>GeoServer: Welcome</title>"
@@ -190,11 +195,11 @@ then
   <prefix>$workspace</prefix>
   <uri>$namespace_uri</uri>
 </namespace>"
-	curl -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" http://localhost:8082/geoserver/rest/namespaces
+	curl -s -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" http://localhost:8082/geoserver/rest/namespaces
 fi
 
 # create a new datastore
-if ! curl -v -u "admin:$geoserver_master_pw" -XGET -H "Accept: text/xml" -H "Content-type: text/xml" http://localhost:8082/geoserver/rest/workspaces/$workspace/datastores.xml |grep -q "<name>$datastore</name>"
+if ! curl -s -v -u "admin:$geoserver_master_pw" -XGET -H "Accept: text/xml" -H "Content-type: text/xml" http://localhost:8082/geoserver/rest/workspaces/$workspace/datastores.xml |grep -q "<name>$datastore</name>"
 then
 	xml="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <dataStore>
@@ -231,7 +236,7 @@ then
     <entry key=\"user\">$pg_user</entry>
   </connectionParameters>
 </dataStore>"
-	curl -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" "http://localhost:8082/geoserver/rest/workspaces/$workspace/datastores"
+	curl -s -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" "http://localhost:8082/geoserver/rest/workspaces/$workspace/datastores"
 fi
 
 # Configure the apache reverse proxy
@@ -378,14 +383,14 @@ fi
 # Install the email dependencies for the Workbenchauth authentication system
 function install_email_deps {
 	# Set up SMTP daemon for sending email to new users
-	if ! dpkg -s postfix |grep Status |grep -q installed
+	if ! dpkg -s postfix 2>/dev/null |grep Status |grep -q installed
 	then
 		sudo bash -c "debconf-set-selections <<< \"postfix postfix/mailname string $hostname\"
 		debconf-set-selections <<< \"postfix postfix/main_mailer_type string 'Internet Site'\""
 		sudo apt-get install -y postfix
 	fi
 	#XXX need to make it not prompt about self-signed cert
-	if ! dpkg -s dovecot-core |grep Status |grep -q installed
+	if ! dpkg -s dovecot-core 2>/dev/null |grep Status |grep -q installed
 	then
 		sudo bash -c "debconf-set-selections <<< \"dovecot-core dovecot-core/create-ssl-cert boolean true\"
 		debconf-set-selections <<< \"dovecot-core dovecot-core/ssl-cert-name string $hostname\"
@@ -505,33 +510,33 @@ function build_war_files {
 	sudo apt-get -y install git tig maven default-jdk
 
 	# Clone the source and build
-	mkdir -p dependencies && cd dependencies
+	sudo -u $user1 mkdir -p dependencies && cd dependencies
 	if [ ! -e online-whatif-ui ]
 	then
-		sudo -u $user1 -c "git clone https://github.com/AURIN/online-whatif-ui.git"
+		sudo -u $user1 git clone https://github.com/AURIN/online-whatif-ui.git
 	fi
 	if [ ! -e workbenchauth ]
 	then
-		sudo -u $user1 -c "git clone https://github.com/AURIN/workbenchauth.git"
+		sudo -u $user1 git clone https://github.com/AURIN/workbenchauth.git
 	fi
 	export AURIN_DIR="/etc/aurin"
 	export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre
 	if [ ! -f workbenchauth/target/workbenchauth-1.0.0.war ]
 	then
 		cd workbenchauth
-		sudo -u $user1 -c "mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR"
+		sudo -u $user1 mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
 		cd ..
 	fi
 	if [ ! -f online-whatif-ui/target/whatif-1.0.war ]
 	then
 		cd online-whatif-ui
-		sudo -u $user1 -c "mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR"
+		sudo -u $user1 mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
 		cd ..
 	fi
 	if [ ! -f ${script_dir}/../target/aurin-wif-1.0.war ]
 	then
 		cd "$script_dir/.."
-		sudo -u $user1 -c "mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR"
+		sudo -u $user1 mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
 		cd "$script_dir"
 	fi
 
@@ -547,11 +552,14 @@ then
 	build_war_files
 else
 	# download and install war files from github release tag
-	sudo -u $user1 -c "mkdir -p "$script_dir"/download"
-	# XXX change to v1.0.0-alpha.1 when released
-	sudo -u $user1 -c "curl -q -o "$script_dir"/download/aurin-wif-1.0.war https://github.com/AURIN/online-whatif/releases/download/untagged-8df05b5c23e620b3d70b/aurin-wif-1.0.war"
-	sudo -u $user1 -c "curl -q -o "$script_dir"/download/whatif-1.0.war https://github.com/AURIN/online-whatif/releases/download/untagged-8df05b5c23e620b3d70b/whatif-1.0.war"
-	sudo -u $user1 -c "curl -q -o "$script_dir"/download/workbenchauth-1.0.0.war https://github.com/AURIN/online-whatif/releases/download/untagged-8df05b5c23e620b3d70b/workbenchauth-1.0.0.war"
+	sudo -u $user1 mkdir -p "$script_dir"/download
+	for file in aurin-wif-1.0.war whatif-1.0.war workbenchauth-1.0.0.war
+	do
+		if [[ ! -f "$script_dir/download/$file" ]]
+		then
+			sudo -u $user1 curl -s -o "$script_dir/download/$file" "https://github.com/AURIN/online-whatif/releases/download/$github_release/$file"
+		fi
+	done
 
 	sudo cp "$script_dir"/download/workbenchauth-1.0.0.war /var/lib/tomcat7/webapps/workbenchauth.war
 	sudo cp "$script_dir"/download/whatif-1.0.war /var/lib/tomcat7/webapps/whatif.war
@@ -565,7 +573,7 @@ sudo "$script_dir"/refresh-java-keystore.sh
 services="dovecot postfix postgresql couchdb tomcat7 apache2"
 for service in $services
 do
-	if dpkg -s $service |grep Status |grep -q installed
+	if dpkg -s $service 2>/dev/null |grep Status |grep -q installed
 	then
 		sudo service $service restart
 	fi
