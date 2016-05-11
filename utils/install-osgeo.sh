@@ -34,14 +34,6 @@ set -x
 #
 # https://github.com/AURIN/online-whatif/blob/master/INSTALL.md
 #
-
-# script requires root as this is expected by the OSGeo install process
-# some commands are run as the normal user with uid 1000, mainly for the geoserver jetty container which expects this on OSGeo
-if [[ $EUID -ne 0 ]]; then
-	echo "This script must be run as root" 1>&2
-	exit 1
-fi
-
 show_help() {
 cat << EOF
 Usage: ${0##*/} [-hes]
@@ -55,6 +47,15 @@ WhatIf is available at: https://github.com/AURIN/online-whatif/blob/master/INSTA
 
 EOF
 }
+
+# script requires root as this is expected by the OSGeo install process
+# some commands are run as the normal user with uid 1000, mainly for the geoserver jetty container which expects this on OSGeo
+if [[ $EUID -ne 0 ]]; then
+	echo "This script must be run as root" 1>&2
+	echo "" 1>&2
+	show_help
+	exit 1
+fi
 
 email_deps=0
 build_source=0
