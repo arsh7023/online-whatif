@@ -304,8 +304,7 @@ then
 fi
 
 # Configure tomcat, enabling AJP connector
-# XXX need to check existing file first
-sudo sed -i "s/<\!-- Define an AJP 1.3 Connector on port 8009 -->/<\!-- Define an AJP 1.3 Connector on port 8009 -->\n    <Connector port=\"8009\" protocol=\"AJP\/1.3\" redirectPort=\"8443\" \/>/" /etc/tomcat7/server.xml
+sudo perl -0777 -i -pe 's/    <!-- Define an AJP 1.3 Connector on port 8009 -->\n    <!--\n    <Connector port="8009" protocol="AJP\/1.3" redirectPort="8443" \/>\n    -->/    <!-- Define an AJP 1.3 Connector on port 8009 -->\n    <Connector port="8009" protocol="AJP\/1.3" redirectPort="8443" \/>/' /etc/tomcat7/server.xml
 
 # create whatif configuration file
 if [ ! -e /etc/aurin/whatif-combined.properties ]
