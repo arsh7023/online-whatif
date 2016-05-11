@@ -7,7 +7,7 @@ set -x
 # https://raw.githubusercontent.com/AURIN/online-whatif/master/LICENSE
 #
 # Tested on the following operating systems:
-#  * Ubuntu 14.04
+#  * OSGeo 9.5
 #
 # To get started, install Linux and install git, and clone online-whatif:
 #
@@ -34,19 +34,52 @@ set -x
 #
 # https://github.com/AURIN/online-whatif/blob/master/INSTALL.md
 #
-#set -x
-initial_pwd="`pwd`"
 
-#if [[ $EUID -ne 0 ]]; then
-#	echo "This script must be run as root" 1>&2
-#	exit 1
-#fi
+if [[ $EUID -ne 0 ]]; then
+	echo "This script must be run as root" 1>&2
+	exit 1
+fi
 
-echo Updating OS packages and installing basic dependencies
-sudo apt-get update && sudo apt-get dist-upgrade -y
+show_help() {
+cat << EOF
+Usage: ${0##*/} [-he]
+Install AURIN Online WhatIf on OSGeo.  More information on installing Online
+WhatIf is available at: https://github.com/AURIN/online-whatif/blob/master/INSTALL.md
+
+    -h    Display this help and exit
+    -e    Install optional email dependencies for Workbench Auth.  These
+              are necessary for creating new users for Online WhatIf.
+    -s    Build war files from source.  Otherwise, install from binary release.
+
+EOF
+}
+
+email_deps=0
+build_source=0
+
+OPTIND=1
+while getopts "hes" opt; do
+    case "$opt" in
+        h)
+            show_help
+            exit 0
+            ;;
+        e)  email_deps=1
+            ;;
+        s)  build_source=1
+            ;;
+        '?')
+            show_help >&2
+            exit 1
+            ;;
+    esac
+done
+shift "$((OPTIND-1))" # Shift off the options and optional --.
+
 sudo apt-get install -y couchdb pwgen
 
 # Set all variables and passwords (you may update these to your liking)
+export initial_pwd="`pwd`"
 export pg_user=whatif
 export pg_pass=`pwgen -n 16 -N 1`
 export PGPASSWORD=$pg_pass # PGPASSWORD is the variable that pg_dump and pg_restore look for
@@ -62,6 +95,7 @@ export auth_pass=`pwgen -n 16 -N 1`
 export auth_db=envisiondb
 export email_user=admin
 export email_pass=`pwgen -n 16 -N 1`
+export user1=`getent passwd 1000 |cut -d ':' -f 1` # assume uid 1000 for running geoserver
 
 # if we've run before, get the passwords from the config files
 if [ -f /etc/aurin/whatif-combined.properties ]
@@ -312,7 +346,6 @@ wif.ui.mapprintURL=http://localhost:3000/print/
 EOF"
 fi
 
-# Install the authentication system
 # XXX need to check for db presence first
 if ! sudo -u postgres psql -lqt | cut -d \| -f 1 | grep -w "$auth_db" > /dev/null
 then
@@ -324,81 +357,93 @@ create extension postgis;
 \q
 EOF
 	sudo -u postgres psql $auth_db -f ../db/structure.sql
+	sed "s/##user##/$user1/; s/##hostname##/$hostname/" ../db/users_osgeo.sql | sudo cat sudo -u postgres psql $auth_db
 fi
-
-# Set up SMTP daemon for sending email to new users
-if ! dpkg -s postfix |grep Status |grep -q installed
-then
-	sudo bash -c "debconf-set-selections <<< \"postfix postfix/mailname string $hostname\"
-	debconf-set-selections <<< \"postfix postfix/main_mailer_type string 'Internet Site'\""
-	sudo apt-get install -y postfix
-fi
-#XXX need to make it not prompt about self-signed cert
-if ! dpkg -s dovecot-core |grep Status |grep -q installed
-then
-	sudo bash -c "debconf-set-selections <<< \"dovecot-core dovecot-core/create-ssl-cert boolean true\"
-	debconf-set-selections <<< \"dovecot-core dovecot-core/ssl-cert-name string $hostname\"
-	debconf-set-selections <<< \"ssl-cert make-ssl-cert/hostname string $hostname\""
-	sudo apt-get install -y dovecot-core
-fi
-
-# Enable the submission service
-if ! grep -q "^submission" /etc/postfix/master.cf
-then
-	conf="submission     inet  n       -       -       -       -       smtpd
+	
+# Install the email dependencies for the Workbenchauth authentication system
+install_email_deps() {
+	# Set up SMTP daemon for sending email to new users
+	if ! dpkg -s postfix |grep Status |grep -q installed
+	then
+		sudo bash -c "debconf-set-selections <<< \"postfix postfix/mailname string $hostname\"
+		debconf-set-selections <<< \"postfix postfix/main_mailer_type string 'Internet Site'\""
+		sudo apt-get install -y postfix
+	fi
+	#XXX need to make it not prompt about self-signed cert
+	if ! dpkg -s dovecot-core |grep Status |grep -q installed
+	then
+		sudo bash -c "debconf-set-selections <<< \"dovecot-core dovecot-core/create-ssl-cert boolean true\"
+		debconf-set-selections <<< \"dovecot-core dovecot-core/ssl-cert-name string $hostname\"
+		debconf-set-selections <<< \"ssl-cert make-ssl-cert/hostname string $hostname\""
+		sudo apt-get install -y dovecot-core
+	fi
+	
+	# Enable the submission service
+	if ! grep -q "^submission" /etc/postfix/master.cf
+	then
+		conf="submission     inet  n       -       -       -       -       smtpd
   -o syslog_name=postfix/smtps
   -o smtpd_tls_wrappermode=no
   -o smtpd_sasl_auth_enable=yes
   -o smtpd_client_restrictions=permit_sasl_authenticated,reject
   -o milter_macro_daemon_name=ORIGINATING
   -o smtpd_reject_unlisted_sender=yes"
-	conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
-	conf=$(echo "$conf" | sed -e 's/$/\\/g') # escape newlines
-	sudo sed -i "s/#submission/${conf} \n#submission/" /etc/postfix/master.cf
-fi
-
-#Set up dovecot to allow user authentication within postfix.
-if ! grep -q "[^#]unix_listener /var/spool/postfix/private/auth" /etc/dovecot/conf.d/10-master.conf
-then
-	conf="  # Postfix smtp-auth
+		conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
+		conf=$(echo "$conf" | sed -e 's/$/\\/g') # escape newlines
+		sudo sed -i "s/#submission/${conf} \n#submission/" /etc/postfix/master.cf
+	fi
+	
+	#Set up dovecot to allow user authentication within postfix.
+	if ! grep -q "[^#]unix_listener /var/spool/postfix/private/auth" /etc/dovecot/conf.d/10-master.conf
+	then
+		conf="  # Postfix smtp-auth
   unix_listener /var/spool/postfix/private/auth {
     mode = 0660
     user = postfix
     group = postfix
   }"
-	conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
-	conf=$(echo "$conf" | sed -e 's/$/\\/g') # escape newlines
-	sudo sed -i "s/  # Auth process is run as this user./${conf} \n  # Auth process is run as this user./" /etc/dovecot/conf.d/10-master.conf
-fi
-
-# Set up auth
-sudo sed -i "s/#disable_plaintext_auth = yes/disable_plaintext_auth = yes/" /etc/dovecot/conf.d/10-auth.conf
-sudo sed -i "s/#auth_username_format = %Lu/auth_username_format = %n/" /etc/dovecot/conf.d/10-auth.conf
-sudo sed -i "s/^auth_mechanisms.*/auth_mechanisms = plain/" /etc/dovecot/conf.d/10-auth.conf
-
-# Connect postfix and dovecot
-if ! grep -q "smtpd_sasl_auth_enable = yes" /etc/postfix/main.cf
-then
-	conf="smtpd_sasl_auth_enable = yes
+		conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
+		conf=$(echo "$conf" | sed -e 's/$/\\/g') # escape newlines
+		sudo sed -i "s/  # Auth process is run as this user./${conf} \n  # Auth process is run as this user./" /etc/dovecot/conf.d/10-master.conf
+	fi
+	
+	# Set up email auth
+	sudo sed -i "s/#disable_plaintext_auth = yes/disable_plaintext_auth = yes/" /etc/dovecot/conf.d/10-auth.conf
+	sudo sed -i "s/#auth_username_format = %Lu/auth_username_format = %n/" /etc/dovecot/conf.d/10-auth.conf
+	sudo sed -i "s/^auth_mechanisms.*/auth_mechanisms = plain/" /etc/dovecot/conf.d/10-auth.conf
+	
+	# Connect postfix and dovecot
+	if ! grep -q "smtpd_sasl_auth_enable = yes" /etc/postfix/main.cf
+	then
+		conf="smtpd_sasl_auth_enable = yes
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 smtpd_sasl_authenticated_header = no
 smtpd_sasl_security_options = noanonymous
 smtpd_sasl_local_domain =
 broken_sasl_auth_clients = yes"
-	conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
-	conf=$(echo "$conf" | sed -e 's/$/\\/g') # escape newlines
-	sudo sed -i "s/inet_protocols = all/inet_protocols = all\n${conf} /" /etc/postfix/main.cf
+		conf=$(echo "$conf" | sed -e 's/[]\/$*.^|[]/\\&/g') # encode config file for sed
+		conf=$(echo "$conf" | sed -e 's/$/\\/g') # escape newlines
+		sudo sed -i "s/inet_protocols = all/inet_protocols = all\n${conf} /" /etc/postfix/main.cf
+	fi
+	
+	# Create a linux user to send/receive email:
+	if ! getent passwd $email_user 2>&1 >/dev/null
+	then
+		sudo adduser $email_user --gecos "User Administration" --disabled-password
+		sudo bash -c "chpasswd << END
+	$email_user:$email_pass
+	END"
+	fi
+}
+
+# install email dependencies for Workbenchauth if requested
+if [[ email_deps -eq 1 ]]
+then
+	install_email_deps();
 fi
 
-# Create a linux user to send/receive email:
-if ! getent passwd $email_user 2>&1 >/dev/null
-then
-	sudo adduser $email_user --gecos "User Administration" --disabled-password
-	sudo bash -c "chpasswd << END
-$email_user:$email_pass
-END"
-fi
+#XXX Create whatif users
 
 #Create config file for auth system
 if [ ! -e /etc/aurin/envision-combined.properties ]
@@ -440,54 +485,64 @@ EOF"
 fi
 
 # Build and deploy the war files
+build_war_files() {
+	# Install the build dependencies
+	sudo apt-get -y install git tig maven default-jdk
 
-# Install the build dependencies
-sudo apt-get -y install git tig maven default-jdk
+	# Clone the source and build
+	mkdir -p dependencies && cd dependencies
+	if [ ! -e online-whatif-ui ]
+	then
+		git clone https://github.com/AURIN/online-whatif-ui.git
+	fi
+	if [ ! -e workbenchauth ]
+	then
+		git clone https://github.com/AURIN/workbenchauth.git
+	fi
+	export AURIN_DIR="/etc/aurin"
+	export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre
+	if [ ! -f workbenchauth/target/workbenchauth-1.0.0.war ]
+	then
+		cd workbenchauth
+		mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
+		cd ..
+	fi
+	if [ ! -f online-whatif-ui/target/whatif-1.0.war ]
+	then
+		cd online-whatif-ui
+		mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
+		cd ..
+	fi
+	if [ ! -f ${initial_pwd}/../target/aurin-wif-1.0.war ]
+	then
+		cd "$initial_pwd/.."
+		mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
+		cd "$initial_pwd"
+	fi
 
-# Clone the source and build
-mkdir -p dependencies && cd dependencies
-if [ ! -e online-whatif-ui ]
-then
-	git clone https://github.com/AURIN/online-whatif-ui.git
-fi
-if [ ! -e workbenchauth ]
-then
-	git clone https://github.com/AURIN/workbenchauth.git
-fi
-export AURIN_DIR="/etc/aurin"
-export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre
-if [ ! -f workbenchauth/target/workbenchauth-1.0.0.war ]
-then
-	cd workbenchauth
-	mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
-	cd ..
-fi
-if [ ! -f online-whatif-ui/target/whatif-1.0.war ]
-then
-	cd online-whatif-ui
-	mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
-	cd ..
-fi
-if [ ! -f ${initial_pwd}/../target/aurin-wif-1.0.war ]
-then
-	cd "$initial_pwd/.."
-	mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
+	# Deploy the war files
 	cd "$initial_pwd"
-fi
+	sudo cp dependencies/workbenchauth/target/workbenchauth-1.0.0.war /var/lib/tomcat7/webapps/workbenchauth.war
+	sudo cp dependencies/online-whatif-ui/target/whatif-1.0.war /var/lib/tomcat7/webapps/whatif.war
+	sudo cp ../target/aurin-wif-1.0.war /var/lib/tomcat7/webapps/aurin-wif.war
+}
 
-# Deploy the war files
-cd "$initial_pwd"
-sudo cp dependencies/workbenchauth/target/workbenchauth-1.0.0.war /var/lib/tomcat7/webapps/workbenchauth.war
-sudo cp dependencies/online-whatif-ui/target/whatif-1.0.war /var/lib/tomcat7/webapps/whatif.war
-sudo cp ../target/aurin-wif-1.0.war /var/lib/tomcat7/webapps/aurin-wif.war
+if [[ build_source -eq 1 ]]
+then
+	build_war_files()
+else
+	# XXX download and install war files from github release tag
+fi
 
 # Ensure that the self-signed SSL certificate is trusted by java
 sudo "$initial_pwd"/refresh-java-keystore.sh
 
 # Restart relevant services
-sudo service dovecot restart
-sudo service postfix restart
-sudo service postgresql restart
-sudo service couchdb restart
-sudo service tomcat7 restart
-sudo service apache2 restart
+services="dovecot postfix postgresql couchdb tomcat7 apache2"
+for service in $services
+do
+	if dpkg -l |awk '{ print $2 }' |grep "\^${service}\$" > /dev/null
+	then
+		sudo service $service restart
+	fi
+done
