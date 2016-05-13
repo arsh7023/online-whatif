@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Type=Application
+Name=OnlineWhatIf
+Comment=View OnlineWhatIf application in browser
+Categories=Geospatial;Geoclients;
+Exec=sensible-browser https://##hostname##/whatif
+Icon=/usr/share/icons/AURIN_Workbench.png
+Terminal=false
+StartupNotify=false

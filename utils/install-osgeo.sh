@@ -580,6 +580,24 @@ fi
 # Ensure that the self-signed SSL certificate is trusted by java
 sudo "$script_dir"/refresh-java-keystore.sh
 
+# Add the password to the passwords.txt file
+if ! grep -q OnlineWhatIf /home/$user1/Desktop/passwords.txt
+then
+	sed -i '/^\s*$/d' /home/$user1/Desktop/passwords.txt # delete blank lines
+	echo "OnlineWhatIf,$user1@$hostname,aurin" >> /home/$user1/Desktop/passwords.txt
+fi
+
+# Add icon to the main menu
+if [[ ! -f /usr/local/share/applications/osgeo-onlinewhatif.desktop ]]
+then
+	cp "$script_dir"/../resources/AURIN_Workbench.png /usr/share/icons/
+	cp "$script_dir"/../resources/OnlineWhatIf-{start,stop}.desktop /usr/local/share/applications/
+	sed -i "s/##hostname##/$hostname/" /usr/local/share/applications/OnlineWhatIf-{start,stop}.desktop
+	sed -i "s/##hostname##/$hostname/" /usr/local/share/applications/osgeo-onlinewhatif.desktop
+	cp "$script_dir"/../resources/OnlineWhatIf-{start,stop}.sh /usr/local/bin/
+	lxpanelctl restart
+fi
+
 # Restart relevant services
 services="dovecot postfix postgresql couchdb tomcat7 apache2"
 for service in $services

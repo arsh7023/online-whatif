@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=Stop Online WhatIf
+Comment=The Online WhatIf GIS-based planning support system tool
+Categories=Application;Geography;Geoscience;
+Exec=/usr/local/bin/OnlineWhatIf-stop.sh
+Icon=/usr/local/share/icons/AURIN_Workbench.png
+Terminal=false
