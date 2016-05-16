@@ -6,6 +6,6 @@ Name=OnlineWhatIf
 Comment=View OnlineWhatIf application in browser
 Categories=Geospatial;Geoclients;
 Exec=sensible-browser https://##hostname##/whatif
-Icon=/usr/share/icons/AURIN_Workbench.png
+Icon=/usr/local/share/icons/AURIN_Workbench.png
 Terminal=false
 StartupNotify=false
