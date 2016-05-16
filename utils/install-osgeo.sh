@@ -95,7 +95,7 @@ then
 fi
 
 # Set all variables and passwords (you may update these to your liking)
-export github_release=v1.0.0-alpha.1
+export github_release=v1.0.0-alpha.2
 export script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # directory that contains the script
 export pg_user=whatif
 export pg_pass=`pwgen -n 16 -N 1`
@@ -181,7 +181,7 @@ sudo -u $user1 /usr/local/lib/geoserver-2.8.2/bin/shutdown.sh > /dev/null 2>&1
 sudo -u $user1 /usr/local/lib/geoserver-2.8.2/bin/startup.sh > /dev/null 2>&1 &
 
 echo -n "waiting for geoserver to start"
-until curl -s "http://localhost:8082/geoserver/web/" |grep "<title>GeoServer: Welcome</title>"
+until curl -s "http://localhost:8082/geoserver/web/" |grep -q "<title>GeoServer: Welcome</title>"
 do 
 	sleep 2
 done
@@ -195,11 +195,11 @@ then
   <prefix>$workspace</prefix>
   <uri>$namespace_uri</uri>
 </namespace>"
-	curl -s -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" http://localhost:8082/geoserver/rest/namespaces
+	curl -s -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" http://localhost:8082/geoserver/rest/namespaces > /dev/null
 fi
 
 # create a new datastore
-if ! curl -s -v -u "admin:$geoserver_master_pw" -XGET -H "Accept: text/xml" -H "Content-type: text/xml" http://localhost:8082/geoserver/rest/workspaces/$workspace/datastores.xml |grep -q "<name>$datastore</name>"
+if ! curl -s -v -u "admin:$geoserver_master_pw" -XGET -H "Accept: text/xml" -H "Content-type: text/xml" http://localhost:8082/geoserver/rest/workspaces/$workspace/datastores.xml 2>/dev/null |grep -q "<name>$datastore</name>"
 then
 	xml="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <dataStore>
@@ -236,7 +236,7 @@ then
     <entry key=\"user\">$pg_user</entry>
   </connectionParameters>
 </dataStore>"
-	curl -s -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" "http://localhost:8082/geoserver/rest/workspaces/$workspace/datastores"
+	curl -s -v -u "admin:$geoserver_master_pw" -XPOST -H "Content-type: text/xml" -d "$xml" "http://localhost:8082/geoserver/rest/workspaces/$workspace/datastores" > /dev/null
 fi
 
 # Configure the apache reverse proxy
@@ -568,7 +568,9 @@ else
 	do
 		if [[ ! -f "$script_dir/download/$file" ]]
 		then
-			sudo -u $user1 curl -s -o "$script_dir/download/$file" "https://github.com/AURIN/online-whatif/releases/download/$github_release/$file"
+			echo -n "downloading $file"
+			sudo -u $user1 curl -s -o "$script_dir/download/$file" -L "https://github.com/AURIN/online-whatif/releases/download/$github_release/$file"
+			echo "."
 		fi
 	done
 
