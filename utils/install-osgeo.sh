@@ -95,7 +95,7 @@ then
 fi
 
 # Set all variables and passwords (you may update these to your liking)
-export github_release=v1.0.0-alpha.2
+export github_release=v1.0.0-alpha.3
 export script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # directory that contains the script
 export pg_user=whatif
 export pg_pass=`pwgen -n 16 -N 1`
