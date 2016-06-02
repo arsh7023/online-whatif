@@ -525,31 +525,26 @@ function build_war_files {
 	if [ ! -e online-whatif-ui ]
 	then
 		sudo -u $user1 git clone https://github.com/AURIN/online-whatif-ui.git
+	else
+		( cd online-whatif-ui && git pull )
 	fi
 	if [ ! -e workbenchauth ]
 	then
 		sudo -u $user1 git clone https://github.com/AURIN/workbenchauth.git
+	else
+		( cd workbenchauth && git pull )
 	fi
 	export AURIN_DIR="/etc/aurin"
 	export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre
-	if [ ! -f workbenchauth/target/workbenchauth-1.0.0.war ]
-	then
-		cd workbenchauth
-		sudo -u $user1 mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
-		cd ..
-	fi
-	if [ ! -f online-whatif-ui/target/whatif-1.0.war ]
-	then
-		cd online-whatif-ui
-		sudo -u $user1 mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
-		cd ..
-	fi
-	if [ ! -f ${script_dir}/../target/aurin-wif-1.0.war ]
-	then
-		cd "$script_dir/.."
-		sudo -u $user1 mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
-		cd "$script_dir"
-	fi
+	cd workbenchauth
+	sudo -u $user1 mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
+	cd ..
+	cd online-whatif-ui
+	sudo -u $user1 mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
+	cd ..
+	cd "$script_dir/.."
+	sudo -u $user1 mvn clean package -Ddeployment=development -Dsystem=ali-dev -Daurin.dir=$AURIN_DIR
+	cd "$script_dir"
 
 	# Deploy the war files
 	cd "$script_dir"
