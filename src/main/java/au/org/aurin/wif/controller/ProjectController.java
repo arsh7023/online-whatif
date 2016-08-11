@@ -4,6 +4,7 @@ import static au.org.aurin.wif.io.RestAPIConstants.HEADER_USER_ID_KEY;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1451,6 +1452,58 @@ public class ProjectController {
       throw new ParsingException(msg, e);
     }
     return out;
+  }
+
+  /**
+   * Gets the report projects.
+   *
+   * @param roleId
+   *          the role id
+   * @return the all projects
+   * @throws WifInvalidConfigException
+   *           the wif invalid config exception
+   * @throws WifInvalidInputException
+   *           the wif invalid input exception
+   * @throws NoSuchAuthorityCodeException
+   *           the no such authority code exception
+   * @throws FactoryException
+   *           the factory exception
+   * @throws TransformException
+   *           the transform exception
+   * @throws ParseException
+   *           the parse exception
+   * @throws CQLException
+   *           the cQL exception
+   */
+  @RequestMapping(method = RequestMethod.GET, value = "/getReportProjects")
+  @ResponseStatus(HttpStatus.OK)
+  public @ResponseBody
+  List<String> getReportProjects(
+      @RequestHeader(HEADER_USER_ID_KEY) final String roleId,
+      final HttpServletResponse response) throws WifInvalidConfigException,
+  WifInvalidInputException, NoSuchAuthorityCodeException, FactoryException,
+  TransformException, ParseException, CQLException {
+
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    response.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+    response.setHeader("Access-Control-Allow-Headers", HEADER_USER_ID_KEY);
+    response
+    .setHeader("Access-Control-Allow-Headers",
+        "Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+
+    LOGGER.info("*******>> getReportProjects");
+    final List<String> lst = new ArrayList<String>();
+    try {
+      final List<WifProject> prjs= projectService.getAllProjects(roleId);
+      for (final WifProject prj : prjs) {
+        final SimpleDateFormat mdyFormat = new SimpleDateFormat("dd/MM/yyyy");
+        lst.add(prj.getRoleOwner() + "|" + prj.getName() + "|" + mdyFormat.format(prj.getCreationDate()));
+      }
+      return lst;
+    } catch (final Exception e) {
+      LOGGER.error("getReportProjects failed {}");
+      throw new WifInvalidInputException("getReportProjects failed {}");
+    }
   }
 
 }
