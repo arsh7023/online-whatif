@@ -154,7 +154,7 @@ then
 	curl -v -u "admin:$geoserver_master_pw_initial" -XPUT -H "Content-type: text/xml" -d "$xml" http://localhost:8080/geoserver/rest/security/masterpw.xml
 	# update the admin password using the digest we just set for the master password (so the admin and master passwords will be the same).
 	master_digest=$(</var/lib/tomcat7/webapps/geoserver/data/security/masterpw.digest)
-	sed -i "s/^\s*<user.*name=\"admin\".*>/<user enabled=\"true\" name=\"admin\" password=\"$master_digest\"\/>/" /var/lib/tomcat7/webapps/geoserver/data/security/usergroup/default/users.xml
+	sed -i "s#^\s*<user.*name=\"admin\".*>#<user enabled=\"true\" name=\"admin\" password=\"$master_digest\"\/>#" /var/lib/tomcat7/webapps/geoserver/data/security/usergroup/default/users.xml
 fi
 
 # create a new workspace
