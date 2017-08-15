@@ -48,11 +48,11 @@ apt-get install -y tomcat7 postgresql postgis postgresql-9.3-postgis-2.1 couchdb
 # Set all variables and passwords (you may update these to your liking)
 pg_user=whatif
 pg_pass=`pwgen -n 16 -N 1`
-PGPASSWORD=$pg_pass # PGPASSWORD is the variable that pg_dump and pg_restore look for
+export PGPASSWORD=$pg_pass # PGPASSWORD is the variable that pg_dump and pg_restore look for
 database=whatif-development
 schema=wifdemo
-geoserver_download_url="http://internode.dl.sourceforge.net/project/geoserver/GeoServer/2.7.2/geoserver-2.7.2-war.zip"
-geoserver_file_name="geoserver-2.7.2-war.zip" # must end in .zip
+geoserver_download_url="https://versaweb.dl.sourceforge.net/project/geoserver/GeoServer/2.11.2/geoserver-2.11.2-war.zip"
+geoserver_file_name="geoserver-2.11.2-war.zip" # must end in .zip
 geoserver_master_pw_initial=geoserver
 geoserver_master_pw=`pwgen -n 16 -N 1`
 workspace=whatif
@@ -104,7 +104,7 @@ then
 fi
 
 # Create database
-if ! sudo -u postgres psql -lqt | cut -d \| -f 1 | grep -w whatif-development | wc -l > /dev/null
+if ! sudo -u postgres psql -lqt | cut -d \| -f 1 | grep -w whatif-development > /dev/null
 then
 	sudo -u postgres createuser -S -D -R $pg_user
 	sudo -u postgres psql -q -c "ALTER USER $pg_user WITH PASSWORD '$pg_pass';"
@@ -118,7 +118,7 @@ EOF
 fi
 
 # restore sample database.  Password is supplied in PGPASSWORD variable
-sudo pg_restore -Fc -U $pg_user -i -h localhost -p 5432 -d whatif-development $initial_pwd/../db/wanneroodump
+pg_restore -Fc -U $pg_user -i -h localhost -p 5432 -d whatif-development $initial_pwd/../db/wanneroodump
 
 # Deploy geoserver on Tomcat
 if [ ! -e /var/lib/tomcat7/webapps/geoserver.war ]
