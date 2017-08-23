@@ -256,8 +256,8 @@ then
 		ProxyPassReverse /aurin-wif/ ajp://localhost:8009/aurin-wif/
 
 		# HTTP proxy as AJP doesn't have sufficiently large GET request support
-		ProxyPass /geoserver http://localhost:8009/geoserver
-		ProxyPassReverse /geoserver http://localhost:8009/geoserver
+		ProxyPass /geoserver http://localhost:8080/geoserver
+		ProxyPassReverse /geoserver http://localhost:8080/geoserver
 
 		ProxyPass /workbenchauth ajp://localhost:8009/workbenchauth
 		ProxyPassReverse /workbenchauth ajp://localhost:8009/workbenchauth"
