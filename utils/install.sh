@@ -155,6 +155,9 @@ then
 	# update the admin password using the digest we just set for the master password (so the admin and master passwords will be the same).
 	master_digest=$(</var/lib/tomcat7/webapps/geoserver/data/security/masterpw.digest)
 	sed -i "s#^\s*<user.*name=\"admin\".*>#<user enabled=\"true\" name=\"admin\" password=\"$master_digest\"\/>#" /var/lib/tomcat7/webapps/geoserver/data/security/usergroup/default/users.xml
+	echo -n "wait for the new admin password to be picked up by geoserver"
+	for ii in {1..10} ; do echo -n '.' ; sleep 1 ; done
+	echo ''
 fi
 
 # create a new workspace
