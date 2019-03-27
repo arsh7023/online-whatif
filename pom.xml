@@ -67,14 +67,14 @@
 		<hibernate.version>3.6.9.Final</hibernate.version>
 		<testng.version>6.8.1</testng.version>
 		<surefire.version>2.15</surefire.version>
-		<jackson-annotations.version>[2.8.11.1,)</jackson-annotations.version>
+		<jackson-annotations.version>[2.7,2.8)</jackson-annotations.version>
 		<commons-io.version>2.0.1</commons-io.version>
 		<geotools.version>9.4</geotools.version>
 		<erktop.version>1.4.0</erktop.version>
 		<cglib.version>2.2.2</cglib.version>
 		<cargo.container.id>tomcat7x</cargo.container.id>
 		<tomcat.distribution.url>http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.40/bin/apache-tomcat-7.0.40.zip</tomcat.distribution.url>
-		<geoserver-manager.version>1.5.1</geoserver-manager.version>
+		<geoserver-manager.version>[1.7,1.8)</geoserver-manager.version>
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>

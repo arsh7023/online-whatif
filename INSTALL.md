@@ -174,16 +174,13 @@ We need to run command below to restore a sample table into the database. The du
 
 ### Deploy geoserver on Tomcat
 
-Update the links below to get the latest stable version from http://geoserver.org/
+If installing on Ubuntu 14.04 with Java 1.7, the latest supported release is GeoServer 2.8.3.
 
 	cd
-	wget -O geoserver-2.7.1-war.zip "http://downloads.sourceforge.net/project/geoserver/GeoServer/2.7.1/geoserver-2.7.1-war.zip?r=http%3A%2F%2Fgeoserver.org%2Frelease%2Fstable%2F&ts=1430895622&use_mirror=aarnet"
-	mkdir geoserver-2.7.1-war && cd geoserver-2.7.1-war
-	unzip ../geoserver-2.7.1-war.zip
-	sudo mv geoserver.war /var/lib/tomcat7/webapps/
-	sudo chown root:root /var/lib/tomcat7/webapps/geoserver.war 
-	cd ..
-	rm -r geoserver-2.7.1-war
+	wget -O geoserver-2.8.3-war.zip "http://downloads.sourceforge.net/project/geoserver/GeoServer/2.8.3/geoserver-2.8.3-war.zip"
+	unzip -d geoserver-2.8.3 geoserver-2.8.3-war.zip
+	sudo cp geoserver-2.8.3/geoserver.war /var/lib/tomcat7/webapps/
+	rm -r geoserver-2.8.3
 
 ### Configure the geoserver through its web interface
 
@@ -260,8 +257,8 @@ Add the following lines:
        	ProxyPassReverse /aurin-wif/ ajp://localhost:8009/aurin-wif/
 	
 	# HTTP proxy as AJP doesn't have sufficiently large GET request support
-       	ProxyPass /geoserver http://localhost:8009/geoserver
-       	ProxyPassReverse /geoserver http://localhost:8009/geoserver
+       	ProxyPass /geoserver http://localhost:8080/geoserver
+       	ProxyPassReverse /geoserver http://localhost:8080/geoserver
 	
        	ProxyPass /workbenchauth ajp://localhost:8009/workbenchauth
        	ProxyPassReverse /workbenchauth ajp://localhost:8009/workbenchauth
@@ -587,6 +584,15 @@ Login with the username and password from /etc/aurin/envision-combined.propertie
 * env.auth.adminPassword
 
 Click the "register" link and add a new user.  Ensure that you add the user to the organsiations that you want to use, Maroondah and Canning being the examples.  Add the user to the Whatif application and User role.  The user will be emailed a temporary password, it's probably best to reset this to something that is easier to remember (and that hasn't been emailed over the internet).
+
+#### Manual password reset
+
+If you can't receive email from the server, you'll need to reset users' passwords manually in the database.
+
+	sudo apt-get install apache2-utils
+	htpasswd -bnBC 10 "" '(password)' | tr -d ':' | sed 's/$2y/$2a/'
+	sudo -u postgres psql -d envisiondb
+	update public.users set password='(hash from htpasswd command)' where email='(user's email address)';
 
 ## Log in to WhatIf
 
