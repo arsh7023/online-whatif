@@ -15,7 +15,7 @@ Open the workbenchauth page in a web browser and create a new user:
 
 [https://example.com/workbenchauth](https://example.com/workbenchauth)
 
-Your temporary username and password will be emailed to you, or you can find it in the log file /var/log/tomcat7/catalina.out. Then log in to Online WhatIf:
+Your temporary username and password will be emailed to you, or you can find it in the log file /var/log/tomcat7/catalina.out.  You can also [manually reset the password](#manual-password-reset). Then log in to Online WhatIf:
 
 [https://example.com/whatif](https://example.com/whatif)
 
