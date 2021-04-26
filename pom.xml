@@ -68,7 +68,7 @@
 		<testng.version>6.8.1</testng.version>
 		<surefire.version>2.15</surefire.version>
 		<jackson-annotations.version>[2.7,2.8)</jackson-annotations.version>
-		<commons-io.version>2.0.1</commons-io.version>
+		<commons-io.version>2.7</commons-io.version>
 		<geotools.version>9.4</geotools.version>
 		<erktop.version>1.4.0</erktop.version>
 		<cglib.version>2.2.2</cglib.version>
