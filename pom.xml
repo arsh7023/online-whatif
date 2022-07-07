@@ -82,7 +82,7 @@
 		<sonar.jacoco.reportPath>target/jacoco.exec</sonar.jacoco.reportPath>
 		<sonar.jacoco.itReportPath>target/jacoco-it.exec</sonar.jacoco.itReportPath>
 		<sonar.language>java</sonar.language>
-		<org.springframework-version>3.1.4.RELEASE</org.springframework-version>
+		<org.springframework-version>3.2.4.RELEASE</org.springframework-version>
 	</properties>
 
 	<repositories>
